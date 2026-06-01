@@ -28,13 +28,11 @@ jobs:
 
       # Prerelease versions (`-dev`, `-rc`, …) publish under the `dev` dist-tag
       # so they never become `latest`; stable versions go to `latest`.
-      # Bootstrap uses NPM_TOKEN; switch to OIDC (drop the env line) once the
-      # Trusted Publisher is configured — see fancy-ui/docs/publishing.md.
+      # Tokenless via Trusted Publishing (OIDC) — authorized by `id-token: write`
+      # above + the npm Trusted Publisher config. No secrets.
       - name: Publish
         run: |
           VERSION=$(node -p "require('./package.json').version")
           if [[ "$VERSION" == *-* ]]; then TAG=dev; else TAG=latest; fi
           echo "Publishing $VERSION under dist-tag '$TAG'"
           npx -y npm@latest publish --provenance --access public --tag "$TAG"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
