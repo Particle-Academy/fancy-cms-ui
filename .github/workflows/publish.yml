@@ -1,0 +1,40 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # Prerelease versions (`-dev`, `-rc`, …) publish under the `dev` dist-tag
+      # so they never become `latest`; stable versions go to `latest`.
+      # Bootstrap uses NPM_TOKEN; switch to OIDC (drop the env line) once the
+      # Trusted Publisher is configured — see fancy-ui/docs/publishing.md.
+      - name: Publish
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [[ "$VERSION" == *-* ]]; then TAG=dev; else TAG=latest; fi
+          echo "Publishing $VERSION under dist-tag '$TAG'"
+          npx -y npm@latest publish --provenance --access public --tag "$TAG"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

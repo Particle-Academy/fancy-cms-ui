@@ -1,0 +1,73 @@
+{
+  "id": "canonical",
+  "seq": 0,
+  "meta": { "title": "Canonical", "slug": "/", "scrollMode": "smooth" },
+  "theme": { "name": "default" },
+  "breakpoints": ["base", "md", "lg"],
+  "sections": ["hero", "body"],
+  "nodes": {
+    "hero": {
+      "id": "hero",
+      "type": "section",
+      "parent": null,
+      "order": "a",
+      "layout": "free",
+      "style": { "base": { "background": "#0f172a", "padding": { "value": 48, "unit": "px" } } }
+    },
+    "logo": {
+      "id": "logo",
+      "type": "image",
+      "parent": "hero",
+      "order": "a",
+      "constraints": {
+        "base": {
+          "centerX": true,
+          "top": { "value": 24, "unit": "px" },
+          "width": { "value": 160, "unit": "px" },
+          "height": { "value": 160, "unit": "px" }
+        }
+      },
+      "style": { "base": { "radius": { "value": 12, "unit": "px" } } }
+    },
+    "title": {
+      "id": "title",
+      "type": "text",
+      "parent": "hero",
+      "order": "b",
+      "constraints": {
+        "base": { "left": { "value": 8, "unit": "%" }, "top": { "value": 200, "unit": "px" }, "width": "fill", "height": "hug" }
+      },
+      "props": { "content": "Fancy CMS" },
+      "style": {
+        "base": { "color": "#ffffff", "fontSize": { "value": 48, "unit": "px" }, "fontWeight": 700, "textAlign": "center", "lineHeight": 1.1 },
+        "md": { "fontSize": { "value": 72, "unit": "px" } }
+      }
+    },
+    "body": {
+      "id": "body",
+      "type": "section",
+      "parent": null,
+      "order": "b",
+      "layout": "stack",
+      "style": {
+        "base": { "direction": "column", "gap": { "value": 16, "unit": "px" }, "padding": { "value": 32, "unit": "px" }, "align": "center", "background": "#ffffff" }
+      }
+    },
+    "grid": {
+      "id": "grid",
+      "type": "grid",
+      "parent": "body",
+      "order": "a",
+      "layout": "grid",
+      "style": { "base": { "columns": 3, "gap": { "value": 24, "unit": "px" } }, "lg": {} }
+    },
+    "card": {
+      "id": "card",
+      "type": "image",
+      "parent": "grid",
+      "order": "a",
+      "island": true,
+      "style": { "base": { "opacity": 0.5, "boxShadow": "0 4px 12px rgba(0,0,0,0.1)" } }
+    }
+  }
+}
