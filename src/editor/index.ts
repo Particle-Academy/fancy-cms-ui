@@ -6,6 +6,7 @@
  * here for authoring.
  */
 export { Editor, type EditorProps } from "./Editor";
+export { EditablePage, type EditablePageProps } from "./EditablePage";
 export { Canvas, type CanvasProps } from "./Canvas";
 export { LayersPanel, type LayersPanelProps } from "./LayersPanel";
 export { Inspector, type InspectorProps } from "./Inspector";

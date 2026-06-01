@@ -27,7 +27,11 @@ export function RenderNode({ doc, id, registry = defaultRegistry }: RenderNodePr
   const inner = renderer ? renderer({ node, doc, children: kids }) : node.island ? null : kids;
 
   return (
-    <div data-cms={node.id} data-cms-island={node.island ? node.type : undefined}>
+    <div
+      data-cms={node.id}
+      data-cms-island={node.island ? node.type : undefined}
+      className={node.className}
+    >
       {inner}
     </div>
   );

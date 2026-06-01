@@ -142,6 +142,12 @@ export interface Node {
   actions?: Action[];
   /** Repeater: render this node once per item of a bound array. */
   repeat?: { each: Binding; as: string };
+  /**
+   * Host CSS class(es) applied to the node's element. The migration enabler:
+   * reuse the host site's existing stylesheet for pixel-perfect reproduction
+   * instead of re-deriving every rule through {@link StyleProps}.
+   */
+  className?: string;
   /** Derived from the addon manifest — interactive/3rd-party ⇒ hydration island. */
   island?: boolean;
 }
