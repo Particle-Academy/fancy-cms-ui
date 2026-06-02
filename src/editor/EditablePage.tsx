@@ -111,26 +111,24 @@ export function EditablePage({
 
   // Scroll = the timeline playhead. Report progress (0..1) across the scroll
   // canvas so the host can drive the morph from real scrolling (not the dock).
+  // Measure synchronously in the scroll handler — NOT via requestAnimationFrame.
+  // rAF is throttled or fully suspended in hidden/background tabs, which silently
+  // freezes the playhead at 0; a direct getBoundingClientRect on one element per
+  // scroll event is cheap and always fires.
   useEffect(() => {
     const spacer = spacerRef.current;
     if (!spacer || !onProgress) return;
-    let raf = 0;
     const compute = () => {
-      raf = 0;
       const len = spacer.offsetHeight - window.innerHeight;
       const top = spacer.getBoundingClientRect().top;
       onProgress(len > 0 ? Math.min(1, Math.max(0, -top / len)) : 0);
     };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(compute);
-    };
     compute();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("scroll", compute, { passive: true });
+    window.addEventListener("resize", compute);
     return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", compute);
+      window.removeEventListener("resize", compute);
     };
   }, [onProgress, frames]);
 
