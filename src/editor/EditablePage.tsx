@@ -6,6 +6,7 @@ import {
   useState,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactElement,
   type ReactNode,
 } from "react";
@@ -16,12 +17,25 @@ import { CmsPage } from "../react/CmsPage";
 import { defaultRegistry, type ElementRegistry } from "../react/registry";
 import { useEditor } from "./useEditor";
 
+/** Animatable per-node transform (mirrors fancy-motion's NodeState, kept local to avoid a hard dep). */
+export interface NodeTransform {
+  x?: number;
+  y?: number;
+  scale?: number;
+  opacity?: number;
+}
+
 export interface EditablePageProps {
-  /** Seeded document (read-only demo: edits are in-memory, never persisted). */
   doc: PageDoc;
   registry?: ElementRegistry;
   /** Slot for the fancy-motion timeline dock (rendered at the bottom in EditMode). */
   timelineDock?: ReactNode;
+  /** Per-node transforms applied to the page (e.g. the sampled keyframe snapshot). */
+  transforms?: Record<string, NodeTransform>;
+  /** Fired when the user moves/resizes a node — the host writes it into the current keyframe. */
+  onNodeTransform?: (id: string, transform: NodeTransform) => void;
+  /** Notifies the host of the current selection (e.g. to sync the timeline). */
+  onSelect?: (id: string | null) => void;
 }
 
 interface Box {
@@ -34,16 +48,18 @@ interface Box {
 const Z = 2147483000;
 
 /**
- * Inline EditMode over a live, seeded CMS page. The Edit affordance is hidden
- * until you hold **Ctrl+Shift** (reveal gesture). Editing is **on the page**:
- * text is edited in place (contentEditable) and a compact **floating toolbar**
- * (dark, dark-mode-safe) sits above the selection for styling — no side flyout.
- * Read-only: edits live in memory, never saved.
+ * Inline EditMode over a live, seeded CMS page. Hold **Ctrl+Shift** to reveal
+ * the Edit toggle. Editing is on the page: text is edited in place, a floating
+ * toolbar styles it, and the selection can be **dragged to move** / **resized**
+ * — committed as transforms the host captures into a timeline keyframe.
  */
 export function EditablePage({
   doc,
   registry = defaultRegistry,
   timelineDock,
+  transforms,
+  onNodeTransform,
+  onSelect,
 }: EditablePageProps): ReactElement {
   const ed = useEditor(doc);
   const [editing, setEditing] = useState(false);
@@ -53,7 +69,9 @@ export function EditablePage({
   const { selection } = ed.state;
   const selNode = selection ? ed.state.doc.nodes[selection] : null;
 
-  // Ctrl+Shift reveal gesture for the Edit affordance.
+  useEffect(() => onSelect?.(selection), [selection, onSelect]);
+
+  // Ctrl+Shift reveal gesture.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => setRevealed(e.ctrlKey && e.shiftKey);
     const onBlur = () => setRevealed(false);
@@ -67,40 +85,50 @@ export function EditablePage({
     };
   }, []);
 
-  // Track the selection box (fixed-positioned, follows scroll/resize).
-  useLayoutEffect(() => {
-    if (!editing || !selection || !pageRef.current) {
-      setBox(null);
-      return;
-    }
-    const update = () => {
-      const el = pageRef.current?.querySelector(`[data-cms="${cssEscape(selection)}"]`);
-      if (!el) return setBox(null);
-      const r = el.getBoundingClientRect();
-      setBox({ x: r.left, y: r.top, w: r.width, h: r.height });
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, [editing, selection, ed.state.doc]);
-
-  // Inline contentEditable: when a text node is selected, make its element
-  // editable in place; commit to the doc on blur (so React doesn't fight the caret).
+  // Apply host-provided transforms to the page elements.
   useEffect(() => {
-    if (!editing || !selection || !pageRef.current) return;
-    if (selNode?.type !== "text") return;
+    const root = pageRef.current;
+    if (!root) return;
+    root.querySelectorAll<HTMLElement>("[data-cms]").forEach((el) => {
+      const id = el.dataset.cms;
+      const t = id ? transforms?.[id] : undefined;
+      if (t) {
+        el.style.transform = `translate3d(${t.x ?? 0}px, ${t.y ?? 0}px, 0) scale(${t.scale ?? 1})`;
+        el.style.opacity = t.opacity != null ? String(t.opacity) : "";
+      } else {
+        el.style.transform = "";
+        el.style.opacity = "";
+      }
+    });
+  }, [transforms, ed.state.doc]);
+
+  const measureBox = useCallback(() => {
+    if (!editing || !selection || !pageRef.current) return setBox(null);
+    const el = pageRef.current.querySelector(`[data-cms="${cssEscape(selection)}"]`);
+    if (!el) return setBox(null);
+    const r = el.getBoundingClientRect();
+    setBox({ x: r.left, y: r.top, w: r.width, h: r.height });
+  }, [editing, selection]);
+
+  useLayoutEffect(() => {
+    measureBox();
+    window.addEventListener("scroll", measureBox, { passive: true });
+    window.addEventListener("resize", measureBox);
+    return () => {
+      window.removeEventListener("scroll", measureBox);
+      window.removeEventListener("resize", measureBox);
+    };
+  }, [measureBox, ed.state.doc, transforms]);
+
+  // Inline contentEditable for text nodes.
+  useEffect(() => {
+    if (!editing || !selection || !pageRef.current || selNode?.type !== "text") return;
     const el = pageRef.current.querySelector<HTMLElement>(`[data-cms="${cssEscape(selection)}"]`);
     if (!el) return;
     el.setAttribute("contenteditable", "true");
     el.style.outline = "none";
     el.focus();
-    const commit = () => {
-      ed.apply({ t: "set_props", id: selection, patch: { content: el.innerText } });
-    };
+    const commit = () => ed.apply({ t: "set_props", id: selection, patch: { content: el.innerText } });
     el.addEventListener("blur", commit);
     return () => {
       el.removeEventListener("blur", commit);
@@ -112,7 +140,6 @@ export function EditablePage({
     if (!editing) return;
     const el = (e.target as HTMLElement).closest("[data-cms]");
     if (el) {
-      // let an already-editing text element keep the caret on its own clicks
       if (el.getAttribute("contenteditable") === "true") return;
       e.preventDefault();
       e.stopPropagation();
@@ -125,10 +152,7 @@ export function EditablePage({
     const siblings = childrenOf(ed.state.doc, parent);
     const order = keyBetween(siblings.length ? siblings[siblings.length - 1]!.order : null, null);
     const id = `n${ed.state.doc.seq + 1}-${Math.floor(performance.now())}`;
-    ed.apply({
-      t: "insert_node",
-      node: { id, type: "text", parent, order, props: { content: "New text" }, style: { base: { color: "inherit" } } },
-    });
+    ed.apply({ t: "insert_node", node: { id, type: "text", parent, order, props: { content: "New text" }, style: { base: { color: "inherit" } } } });
     ed.select(id);
   }, [ed, selNode]);
 
@@ -141,29 +165,21 @@ export function EditablePage({
         <CmsPage doc={ed.state.doc} registry={registry} />
       </div>
 
-      {/* selection outline */}
-      {editing && box ? (
-        <div
-          style={{
-            position: "fixed",
-            left: box.x - 1,
-            top: box.y - 1,
-            width: box.w + 2,
-            height: box.h + 2,
-            outline: "2px solid #8b5cf6",
-            borderRadius: 4,
-            pointerEvents: "none",
-            zIndex: Z,
-          }}
+      {editing && box && selection ? (
+        <SelectionOverlay
+          box={box}
+          base={transforms?.[selection] ?? {}}
+          movable={Boolean(onNodeTransform)}
+          getEl={() => pageRef.current?.querySelector<HTMLElement>(`[data-cms="${cssEscape(selection)}"]`) ?? null}
+          onTransform={(t) => onNodeTransform?.(selection, t)}
+          onLive={measureBox}
         />
       ) : null}
 
-      {/* floating toolbar above the selection (dark — dark-mode safe) */}
       {editing && box && selNode ? (
         <FloatingToolbar box={box} isText={selNode.type === "text"} base={selNode.style.base} setStyle={setStyle} />
       ) : null}
 
-      {/* reveal-gated edit affordance / toolbar */}
       {revealed || editing ? (
         <EditBar
           editing={editing}
@@ -179,10 +195,106 @@ export function EditablePage({
         />
       ) : null}
 
-      {editing && timelineDock ? (
-        <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: Z }}>{timelineDock}</div>
-      ) : null}
+      {editing && timelineDock ? <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: Z }}>{timelineDock}</div> : null}
     </div>
+  );
+}
+
+function SelectionOverlay({
+  box,
+  base,
+  movable,
+  getEl,
+  onTransform,
+  onLive,
+}: {
+  box: Box;
+  base: NodeTransform;
+  movable: boolean;
+  getEl: () => HTMLElement | null;
+  onTransform: (t: NodeTransform) => void;
+  onLive: () => void;
+}): ReactElement {
+  const drag = useRef<{ kind: "move" | "resize"; x: number; y: number; w: number; live: NodeTransform } | null>(null);
+
+  const apply = (t: NodeTransform) => {
+    const el = getEl();
+    if (el) {
+      el.style.transform = `translate3d(${t.x ?? 0}px, ${t.y ?? 0}px, 0) scale(${t.scale ?? 1})`;
+      el.style.opacity = t.opacity != null ? String(t.opacity) : "";
+    }
+  };
+
+  const start = (kind: "move" | "resize") => (e: ReactPointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = { kind, x: e.clientX, y: e.clientY, w: box.w, live: { ...base } };
+  };
+  const move = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d) return;
+    if (d.kind === "move") {
+      d.live = { ...base, x: (base.x ?? 0) + (e.clientX - d.x), y: (base.y ?? 0) + (e.clientY - d.y) };
+    } else {
+      const factor = Math.max(0.1, (d.w + (e.clientX - d.x)) / d.w);
+      d.live = { ...base, scale: Number(((base.scale ?? 1) * factor).toFixed(3)) };
+    }
+    apply(d.live);
+    onLive();
+  };
+  const end = () => {
+    const d = drag.current;
+    if (d) onTransform(d.live);
+    drag.current = null;
+  };
+
+  const outline: CSSProperties = {
+    position: "fixed",
+    left: box.x - 1,
+    top: box.y - 1,
+    width: box.w + 2,
+    height: box.h + 2,
+    outline: "2px solid #8b5cf6",
+    borderRadius: 4,
+    pointerEvents: "none",
+    zIndex: Z,
+  };
+  const handle: CSSProperties = {
+    position: "fixed",
+    width: 16,
+    height: 16,
+    background: "#8b5cf6",
+    border: "2px solid #fff",
+    borderRadius: 5,
+    zIndex: Z + 1,
+    touchAction: "none",
+  };
+
+  return (
+    <>
+      <div style={outline} />
+      {movable ? (
+        <>
+          {/* move grip — top-left */}
+          <div
+            title="Drag to move"
+            onPointerDown={start("move")}
+            onPointerMove={move}
+            onPointerUp={end}
+            style={{ ...handle, left: box.x - 9, top: box.y - 9, cursor: "move", borderRadius: 9 }}
+          />
+          {/* resize — bottom-right */}
+          <div
+            title="Drag to resize"
+            onPointerDown={start("resize")}
+            onPointerMove={move}
+            onPointerUp={end}
+            style={{ ...handle, left: box.x + box.w - 7, top: box.y + box.h - 7, cursor: "nwse-resize" }}
+          />
+        </>
+      ) : null}
+    </>
   );
 }
 
@@ -197,11 +309,10 @@ function FloatingToolbar({
   base: Partial<StyleProps>;
   setStyle: (patch: Partial<StyleProps>) => void;
 }): ReactElement {
-  const top = Math.max(8, box.y - 46);
   const wrap: CSSProperties = {
     position: "fixed",
     left: box.x,
-    top,
+    top: Math.max(8, box.y - 46),
     display: "flex",
     alignItems: "center",
     gap: 8,
@@ -217,9 +328,8 @@ function FloatingToolbar({
   };
   const swatch: CSSProperties = { width: 22, height: 22, border: "none", background: "transparent", padding: 0, cursor: "pointer" };
   const num: CSSProperties = { width: 52, background: "#1e293b", color: "#fff", border: "1px solid #334155", borderRadius: 6, padding: "3px 6px", font: "inherit" };
-
   return (
-    <div style={wrap} onMouseDown={(e) => e.preventDefault() /* keep selection */}>
+    <div style={wrap} onMouseDown={(e) => e.preventDefault()}>
       {isText ? (
         <label title="Text color" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
           <span style={{ opacity: 0.7 }}>A</span>
@@ -227,14 +337,7 @@ function FloatingToolbar({
         </label>
       ) : null}
       {isText ? (
-        <input
-          type="number"
-          title="Font size (px)"
-          style={num}
-          placeholder="size"
-          value={base.fontSize?.value ?? ""}
-          onChange={(e) => setStyle({ fontSize: { value: Number(e.target.value) || 0, unit: "px" } })}
-        />
+        <input type="number" title="Font size (px)" style={num} placeholder="size" value={base.fontSize?.value ?? ""} onChange={(e) => setStyle({ fontSize: { value: Number(e.target.value) || 0, unit: "px" } })} />
       ) : null}
       <label title="Background" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
         <span style={{ opacity: 0.7 }}>BG</span>
@@ -261,22 +364,7 @@ function EditBar({
   onRedo: () => void;
   onAddText: () => void;
 }): ReactElement {
-  const bar: CSSProperties = {
-    position: "fixed",
-    top: 12,
-    right: 12,
-    display: "flex",
-    gap: 6,
-    alignItems: "center",
-    padding: 6,
-    background: "#0f172a",
-    color: "#fff",
-    borderRadius: 999,
-    boxShadow: "0 8px 24px -8px rgba(0,0,0,0.4)",
-    zIndex: Z + 3,
-    fontFamily: "system-ui, sans-serif",
-    fontSize: 12,
-  };
+  const bar: CSSProperties = { position: "fixed", top: 12, right: 12, display: "flex", gap: 6, alignItems: "center", padding: 6, background: "#0f172a", color: "#fff", borderRadius: 999, boxShadow: "0 8px 24px -8px rgba(0,0,0,0.4)", zIndex: Z + 3, fontFamily: "system-ui, sans-serif", fontSize: 12 };
   const btn: CSSProperties = { font: "inherit", border: "none", background: "transparent", color: "inherit", cursor: "pointer", padding: "4px 8px", borderRadius: 999 };
   return (
     <div style={bar}>
@@ -285,15 +373,9 @@ function EditBar({
       </button>
       {editing ? (
         <>
-          <button type="button" style={btn} onClick={onAddText} title="Add a text element">
-            ＋ Text
-          </button>
-          <button type="button" style={{ ...btn, opacity: canUndo ? 1 : 0.4 }} disabled={!canUndo} onClick={onUndo}>
-            ↶
-          </button>
-          <button type="button" style={{ ...btn, opacity: canRedo ? 1 : 0.4 }} disabled={!canRedo} onClick={onRedo}>
-            ↷
-          </button>
+          <button type="button" style={btn} onClick={onAddText} title="Add a text element">＋ Text</button>
+          <button type="button" style={{ ...btn, opacity: canUndo ? 1 : 0.4 }} disabled={!canUndo} onClick={onUndo}>↶</button>
+          <button type="button" style={{ ...btn, opacity: canRedo ? 1 : 0.4 }} disabled={!canRedo} onClick={onRedo}>↷</button>
         </>
       ) : null}
     </div>
