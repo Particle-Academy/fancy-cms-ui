@@ -36,6 +36,10 @@ export interface EditablePageProps {
   onNodeTransform?: (id: string, transform: NodeTransform) => void;
   /** Notifies the host of the current selection (e.g. to sync the timeline). */
   onSelect?: (id: string | null) => void;
+  /** Scroll length in viewports — the page becomes a tall scroll canvas (extend via the timeline). */
+  frames?: number;
+  /** Scroll progress 0..1 (scroll = the timeline playhead). The host maps it to transforms. */
+  onProgress?: (progress: number) => void;
 }
 
 interface Box {
@@ -60,11 +64,14 @@ export function EditablePage({
   transforms,
   onNodeTransform,
   onSelect,
+  frames = 1,
+  onProgress,
 }: EditablePageProps): ReactElement {
   const ed = useEditor(doc);
   const [editing, setEditing] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const pageRef = useRef<HTMLDivElement>(null);
+  const spacerRef = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<Box | null>(null);
   const { selection } = ed.state;
   const selNode = selection ? ed.state.doc.nodes[selection] : null;
@@ -101,6 +108,31 @@ export function EditablePage({
       }
     });
   }, [transforms, ed.state.doc]);
+
+  // Scroll = the timeline playhead. Report progress (0..1) across the scroll
+  // canvas so the host can drive the morph from real scrolling (not the dock).
+  useEffect(() => {
+    const spacer = spacerRef.current;
+    if (!spacer || !onProgress) return;
+    let raf = 0;
+    const compute = () => {
+      raf = 0;
+      const len = spacer.offsetHeight - window.innerHeight;
+      const top = spacer.getBoundingClientRect().top;
+      onProgress(len > 0 ? Math.min(1, Math.max(0, -top / len)) : 0);
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(compute);
+    };
+    compute();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [onProgress, frames]);
 
   const measureBox = useCallback(() => {
     if (!editing || !selection || !pageRef.current) return setBox(null);
@@ -161,8 +193,12 @@ export function EditablePage({
 
   return (
     <div style={{ position: "relative" }}>
-      <div ref={pageRef} onClickCapture={onClickCapture}>
-        <CmsPage doc={ed.state.doc} registry={registry} />
+      <div ref={spacerRef} style={{ height: `${Math.max(1, frames) * 100}vh` }}>
+        <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
+          <div ref={pageRef} onClickCapture={onClickCapture}>
+            <CmsPage doc={ed.state.doc} registry={registry} />
+          </div>
+        </div>
       </div>
 
       {editing && box && selection ? (
