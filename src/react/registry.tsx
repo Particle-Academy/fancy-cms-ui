@@ -31,6 +31,12 @@ export const defaultRegistry: ElementRegistry = {
   frame: ({ children }) => children,
   shape: ({ children }) => children,
   text: ({ node }) => literal(node.props.content),
+  heading: ({ node }) => literal(node.props.content) || "Heading",
+  button: ({ node }) => {
+    const label = literal(node.props.label) || literal(node.props.content) || "Button";
+    const variant = literal(node.props.variant) || "primary";
+    return <span data-cms-button={variant} style={buttonStyle(variant)}>{label}</span>;
+  },
   image: ({ node }) => (
     <img
       src={literal(node.props.src)}
@@ -39,3 +45,26 @@ export const defaultRegistry: ElementRegistry = {
     />
   ),
 };
+
+/**
+ * A self-contained button look so the `button` primitive renders sensibly with
+ * zero host CSS. Hosts that want their own button classes override the `button`
+ * renderer in their registry (e.g. the sandbox maps it to `.btn .btn-primary`).
+ */
+function buttonStyle(variant: string): import("react").CSSProperties {
+  const base: import("react").CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "9px 16px",
+    borderRadius: 8,
+    fontWeight: 600,
+    fontSize: 14,
+    lineHeight: 1,
+    cursor: "pointer",
+    userSelect: "none",
+  };
+  if (variant === "ghost") return { ...base, background: "transparent", color: "inherit", border: "1px solid currentColor" };
+  if (variant === "outline") return { ...base, background: "transparent", color: "#7c3aed", border: "1px solid #7c3aed" };
+  return { ...base, background: "#7c3aed", color: "#fff", border: "1px solid #7c3aed" };
+}

@@ -10,11 +10,12 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import type { PageDoc, StyleProps } from "../document/types";
+import type { Json, PageDoc, StyleProps } from "../document/types";
 import { childrenOf } from "../document/reduce";
 import { keyBetween } from "../document/fractional";
 import { CmsPage } from "../react/CmsPage";
 import { defaultRegistry, type ElementRegistry } from "../react/registry";
+import { NodeInspector } from "./NodeInspector";
 import { useEditor } from "./useEditor";
 
 /** Animatable per-node transform (mirrors fancy-motion's NodeState, kept local to avoid a hard dep). */
@@ -23,6 +24,10 @@ export interface NodeTransform {
   y?: number;
   scale?: number;
   opacity?: number;
+  rotate?: number;
+  /** Explicit size in px (a true resize, distinct from `scale`). Absent = auto. */
+  w?: number;
+  h?: number;
 }
 
 export interface EditablePageProps {
@@ -40,6 +45,13 @@ export interface EditablePageProps {
   frames?: number;
   /** Scroll progress 0..1 (scroll = the timeline playhead). The host maps it to transforms. */
   onProgress?: (progress: number) => void;
+  /**
+   * Pin the page into a scroll canvas (the `frames`×viewport spacer + sticky pin
+   * that turns scroll into the playhead). Default `true`. Set **false** for a
+   * full multi-section page that should scroll naturally — animation is then
+   * driven by the dock scrub + Play preview instead of raw scroll.
+   */
+  pinned?: boolean;
 }
 
 interface Box {
@@ -66,6 +78,7 @@ export function EditablePage({
   onSelect,
   frames = 1,
   onProgress,
+  pinned = true,
 }: EditablePageProps): ReactElement {
   const ed = useEditor(doc);
   const [editing, setEditing] = useState(false);
@@ -99,13 +112,7 @@ export function EditablePage({
     root.querySelectorAll<HTMLElement>("[data-cms]").forEach((el) => {
       const id = el.dataset.cms;
       const t = id ? transforms?.[id] : undefined;
-      if (t) {
-        el.style.transform = `translate3d(${t.x ?? 0}px, ${t.y ?? 0}px, 0) scale(${t.scale ?? 1})`;
-        el.style.opacity = t.opacity != null ? String(t.opacity) : "";
-      } else {
-        el.style.transform = "";
-        el.style.opacity = "";
-      }
+      applyTransform(el, t);
     });
   }, [transforms, ed.state.doc]);
 
@@ -140,6 +147,10 @@ export function EditablePage({
     setBox({ x: r.left, y: r.top, w: r.width, h: r.height });
   }, [editing, selection]);
 
+  // Re-measure on selection / doc / scroll / resize — deliberately NOT on every
+  // `transforms` frame. A scrub or Play sweep changes transforms ~30×/s; calling
+  // getBoundingClientRect each time forces a synchronous reflow of the whole page
+  // and saturates the main thread. Live drags re-measure through `onLive` instead.
   useLayoutEffect(() => {
     measureBox();
     window.addEventListener("scroll", measureBox, { passive: true });
@@ -148,7 +159,7 @@ export function EditablePage({
       window.removeEventListener("scroll", measureBox);
       window.removeEventListener("resize", measureBox);
     };
-  }, [measureBox, ed.state.doc, transforms]);
+  }, [measureBox, ed.state.doc]);
 
   // Inline contentEditable for text nodes.
   useEffect(() => {
@@ -177,27 +188,51 @@ export function EditablePage({
     }
   };
 
-  const addText = useCallback(() => {
-    const parent = selNode && selNode.type !== "text" ? selNode.id : (ed.state.doc.sections[0] ?? null);
-    const siblings = childrenOf(ed.state.doc, parent);
-    const order = keyBetween(siblings.length ? siblings[siblings.length - 1]!.order : null, null);
-    const id = `n${ed.state.doc.seq + 1}-${Math.floor(performance.now())}`;
-    ed.apply({ t: "insert_node", node: { id, type: "text", parent, order, props: { content: "New text" }, style: { base: { color: "inherit" } } } });
-    ed.select(id);
-  }, [ed, selNode]);
+  const addNode = useCallback(
+    (kind: AddKind) => {
+      // Drop into the selected container; else the selected node's parent; else
+      // the last section (or top level when the page is still empty).
+      const doc = ed.state.doc;
+      const parent = selNode
+        ? CONTAINER_TYPES.has(selNode.type)
+          ? selNode.id
+          : selNode.parent
+        : (doc.sections[doc.sections.length - 1] ?? null);
+      const siblings = childrenOf(doc, parent);
+      const order = keyBetween(siblings.length ? siblings[siblings.length - 1]!.order : null, null);
+      const id = `n${doc.seq + 1}-${Math.floor(performance.now())}`;
+      const def = ADD_DEFAULTS[kind];
+      ed.apply({ t: "insert_node", node: { id, type: def.type, parent, order, props: { ...def.props }, style: { base: { ...def.style } } } });
+      ed.select(id);
+    },
+    [ed, selNode],
+  );
 
   const setStyle = (patch: Partial<StyleProps>) =>
     selection && ed.apply({ t: "set_style", id: selection, breakpoint: "base", patch });
+  const setProps = (patch: Record<string, unknown>) =>
+    selection && ed.apply({ t: "set_props", id: selection, patch });
+  const removeSelected = () => {
+    if (!selection) return;
+    ed.apply({ t: "remove_node", id: selection });
+    ed.select(null);
+  };
+
+  const page = (
+    <div ref={pageRef} onClickCapture={onClickCapture}>
+      <CmsPage doc={ed.state.doc} registry={registry} />
+    </div>
+  );
 
   return (
     <div style={{ position: "relative" }}>
-      <div ref={spacerRef} style={{ height: `${Math.max(1, frames) * 100}vh` }}>
-        <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>
-          <div ref={pageRef} onClickCapture={onClickCapture}>
-            <CmsPage doc={ed.state.doc} registry={registry} />
-          </div>
+      {pinned ? (
+        <div ref={spacerRef} style={{ height: `${Math.max(1, frames) * 100}vh` }}>
+          <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>{page}</div>
         </div>
-      </div>
+      ) : (
+        page
+      )}
 
       {editing && box && selection ? (
         <SelectionOverlay
@@ -211,7 +246,20 @@ export function EditablePage({
       ) : null}
 
       {editing && box && selNode ? (
-        <FloatingToolbar box={box} isText={selNode.type === "text"} base={selNode.style.base} setStyle={setStyle} />
+        <FloatingToolbar box={box} isText={selNode.type === "text" || selNode.type === "heading"} base={selNode.style.base} setStyle={setStyle} />
+      ) : null}
+
+      {editing && selNode && box ? (
+        <NodeInspector
+          node={selNode}
+          transform={(selection ? transforms?.[selection] : undefined) ?? {}}
+          measured={{ w: box.w, h: box.h }}
+          onProps={setProps}
+          onStyle={setStyle}
+          onTransform={(t) => selection && onNodeTransform?.(selection, t)}
+          onRemove={removeSelected}
+          onClose={() => ed.select(null)}
+        />
       ) : null}
 
       {revealed || editing ? (
@@ -225,7 +273,7 @@ export function EditablePage({
           canRedo={ed.canRedo}
           onUndo={ed.undo}
           onRedo={ed.redo}
-          onAddText={addText}
+          onAdd={addNode}
         />
       ) : null}
 
@@ -233,6 +281,37 @@ export function EditablePage({
     </div>
   );
 }
+
+const CONTAINER_TYPES = new Set(["section", "frame", "stack", "grid", "shape"]);
+
+type AddKind = "text" | "heading" | "button" | "image" | "box";
+const ADD_DEFAULTS: Record<AddKind, { type: string; props: Record<string, Json>; style: StyleProps }> = {
+  text: { type: "text", props: { content: "New text" }, style: { color: "inherit" } },
+  heading: { type: "heading", props: { content: "New heading" }, style: { fontSize: { value: 28, unit: "px" }, fontWeight: 700 } },
+  button: { type: "button", props: { label: "Button", href: "#", variant: "primary" }, style: {} },
+  image: { type: "image", props: { src: "", alt: "" }, style: {} },
+  box: { type: "frame", props: {}, style: { padding: { value: 16, unit: "px" } } },
+};
+
+/** A resize grip: which edges it drags, its position, and its cursor. */
+interface Grip {
+  key: string;
+  north?: boolean;
+  south?: boolean;
+  east?: boolean;
+  west?: boolean;
+  cursor: string;
+}
+const GRIPS: Grip[] = [
+  { key: "nw", north: true, west: true, cursor: "nwse-resize" },
+  { key: "n", north: true, cursor: "ns-resize" },
+  { key: "ne", north: true, east: true, cursor: "nesw-resize" },
+  { key: "e", east: true, cursor: "ew-resize" },
+  { key: "se", south: true, east: true, cursor: "nwse-resize" },
+  { key: "s", south: true, cursor: "ns-resize" },
+  { key: "sw", south: true, west: true, cursor: "nesw-resize" },
+  { key: "w", west: true, cursor: "ew-resize" },
+];
 
 function SelectionOverlay({
   box,
@@ -249,32 +328,55 @@ function SelectionOverlay({
   onTransform: (t: NodeTransform) => void;
   onLive: () => void;
 }): ReactElement {
-  const drag = useRef<{ kind: "move" | "resize"; x: number; y: number; w: number; live: NodeTransform } | null>(null);
+  const drag = useRef<{ x: number; y: number; w: number; h: number; live: NodeTransform } | null>(null);
 
   const apply = (t: NodeTransform) => {
     const el = getEl();
-    if (el) {
-      el.style.transform = `translate3d(${t.x ?? 0}px, ${t.y ?? 0}px, 0) scale(${t.scale ?? 1})`;
-      el.style.opacity = t.opacity != null ? String(t.opacity) : "";
-    }
+    if (el) applyTransform(el, t);
   };
 
-  const start = (kind: "move" | "resize") => (e: ReactPointerEvent<HTMLDivElement>) => {
+  // Move drags translate; resize grips set an explicit width/height (a true
+  // resize, not scale) and translate the opposite way when dragging a top/left
+  // edge so the anchored edge stays put.
+  const startMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     e.stopPropagation();
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
-    drag.current = { kind, x: e.clientX, y: e.clientY, w: box.w, live: { ...base } };
+    drag.current = { x: e.clientX, y: e.clientY, w: box.w, h: box.h, live: { ...base } };
   };
-  const move = (e: ReactPointerEvent<HTMLDivElement>) => {
+  const moveMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d) return;
-    if (d.kind === "move") {
-      d.live = { ...base, x: (base.x ?? 0) + (e.clientX - d.x), y: (base.y ?? 0) + (e.clientY - d.y) };
-    } else {
-      const factor = Math.max(0.1, (d.w + (e.clientX - d.x)) / d.w);
-      d.live = { ...base, scale: Number(((base.scale ?? 1) * factor).toFixed(3)) };
-    }
+    d.live = { ...base, x: (base.x ?? 0) + (e.clientX - d.x), y: (base.y ?? 0) + (e.clientY - d.y) };
     apply(d.live);
+    onLive();
+  };
+
+  const startResize = (g: Grip) => (e: ReactPointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drag.current = { x: e.clientX, y: e.clientY, w: base.w ?? box.w, h: base.h ?? box.h, live: { ...base } };
+    (e.currentTarget as HTMLElement).dataset.grip = g.key;
+  };
+  const resizeMove = (g: Grip) => (e: ReactPointerEvent<HTMLDivElement>) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    const dy = e.clientY - d.y;
+    const live: NodeTransform = { ...base };
+    if (g.east) live.w = Math.max(16, Math.round(d.w + dx));
+    if (g.west) {
+      live.w = Math.max(16, Math.round(d.w - dx));
+      live.x = (base.x ?? 0) + (d.w - live.w);
+    }
+    if (g.south) live.h = Math.max(16, Math.round(d.h + dy));
+    if (g.north) {
+      live.h = Math.max(16, Math.round(d.h - dy));
+      live.y = (base.y ?? 0) + (d.h - live.h);
+    }
+    d.live = live;
+    apply(live);
     onLive();
   };
   const end = () => {
@@ -296,13 +398,19 @@ function SelectionOverlay({
   };
   const handle: CSSProperties = {
     position: "fixed",
-    width: 16,
-    height: 16,
-    background: "#8b5cf6",
-    border: "2px solid #fff",
-    borderRadius: 5,
+    width: 12,
+    height: 12,
+    background: "#fff",
+    border: "2px solid #8b5cf6",
+    borderRadius: 3,
     zIndex: Z + 1,
     touchAction: "none",
+    boxSizing: "border-box",
+  };
+  const gripPos = (g: Grip): CSSProperties => {
+    const cx = g.west ? box.x : g.east ? box.x + box.w : box.x + box.w / 2;
+    const cy = g.north ? box.y : g.south ? box.y + box.h : box.y + box.h / 2;
+    return { left: cx - 6, top: cy - 6, cursor: g.cursor };
   };
 
   return (
@@ -310,22 +418,24 @@ function SelectionOverlay({
       <div style={outline} />
       {movable ? (
         <>
-          {/* move grip — top-left */}
+          {/* move grip — circular, top-left, offset clear of the corner handle */}
           <div
             title="Drag to move"
-            onPointerDown={start("move")}
-            onPointerMove={move}
+            onPointerDown={startMove}
+            onPointerMove={moveMove}
             onPointerUp={end}
-            style={{ ...handle, left: box.x - 9, top: box.y - 9, cursor: "move", borderRadius: 9 }}
+            style={{ ...handle, width: 18, height: 18, borderRadius: 9, background: "#8b5cf6", border: "2px solid #fff", left: box.x - 22, top: box.y - 22, cursor: "move" }}
           />
-          {/* resize — bottom-right */}
-          <div
-            title="Drag to resize"
-            onPointerDown={start("resize")}
-            onPointerMove={move}
-            onPointerUp={end}
-            style={{ ...handle, left: box.x + box.w - 7, top: box.y + box.h - 7, cursor: "nwse-resize" }}
-          />
+          {GRIPS.map((g) => (
+            <div
+              key={g.key}
+              title="Drag to resize"
+              onPointerDown={startResize(g)}
+              onPointerMove={resizeMove(g)}
+              onPointerUp={end}
+              style={{ ...handle, ...gripPos(g) }}
+            />
+          ))}
         </>
       ) : null}
     </>
@@ -381,6 +491,14 @@ function FloatingToolbar({
   );
 }
 
+const ADD_MENU: Array<{ kind: AddKind; label: string }> = [
+  { kind: "text", label: "Text" },
+  { kind: "heading", label: "Heading" },
+  { kind: "button", label: "Button" },
+  { kind: "image", label: "Image" },
+  { kind: "box", label: "Box" },
+];
+
 function EditBar({
   editing,
   onToggle,
@@ -388,7 +506,7 @@ function EditBar({
   canRedo,
   onUndo,
   onRedo,
-  onAddText,
+  onAdd,
 }: {
   editing: boolean;
   onToggle: () => void;
@@ -396,8 +514,9 @@ function EditBar({
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
-  onAddText: () => void;
+  onAdd: (kind: AddKind) => void;
 }): ReactElement {
+  const [open, setOpen] = useState(false);
   const bar: CSSProperties = { position: "fixed", top: 12, right: 12, display: "flex", gap: 6, alignItems: "center", padding: 6, background: "#0f172a", color: "#fff", borderRadius: 999, boxShadow: "0 8px 24px -8px rgba(0,0,0,0.4)", zIndex: Z + 3, fontFamily: "system-ui, sans-serif", fontSize: 12 };
   const btn: CSSProperties = { font: "inherit", border: "none", background: "transparent", color: "inherit", cursor: "pointer", padding: "4px 8px", borderRadius: 999 };
   return (
@@ -407,13 +526,47 @@ function EditBar({
       </button>
       {editing ? (
         <>
-          <button type="button" style={btn} onClick={onAddText} title="Add a text element">＋ Text</button>
+          <div style={{ position: "relative" }}>
+            <button type="button" style={{ ...btn, background: open ? "#1e293b" : "transparent" }} onClick={() => setOpen((v) => !v)} title="Add an element">＋ Add ▾</button>
+            {open ? (
+              <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10, padding: 4, display: "flex", flexDirection: "column", minWidth: 132, boxShadow: "0 12px 32px -10px rgba(0,0,0,0.6)" }}>
+                {ADD_MENU.map((m) => (
+                  <button
+                    key={m.kind}
+                    type="button"
+                    style={{ ...btn, textAlign: "left", borderRadius: 6, padding: "6px 10px" }}
+                    onClick={() => {
+                      onAdd(m.kind);
+                      setOpen(false);
+                    }}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </div>
           <button type="button" style={{ ...btn, opacity: canUndo ? 1 : 0.4 }} disabled={!canUndo} onClick={onUndo}>↶</button>
           <button type="button" style={{ ...btn, opacity: canRedo ? 1 : 0.4 }} disabled={!canRedo} onClick={onRedo}>↷</button>
         </>
       ) : null}
     </div>
   );
+}
+
+/** Write a transform onto an element (or clear every transformed property). */
+function applyTransform(el: HTMLElement, t: NodeTransform | undefined): void {
+  if (t && (t.x != null || t.y != null || t.scale != null || t.rotate != null || t.opacity != null || t.w != null || t.h != null)) {
+    el.style.transform = `translate3d(${t.x ?? 0}px, ${t.y ?? 0}px, 0) scale(${t.scale ?? 1}) rotate(${t.rotate ?? 0}deg)`;
+    el.style.opacity = t.opacity != null ? String(t.opacity) : "";
+    el.style.width = t.w != null ? `${t.w}px` : "";
+    el.style.height = t.h != null ? `${t.h}px` : "";
+  } else {
+    el.style.transform = "";
+    el.style.opacity = "";
+    el.style.width = "";
+    el.style.height = "";
+  }
 }
 
 function normalizeColor(v: string | undefined): string {

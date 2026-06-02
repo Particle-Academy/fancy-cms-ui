@@ -10,5 +10,6 @@ export { EditablePage, type EditablePageProps } from "./EditablePage";
 export { Canvas, type CanvasProps } from "./Canvas";
 export { LayersPanel, type LayersPanelProps } from "./LayersPanel";
 export { Inspector, type InspectorProps } from "./Inspector";
+export { NodeInspector, type NodeInspectorProps } from "./NodeInspector";
 export { useEditor, type EditorApi } from "./useEditor";
 export { editorReduce, initEditor, type EditorAction, type EditorState } from "./state";
