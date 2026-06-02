@@ -10,12 +10,15 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import type { Json, PageDoc, StyleProps } from "../document/types";
+import { ContextMenu } from "@particle-academy/react-fancy";
+import type { Json, NodeId, PageDoc, StyleProps } from "../document/types";
+import type { PageOp } from "../document/ops";
 import { childrenOf } from "../document/reduce";
 import { keyBetween } from "../document/fractional";
 import { CmsPage } from "../react/CmsPage";
 import { defaultRegistry, type ElementRegistry } from "../react/registry";
 import { NodeInspector } from "./NodeInspector";
+import { duplicateOps, pasteOps, reorderOps, snapshotSubtree, wrapInBoxOps, type NodeMap, type ReorderDir } from "./editorOps";
 import { useEditor } from "./useEditor";
 
 /** Animatable per-node transform (mirrors fancy-motion's NodeState, kept local to avoid a hard dep). */
@@ -218,20 +221,95 @@ export function EditablePage({
     ed.select(null);
   };
 
+  // ── Context-menu / shortcut commands (all expressed as op sequences) ───────
+  const clip = useRef<{ rootId: NodeId; nodes: NodeMap } | null>(null);
+  const runOps = (result: { ops: PageOp[]; newRootId: NodeId | null }) => {
+    result.ops.forEach((op) => ed.apply(op));
+    if (result.newRootId) ed.select(result.newRootId);
+  };
+  const duplicate = (id: string | null) => id && runOps(duplicateOps(ed.state.doc, id));
+  const reorder = (id: string | null, dir: ReorderDir) => id && reorderOps(ed.state.doc, id, dir).forEach((op) => ed.apply(op));
+  const wrapInBox = (id: string | null) => id && runOps(wrapInBoxOps(ed.state.doc, id));
+  const copy = (id: string | null) => {
+    if (id) clip.current = snapshotSubtree(ed.state.doc, id);
+  };
+  const paste = (target: string | null) => {
+    if (clip.current) runOps(pasteOps(ed.state.doc, clip.current, target, CONTAINER_TYPES));
+  };
+  const startEditText = (id: string | null) => {
+    if (!id) return;
+    ed.select(id);
+    requestAnimationFrame(() => pageRef.current?.querySelector<HTMLElement>(`[data-cms="${cssEscape(id)}"]`)?.focus());
+  };
+
+  // Keyboard shortcuts in EditMode (ignored while typing in a field/contentEditable).
+  useEffect(() => {
+    if (!editing) return;
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      const typing = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
+      if (e.key === "Escape") return void ed.select(null);
+      if (typing) return;
+      if ((e.key === "Delete" || e.key === "Backspace") && selection) {
+        e.preventDefault();
+        removeSelected();
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "d" && selection) {
+        e.preventDefault();
+        duplicate(selection);
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "c" && selection) {
+        copy(selection);
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "v") {
+        e.preventDefault();
+        paste(selection);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [editing, selection]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const onContextMenuSelect = (e: ReactMouseEvent<HTMLDivElement>) => {
+    if (!editing) return;
+    const el = (e.target as HTMLElement).closest("[data-cms]");
+    if (el) ed.select(el.getAttribute("data-cms"));
+    else ed.select(null);
+  };
+
   const page = (
-    <div ref={pageRef} onClickCapture={onClickCapture}>
+    <div ref={pageRef} onClickCapture={onClickCapture} onContextMenu={onContextMenuSelect}>
       <CmsPage doc={ed.state.doc} registry={registry} />
     </div>
+  );
+  const pageShell = pinned ? (
+    <div ref={spacerRef} style={{ height: `${Math.max(1, frames) * 100}vh` }}>
+      <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>{page}</div>
+    </div>
+  ) : (
+    page
   );
 
   return (
     <div style={{ position: "relative" }}>
-      {pinned ? (
-        <div ref={spacerRef} style={{ height: `${Math.max(1, frames) * 100}vh` }}>
-          <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>{page}</div>
-        </div>
+      {editing ? (
+        <ContextMenu>
+          <ContextMenu.Trigger>{pageShell}</ContextMenu.Trigger>
+          <ContextMenu.Content className="!z-[2147483646]">
+            <EditMenuItems
+              node={selNode ?? null}
+              hasClipboard={Boolean(clip.current)}
+              isContainer={selNode ? CONTAINER_TYPES.has(selNode.type) : false}
+              onEditText={() => startEditText(selection)}
+              onAdd={addNode}
+              onDuplicate={() => duplicate(selection)}
+              onCopy={() => copy(selection)}
+              onPaste={() => paste(selection)}
+              onWrap={() => wrapInBox(selection)}
+              onReorder={(d) => reorder(selection, d)}
+              onDelete={removeSelected}
+            />
+          </ContextMenu.Content>
+        </ContextMenu>
       ) : (
-        page
+        pageShell
       )}
 
       {editing && box && selection ? (
@@ -551,6 +629,71 @@ function EditBar({
         </>
       ) : null}
     </div>
+  );
+}
+
+/** The right-click menu in EditMode — contextual to the node under the cursor. */
+function EditMenuItems({
+  node,
+  hasClipboard,
+  isContainer,
+  onEditText,
+  onAdd,
+  onDuplicate,
+  onCopy,
+  onPaste,
+  onWrap,
+  onReorder,
+  onDelete,
+}: {
+  node: { type: string; parent: NodeId | null } | null;
+  hasClipboard: boolean;
+  isContainer: boolean;
+  onEditText: () => void;
+  onAdd: (kind: AddKind) => void;
+  onDuplicate: () => void;
+  onCopy: () => void;
+  onPaste: () => void;
+  onWrap: () => void;
+  onReorder: (dir: ReorderDir) => void;
+  onDelete: () => void;
+}): ReactElement {
+  const editable = node && (node.type === "text" || node.type === "heading");
+  const nested = Boolean(node && node.parent !== null);
+  return (
+    <>
+      {editable ? <ContextMenu.Item onClick={onEditText}>Edit text</ContextMenu.Item> : null}
+      <ContextMenu.Sub>
+        <ContextMenu.SubTrigger>{isContainer ? "Add inside" : "Add"}</ContextMenu.SubTrigger>
+        <ContextMenu.SubContent className="!z-[2147483647]">
+          {ADD_MENU.map((m) => (
+            <ContextMenu.Item key={m.kind} onClick={() => onAdd(m.kind)}>{m.label}</ContextMenu.Item>
+          ))}
+        </ContextMenu.SubContent>
+      </ContextMenu.Sub>
+      {node ? (
+        <>
+          <ContextMenu.Separator />
+          <ContextMenu.Item onClick={onDuplicate}>Duplicate</ContextMenu.Item>
+          <ContextMenu.Item onClick={onCopy}>Copy</ContextMenu.Item>
+          <ContextMenu.Item disabled={!hasClipboard} onClick={onPaste}>Paste</ContextMenu.Item>
+          {nested ? <ContextMenu.Item onClick={onWrap}>Wrap in Box</ContextMenu.Item> : null}
+          <ContextMenu.Separator />
+          <ContextMenu.Item onClick={() => onReorder("up")}>Move up</ContextMenu.Item>
+          <ContextMenu.Item onClick={() => onReorder("down")}>Move down</ContextMenu.Item>
+          {nested ? (
+            <>
+              <ContextMenu.Item onClick={() => onReorder("front")}>Bring to front</ContextMenu.Item>
+              <ContextMenu.Item onClick={() => onReorder("back")}>Send to back</ContextMenu.Item>
+            </>
+          ) : null}
+          <ContextMenu.Separator />
+          <ContextMenu.Item danger onClick={onDelete}>Delete</ContextMenu.Item>
+        </>
+      ) : (
+        <ContextMenu.Item disabled={!hasClipboard} onClick={onPaste}>Paste</ContextMenu.Item>
+      )}
+    </>
   );
 }
 

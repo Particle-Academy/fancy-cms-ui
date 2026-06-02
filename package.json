@@ -1,6 +1,6 @@
 {
   "name": "@particle-academy/fancy-cms-ui",
-  "version": "0.0.1-dev.7",
+  "version": "0.0.1-dev.8",
   "description": "Editor + isomorphic renderer for fancy-cms — the Stages document model, PageOp op-spine, the JS style→CSS emitter (one half of the dual-emitter pair with the PHP particle-academy/fancy-cms), and the React renderer. Built on the Fancy UI suite.",
   "repository": {
     "type": "git",
@@ -83,6 +83,7 @@
     }
   },
   "devDependencies": {
+    "@particle-academy/react-fancy": "^3.5.0",
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",

@@ -10,6 +10,6 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   platform: "neutral",
-  external: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime"],
+  external: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@particle-academy/react-fancy"],
   treeshake: true,
 });
