@@ -71,8 +71,8 @@
     "inertia"
   ],
   "peerDependencies": {
-    "react": "^18 || ^19",
-    "@particle-academy/react-fancy": ">=3"
+    "@particle-academy/react-fancy": ">=3",
+    "react": "^18 || ^19"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -90,7 +90,7 @@
     "react-dom": "^19.0.0",
     "tsup": "^8.5.0",
     "typescript": "^5.8.0",
-    "vitest": "^3.2.0"
+    "vitest": "^4.1.8"
   },
   "engines": {
     "node": ">=18"
