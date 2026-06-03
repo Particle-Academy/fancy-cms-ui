@@ -136,9 +136,34 @@ export function NodeInspector({
           </Row>
           <Row>
             <Num label="Padding" value={base.padding?.value} placeholder="0" onChange={(v) => onStyle({ padding: v == null ? undefined : len(v) })} />
-            <Num label="Gap" value={base.gap?.value} placeholder="0" onChange={(v) => onStyle({ gap: v == null ? undefined : len(v) })} />
+            <Num label="Margin" value={base.margin?.value} placeholder="0" onChange={(v) => onStyle({ margin: v == null ? undefined : len(v) })} />
+          </Row>
+          <Row>
+            <Txt label="Border" value={base.border ?? ""} placeholder="1px solid #e2e8f0" onChange={(v) => onStyle({ border: v || undefined })} />
           </Row>
         </Group>
+
+        {CONTAINER_TYPES.has(node.type) ? (
+          <Group label="Layout">
+            <Row>
+              <Num label="Gap" value={base.gap?.value} placeholder="0" onChange={(v) => onStyle({ gap: v == null ? undefined : len(v) })} />
+            </Row>
+            <Row>
+              <Sel
+                label="Align"
+                value={base.align ?? ""}
+                options={[["", "—"], ["start", "Start"], ["center", "Center"], ["end", "End"], ["stretch", "Stretch"]]}
+                onChange={(v) => onStyle({ align: (v || undefined) as StyleProps["align"] })}
+              />
+              <Sel
+                label="Justify"
+                value={base.justify ?? ""}
+                options={[["", "—"], ["start", "Start"], ["center", "Center"], ["end", "End"], ["between", "Between"], ["around", "Around"]]}
+                onChange={(v) => onStyle({ justify: (v || undefined) as StyleProps["justify"] })}
+              />
+            </Row>
+          </Group>
+        ) : null}
       </div>
     </div>
   );
@@ -199,6 +224,15 @@ function Num({ label, value, placeholder, onChange, step, min, max }: { label: s
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value === "" ? undefined : Number(e.target.value))}
       />
+    </label>
+  );
+}
+
+function Txt({ label, value, placeholder, onChange }: { label: string; value: string; placeholder?: string; onChange: (v: string) => void }): ReactElement {
+  return (
+    <label style={field}>
+      <span style={fieldLabel}>{label}</span>
+      <input style={input} type="text" value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
     </label>
   );
 }
