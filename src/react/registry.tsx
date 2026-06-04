@@ -47,6 +47,9 @@ export const defaultRegistry: ElementRegistry = {
   card: ({ children }) => children,
   text: ({ node, text }) => text(node.props.content),
   heading: ({ node, text }) => text(node.props.content) || "Heading",
+  // Rich text — inline-formatted HTML (gradient spans, links, <code>, …) that
+  // plain `text` can't express. The author owns the markup (it's their content).
+  richtext: ({ node, text }) => <div dangerouslySetInnerHTML={{ __html: text(node.props.html) }} />,
   link: ({ node, text }) => (
     <a href={text(node.props.href) || "#"} style={{ color: "inherit", textDecoration: "underline" }}>
       {text(node.props.content) || "link"}

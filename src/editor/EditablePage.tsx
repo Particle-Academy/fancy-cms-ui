@@ -597,6 +597,7 @@ type AddKind =
   | "callout"
   | "divider"
   | "code"
+  | "richtext"
   | "repeater";
 const ADD_DEFAULTS: Record<AddKind, { type: string; props: Record<string, Json>; style: StyleProps; layout?: LayoutMode }> = {
   text: { type: "text", props: { content: "New text" }, style: { color: "inherit" } },
@@ -611,6 +612,7 @@ const ADD_DEFAULTS: Record<AddKind, { type: string; props: Record<string, Json>;
   callout: { type: "callout", props: { content: "Heads up — this is a callout.", variant: "info" }, style: {} },
   divider: { type: "divider", props: {}, style: {} },
   code: { type: "code", props: { content: "npm install @particle-academy/react-fancy", lang: "bash" }, style: {} },
+  richtext: { type: "richtext", props: { html: "<p>Rich <strong>text</strong> with <em>inline</em> formatting.</p>" }, style: {} },
   repeater: { type: "repeater", props: { items: "" }, style: { gap: { value: 12, unit: "px" } }, layout: "stack" },
 };
 
@@ -871,6 +873,7 @@ const ADD_MENU: Array<{ kind: AddKind; label: string }> = [
   { kind: "box", label: "Box" },
   { kind: "divider", label: "Divider" },
   { kind: "code", label: "Code" },
+  { kind: "richtext", label: "Rich text" },
   { kind: "repeater", label: "Repeater" },
 ];
 
