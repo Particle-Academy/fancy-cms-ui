@@ -1,11 +1,20 @@
 import type { ReactNode } from "react";
 import { isBinding, type Bound, type Json, type Node, type PageDoc } from "../document/types";
 
+/** The page data context bindings resolve against (e.g. server props, repeater `item`). */
+export type DataContext = Record<string, unknown>;
+
 export interface ElementContext {
   node: Node;
   doc: PageDoc;
   /** Pre-rendered child nodes, in order. */
   children: ReactNode;
+  /** The data context this node renders in (page data + any repeater scope). */
+  data?: DataContext;
+  /** Resolve a (possibly bound) value to its raw resolved value. */
+  resolve: (v: Bound<Json> | undefined) => unknown;
+  /** Resolve a (possibly bound) value to a display string. */
+  text: (v: Bound<Json> | undefined) => string;
 }
 
 /**
@@ -16,11 +25,16 @@ export type ElementRenderer = (ctx: ElementContext) => ReactNode;
 
 export type ElementRegistry = Record<string, ElementRenderer>;
 
-/** Resolve a literal prop to a string (bindings resolve in Phase 3). */
-function literal(v: Bound<Json> | undefined): string {
-  if (v === undefined || v === null) return "";
-  if (isBinding(v)) return "";
-  return String(v);
+/** Read a dotted path (`a.b.c`) out of the data context. */
+export function getPath(data: DataContext | undefined, path: string): unknown {
+  return path.split(".").reduce<unknown>((o, k) => (o == null ? undefined : (o as Record<string, unknown>)[k]), data);
+}
+
+/** Resolve a value: a `{ $bind }` reads from the data context; anything else is literal. */
+export function resolveValue(v: Bound<Json> | undefined, data?: DataContext): unknown {
+  if (v === undefined || v === null) return v;
+  if (isBinding(v)) return getPath(data, v.$bind);
+  return v;
 }
 
 /** Built-in native elements. Containers render their children; leaves render content. */
@@ -31,36 +45,36 @@ export const defaultRegistry: ElementRegistry = {
   frame: ({ children }) => children,
   shape: ({ children }) => children,
   card: ({ children }) => children,
-  text: ({ node }) => literal(node.props.content),
-  heading: ({ node }) => literal(node.props.content) || "Heading",
-  link: ({ node }) => (
-    <a href={literal(node.props.href) || "#"} style={{ color: "inherit", textDecoration: "underline" }}>
-      {literal(node.props.content) || "link"}
+  text: ({ node, text }) => text(node.props.content),
+  heading: ({ node, text }) => text(node.props.content) || "Heading",
+  link: ({ node, text }) => (
+    <a href={text(node.props.href) || "#"} style={{ color: "inherit", textDecoration: "underline" }}>
+      {text(node.props.content) || "link"}
     </a>
   ),
   divider: () => <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: 0 }} />,
-  callout: ({ node }) => {
-    const tone = ({ info: "#3b82f6", success: "#10b981", warning: "#f59e0b", danger: "#ef4444" } as Record<string, string>)[literal(node.props.variant)] ?? "#3b82f6";
+  callout: ({ node, text }) => {
+    const tone = ({ info: "#3b82f6", success: "#10b981", warning: "#f59e0b", danger: "#ef4444" } as Record<string, string>)[text(node.props.variant)] ?? "#3b82f6";
     return (
       <div style={{ display: "flex", gap: 10, padding: "12px 14px", borderRadius: 10, background: `${tone}14`, borderLeft: `3px solid ${tone}` }}>
-        <span style={{ fontSize: 13 }}>{literal(node.props.content) || "Callout"}</span>
+        <span style={{ fontSize: 13 }}>{text(node.props.content) || "Callout"}</span>
       </div>
     );
   },
-  code: ({ node }) => (
+  code: ({ node, text }) => (
     <pre style={{ margin: 0, padding: "12px 14px", borderRadius: 10, background: "#0b1220", color: "#e2e8f0", fontFamily: "ui-monospace, monospace", fontSize: 13, overflowX: "auto" }}>
-      <code>{literal(node.props.content)}</code>
+      <code>{text(node.props.content)}</code>
     </pre>
   ),
-  button: ({ node }) => {
-    const label = literal(node.props.label) || literal(node.props.content) || "Button";
-    const variant = literal(node.props.variant) || "primary";
+  button: ({ node, text }) => {
+    const label = text(node.props.label) || text(node.props.content) || "Button";
+    const variant = text(node.props.variant) || "primary";
     return <span data-cms-button={variant} style={buttonStyle(variant)}>{label}</span>;
   },
-  image: ({ node }) => (
+  image: ({ node, text }) => (
     <img
-      src={literal(node.props.src)}
-      alt={literal(node.props.alt)}
+      src={text(node.props.src)}
+      alt={text(node.props.alt)}
       style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
     />
   ),

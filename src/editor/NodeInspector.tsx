@@ -1,5 +1,5 @@
 import { type CSSProperties, type ReactElement, type ReactNode } from "react";
-import type { LayoutMode, Length, Node, StyleProps } from "../document/types";
+import { isBinding, type Binding, type LayoutMode, type Length, type Node, type StyleProps } from "../document/types";
 import type { NodeTransform } from "./EditablePage";
 
 export interface NodeInspectorProps {
@@ -48,7 +48,7 @@ export function NodeInspector({
   // generic key/value editor so any addon's props get controls for free.
   const handled = new Set(["content", "label"]);
   const extraKeys = Object.keys(node.props).filter(
-    (k) => !handled.has(k) && ["string", "number", "boolean"].includes(typeof node.props[k]),
+    (k) => !handled.has(k) && (["string", "number", "boolean"].includes(typeof node.props[k]) || isBinding(node.props[k])),
   );
 
   return (
@@ -85,7 +85,7 @@ export function NodeInspector({
         {extraKeys.length ? (
           <Group label="Properties">
             {extraKeys.map((k) => (
-              <PropField key={k} name={k} value={node.props[k] as string | number | boolean} onChange={(v) => onProps({ [k]: v })} />
+              <PropField key={k} name={k} value={node.props[k]} onChange={(v) => onProps({ [k]: v })} />
             ))}
           </Group>
         ) : null}
@@ -193,26 +193,52 @@ function Row({ children }: { children: ReactNode }): ReactElement {
   return <div style={{ display: "flex", gap: 8 }}>{children}</div>;
 }
 
-function PropField({ name, value, onChange }: { name: string; value: string | number | boolean; onChange: (v: string | number | boolean) => void }): ReactElement {
+function PropField({ name, value, onChange }: { name: string; value: unknown; onChange: (v: unknown) => void }): ReactElement {
+  const bound = isBinding(value);
+  // A 🔗 toggle flips any prop between a literal value and a data binding.
+  const link = (
+    <button
+      type="button"
+      title={bound ? "Unbind (use a literal value)" : "Bind to data (e.g. item.name)"}
+      onClick={() => onChange(bound ? "" : ({ $bind: "" } satisfies Binding))}
+      style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 11, color: bound ? "#a78bfa" : "#64748b" }}
+    >
+      🔗
+    </button>
+  );
+
+  if (bound) {
+    return (
+      <label style={field}>
+        <span style={{ ...fieldLabel, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          {name} {link}
+        </span>
+        <input style={{ ...input, borderColor: "#7c3aed" }} placeholder="data path · e.g. item.name" value={(value as Binding).$bind} onChange={(e) => onChange({ $bind: e.target.value } satisfies Binding)} />
+      </label>
+    );
+  }
   if (typeof value === "boolean") {
     return (
       <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12 }}>
         <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} />
-        <span style={{ textTransform: "capitalize" }}>{name}</span>
+        <span style={{ textTransform: "capitalize", flex: 1 }}>{name}</span>
+        {link}
       </label>
     );
   }
   if (name === "variant") {
-    return <Sel label={name} value={String(value)} options={[["primary", "Primary"], ["ghost", "Ghost"], ["outline", "Outline"]]} onChange={onChange} />;
+    return <Sel label={name} value={String(value ?? "")} options={[["primary", "Primary"], ["ghost", "Ghost"], ["outline", "Outline"]]} onChange={onChange} />;
   }
   const isNum = typeof value === "number";
   return (
     <label style={field}>
-      <span style={fieldLabel}>{name}</span>
+      <span style={{ ...fieldLabel, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        {name} {link}
+      </span>
       <input
         style={input}
         type={isNum ? "number" : "text"}
-        value={String(value)}
+        value={String(value ?? "")}
         onChange={(e) => onChange(isNum ? Number(e.target.value) : e.target.value)}
       />
     </label>

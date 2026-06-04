@@ -17,7 +17,7 @@ import type { PageOp } from "../document/ops";
 import { childrenOf } from "../document/reduce";
 import { keyBetween } from "../document/fractional";
 import { CmsPage } from "../react/CmsPage";
-import { defaultRegistry, type ElementRegistry } from "../react/registry";
+import { defaultRegistry, type DataContext, type ElementRegistry } from "../react/registry";
 import { NodeInspector } from "./NodeInspector";
 import { duplicateOps, pasteOps, reorderOps, snapshotSubtree, wrapInBoxOps, type NodeMap, type ReorderDir } from "./editorOps";
 import { useEditor } from "./useEditor";
@@ -37,6 +37,8 @@ export interface NodeTransform {
 export interface EditablePageProps {
   doc: PageDoc;
   registry?: ElementRegistry;
+  /** Data context for `{ $bind }` props + repeaters (server props, etc.). */
+  data?: DataContext;
   /** Slot for the fancy-motion timeline dock (rendered at the bottom in EditMode). */
   timelineDock?: ReactNode;
   /** Per-node transforms applied to the page (e.g. the sampled keyframe snapshot). */
@@ -78,6 +80,7 @@ const SNAP = 6;
 export function EditablePage({
   doc,
   registry = defaultRegistry,
+  data,
   timelineDock,
   transforms,
   onNodeTransform,
@@ -350,7 +353,7 @@ export function EditablePage({
       onDragOver={editing ? (e) => e.preventDefault() : undefined}
       onDrop={editing ? onPageDrop : undefined}
     >
-      <CmsPage doc={ed.state.doc} registry={registry} />
+      <CmsPage doc={ed.state.doc} registry={registry} data={data} />
     </div>
   );
   const pageShell = pinned ? (
@@ -510,7 +513,7 @@ function ElementPalette({ open, onDragChange }: { open: boolean; onDragChange: (
   );
 }
 
-const CONTAINER_TYPES = new Set(["section", "frame", "stack", "grid", "shape", "card", "device"]);
+const CONTAINER_TYPES = new Set(["section", "frame", "stack", "grid", "shape", "card", "device", "repeater"]);
 
 type AddKind =
   | "text"
@@ -524,7 +527,8 @@ type AddKind =
   | "card"
   | "callout"
   | "divider"
-  | "code";
+  | "code"
+  | "repeater";
 const ADD_DEFAULTS: Record<AddKind, { type: string; props: Record<string, Json>; style: StyleProps; layout?: LayoutMode }> = {
   text: { type: "text", props: { content: "New text" }, style: { color: "inherit" } },
   heading: { type: "heading", props: { content: "New heading" }, style: { fontSize: { value: 28, unit: "px" }, fontWeight: 700 } },
@@ -538,6 +542,7 @@ const ADD_DEFAULTS: Record<AddKind, { type: string; props: Record<string, Json>;
   callout: { type: "callout", props: { content: "Heads up — this is a callout.", variant: "info" }, style: {} },
   divider: { type: "divider", props: {}, style: {} },
   code: { type: "code", props: { content: "npm install @particle-academy/react-fancy", lang: "bash" }, style: {} },
+  repeater: { type: "repeater", props: { items: "" }, style: { gap: { value: 12, unit: "px" } }, layout: "stack" },
 };
 
 /** A resize grip: which edges it drags, its position, and its cursor. */
@@ -797,6 +802,7 @@ const ADD_MENU: Array<{ kind: AddKind; label: string }> = [
   { kind: "box", label: "Box" },
   { kind: "divider", label: "Divider" },
   { kind: "code", label: "Code" },
+  { kind: "repeater", label: "Repeater" },
 ];
 
 function EditBar({
