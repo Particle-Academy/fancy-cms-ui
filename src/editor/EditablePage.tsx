@@ -65,6 +65,8 @@ interface Box {
 }
 
 const Z = 2147483000;
+/** Snap distance (px) for drag alignment to other elements' edges/centers. */
+const SNAP = 6;
 
 /**
  * Inline EditMode over a live, seeded CMS page. Hold **Ctrl+Shift** to reveal
@@ -425,10 +427,27 @@ function SelectionOverlay({
   onLive: () => void;
 }): ReactElement {
   const drag = useRef<{ x: number; y: number; w: number; h: number; live: NodeTransform } | null>(null);
+  // Snap targets (other elements' edges/centers, viewport coords) gathered at
+  // drag start, + the live alignment guides to draw.
+  const targets = useRef<{ vx: number[]; hy: number[] }>({ vx: [], hy: [] });
+  const [guides, setGuides] = useState<{ x: number | null; y: number | null }>({ x: null, y: null });
 
   const apply = (t: NodeTransform) => {
     const el = getEl();
     if (el) applyTransform(el, t);
+  };
+
+  // Snap a set of candidate lines to the nearest target within SNAP px.
+  // Returns the adjustment to apply and the matched guide coordinate.
+  const snap = (cands: number[], lines: number[]): { delta: number; at: number | null } => {
+    let best = { delta: 0, at: null as number | null, dist: SNAP + 1 };
+    for (const line of lines) {
+      for (const c of cands) {
+        const diff = line - c;
+        if (Math.abs(diff) < best.dist) best = { delta: diff, at: line, dist: Math.abs(diff) };
+      }
+    }
+    return best.dist <= SNAP ? { delta: best.delta, at: best.at } : { delta: 0, at: null };
   };
 
   // Move drags translate; resize grips set an explicit width/height (a true
@@ -439,11 +458,37 @@ function SelectionOverlay({
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     drag.current = { x: e.clientX, y: e.clientY, w: box.w, h: box.h, live: { ...base } };
+    // Gather snap targets: every other element's left/center/right + top/middle/
+    // bottom (skip the selection itself and its ancestors/descendants).
+    const sel = getEl();
+    const vx = new Set<number>();
+    const hy = new Set<number>();
+    document.querySelectorAll<HTMLElement>("[data-cms]").forEach((el) => {
+      if (sel && (el === sel || sel.contains(el) || el.contains(sel))) return;
+      const r = el.getBoundingClientRect();
+      vx.add(r.left).add(r.left + r.width / 2).add(r.right);
+      hy.add(r.top).add(r.top + r.height / 2).add(r.bottom);
+    });
+    targets.current = { vx: [...vx], hy: [...hy] };
   };
   const moveMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     const d = drag.current;
     if (!d) return;
-    d.live = { ...base, x: (base.x ?? 0) + (e.clientX - d.x), y: (base.y ?? 0) + (e.clientY - d.y) };
+    let dx = e.clientX - d.x;
+    let dy = e.clientY - d.y;
+    // Snap the moving box's edges/center to nearby targets (hold Alt to bypass).
+    if (!e.altKey) {
+      const l = box.x + dx;
+      const t = box.y + dy;
+      const sx = snap([l, l + box.w / 2, l + box.w], targets.current.vx);
+      const sy = snap([t, t + box.h / 2, t + box.h], targets.current.hy);
+      dx += sx.delta;
+      dy += sy.delta;
+      setGuides({ x: sx.at, y: sy.at });
+    } else if (guides.x !== null || guides.y !== null) {
+      setGuides({ x: null, y: null });
+    }
+    d.live = { ...base, x: (base.x ?? 0) + dx, y: (base.y ?? 0) + dy };
     apply(d.live);
     onLive();
   };
@@ -479,6 +524,7 @@ function SelectionOverlay({
     const d = drag.current;
     if (d) onTransform(d.live);
     drag.current = null;
+    setGuides({ x: null, y: null });
   };
 
   const outline: CSSProperties = {
@@ -511,6 +557,8 @@ function SelectionOverlay({
 
   return (
     <>
+      {guides.x !== null ? <div style={{ position: "fixed", left: guides.x, top: 0, bottom: 0, width: 1, background: "#ec4899", zIndex: Z + 3, pointerEvents: "none" }} /> : null}
+      {guides.y !== null ? <div style={{ position: "fixed", top: guides.y, left: 0, right: 0, height: 1, background: "#ec4899", zIndex: Z + 3, pointerEvents: "none" }} /> : null}
       <div style={outline} />
       {movable ? (
         <>
