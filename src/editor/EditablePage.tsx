@@ -256,12 +256,62 @@ export function EditablePage({
     return () => window.removeEventListener("mousemove", onMove);
   }, [editing, draggingEl]);
 
+  // Drop target + indicator. While dragging, we compute the precise insertion
+  // point (before/after a leaf, or inside a container) under the cursor so the
+  // user can drop *anywhere* and see exactly where it lands.
+  type DropHint = { id: string | null; edge: "before" | "after" | "inside"; rect: { x: number; y: number; w: number; h: number } | null };
+  const [dropHint, setDropHint] = useState<DropHint | null>(null);
+
+  const computeDropTarget = (clientX: number, clientY: number): DropHint => {
+    const el = document.elementFromPoint(clientX, clientY)?.closest("[data-cms]") as HTMLElement | null;
+    if (!el) return { id: null, edge: "inside", rect: null };
+    const id = el.getAttribute("data-cms")!;
+    const node = ed.state.doc.nodes[id];
+    const r = el.getBoundingClientRect();
+    const rect = { x: r.left, y: r.top, w: r.width, h: r.height };
+    // Over a container's own area (not a child) → drop inside it.
+    if (node && CONTAINER_TYPES.has(node.type)) return { id, edge: "inside", rect };
+    return { id, edge: clientY < r.top + r.height / 2 ? "before" : "after", rect };
+  };
+
+  const onPageDragOver = (e: ReactDragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    setDropHint(computeDropTarget(e.clientX, e.clientY));
+  };
+
+  // Insert relative to a drop hint — before/after a sibling, or appended inside
+  // a container (or the last section when dropped on empty page space).
+  const insertRelative = (kind: AddKind, hint: DropHint) => {
+    const doc = ed.state.doc;
+    let parent: string | null;
+    let order: string;
+    if (!hint.id || hint.edge === "inside") {
+      parent = hint.id ?? (doc.sections[doc.sections.length - 1] ?? null);
+      const sib = childrenOf(doc, parent);
+      order = keyBetween(sib.length ? sib[sib.length - 1]!.order : null, null);
+    } else {
+      const target = doc.nodes[hint.id]!;
+      parent = target.parent;
+      const sib = childrenOf(doc, parent);
+      const idx = sib.findIndex((n) => n.id === hint.id);
+      order =
+        hint.edge === "before"
+          ? keyBetween(idx > 0 ? sib[idx - 1]!.order : null, target.order)
+          : keyBetween(target.order, idx < sib.length - 1 ? sib[idx + 1]!.order : null);
+    }
+    const id = `n${doc.seq + 1}-${Math.floor(performance.now())}`;
+    const def = ADD_DEFAULTS[kind];
+    ed.apply({ t: "insert_node", node: { id, type: def.type, parent, order, layout: def.layout, props: { ...def.props }, style: { base: { ...def.style } } } });
+    ed.select(id);
+  };
+
   const onPageDrop = (e: ReactDragEvent<HTMLDivElement>) => {
     const kind = e.dataTransfer.getData("application/x-cms-element") as AddKind;
     if (!kind) return;
     e.preventDefault();
-    const el = document.elementFromPoint(e.clientX, e.clientY)?.closest("[data-cms]");
-    addNodeAt(kind, el?.getAttribute("data-cms") ?? null);
+    insertRelative(kind, computeDropTarget(e.clientX, e.clientY));
+    setDropHint(null);
     setDraggingEl(false);
   };
 
@@ -350,7 +400,8 @@ export function EditablePage({
       ref={pageRef}
       onClickCapture={onClickCapture}
       onContextMenu={onContextMenuSelect}
-      onDragOver={editing ? (e) => e.preventDefault() : undefined}
+      onDragOver={editing ? onPageDragOver : undefined}
+      onDragLeave={editing ? () => setDropHint(null) : undefined}
       onDrop={editing ? onPageDrop : undefined}
     >
       <CmsPage doc={ed.state.doc} registry={registry} data={data} />
@@ -437,11 +488,29 @@ export function EditablePage({
         />
       ) : null}
 
+      {editing && dropHint?.rect ? <DropIndicator hint={dropHint} /> : null}
+
       {editing ? <ElementPalette open={paletteOpen} onDragChange={setDraggingEl} /> : null}
 
       {editing && timelineDock ? <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: Z }}>{timelineDock}</div> : null}
     </div>
   );
+}
+
+/** The live drop indicator: a line before/after a sibling, or an outline inside a container. */
+function DropIndicator({
+  hint,
+}: {
+  hint: { edge: "before" | "after" | "inside"; rect: { x: number; y: number; w: number; h: number } | null };
+}): ReactElement | null {
+  const r = hint.rect;
+  if (!r) return null;
+  const color = "#ec4899";
+  if (hint.edge === "inside") {
+    return <div style={{ position: "fixed", left: r.x, top: r.y, width: r.w, height: r.h, outline: `2px dashed ${color}`, outlineOffset: -2, borderRadius: 6, pointerEvents: "none", zIndex: Z + 4 }} />;
+  }
+  const y = hint.edge === "before" ? r.y : r.y + r.h;
+  return <div style={{ position: "fixed", left: r.x, top: y - 1.5, width: r.w, height: 3, background: color, borderRadius: 2, boxShadow: "0 0 0 1px #fff", pointerEvents: "none", zIndex: Z + 4 }} />;
 }
 
 /**
