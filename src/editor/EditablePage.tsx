@@ -170,15 +170,21 @@ export function EditablePage({
     };
   }, [measureBox, ed.state.doc]);
 
-  // Inline contentEditable for text nodes.
+  // Inline, on-page contentEditable for text content — text/heading (plain) and
+  // richtext (HTML). All content is edited directly on the page, never in a
+  // sidebar field. richtext edits the inner HTML container so formatting survives.
   useEffect(() => {
-    if (!editing || !selection || !pageRef.current || selNode?.type !== "text") return;
-    const el = pageRef.current.querySelector<HTMLElement>(`[data-cms="${cssEscape(selection)}"]`);
-    if (!el) return;
+    const t = selNode?.type;
+    const editable = t === "text" || t === "heading" || t === "richtext";
+    if (!editing || !selection || !pageRef.current || !editable) return;
+    const wrapper = pageRef.current.querySelector<HTMLElement>(`[data-cms="${cssEscape(selection)}"]`);
+    if (!wrapper) return;
+    const isRich = t === "richtext";
+    const el = (isRich ? (wrapper.firstElementChild as HTMLElement | null) : wrapper) ?? wrapper;
     el.setAttribute("contenteditable", "true");
     el.style.outline = "none";
     el.focus();
-    const commit = () => ed.apply({ t: "set_props", id: selection, patch: { content: el.innerText } });
+    const commit = () => ed.apply({ t: "set_props", id: selection, patch: isRich ? { html: el.innerHTML } : { content: el.innerText } });
     el.addEventListener("blur", commit);
     return () => {
       el.removeEventListener("blur", commit);

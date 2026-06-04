@@ -46,7 +46,7 @@ export function NodeInspector({
 
   // Props rendered with a bespoke control; everything else falls through to the
   // generic key/value editor so any addon's props get controls for free.
-  const handled = new Set(["content", "label"]);
+  const handled = new Set(["content", "label", "html"]);
   const extraKeys = Object.keys(node.props).filter(
     (k) => !handled.has(k) && (["string", "number", "boolean"].includes(typeof node.props[k]) || isBinding(node.props[k])),
   );
@@ -66,14 +66,10 @@ export function NodeInspector({
       </div>
 
       <div style={body}>
-        {"content" in node.props ? (
-          <Group label="Content">
-            <textarea
-              style={{ ...input, minHeight: 64, resize: "vertical", lineHeight: 1.4 }}
-              value={String(node.props.content ?? "")}
-              onChange={(e) => onProps({ content: e.target.value })}
-            />
-          </Group>
+        {"content" in node.props || node.type === "richtext" ? (
+          <p style={{ fontSize: 11, color: "var(--fg-3, #94a3b8)", margin: "0 0 12px", lineHeight: 1.45, paddingBottom: 12, borderBottom: "1px solid #1e293b" }}>
+            ✎ Edit the text <strong>directly on the page</strong> — click in and type. This panel is for layout, style, and bindings.
+          </p>
         ) : null}
 
         {"label" in node.props ? (
