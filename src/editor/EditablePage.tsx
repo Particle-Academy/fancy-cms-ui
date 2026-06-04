@@ -302,6 +302,10 @@ export function EditablePage({
     <div ref={spacerRef} style={{ height: `${Math.max(1, frames) * 100}vh` }}>
       <div style={{ position: "sticky", top: 0, height: "100vh", overflow: "hidden" }}>{page}</div>
     </div>
+  ) : frames > 1 ? (
+    // Normal flow, but "expanded" — extra scroll length below the content so a
+    // page can be made longer than its content (the ＋ Frame control).
+    <div style={{ minHeight: `${frames * 100}vh` }}>{page}</div>
   ) : (
     page
   );
