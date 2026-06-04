@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
+  type DragEvent as ReactDragEvent,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactElement,
@@ -213,6 +214,54 @@ export function EditablePage({
     [ed, selNode],
   );
 
+  // Insert an Element at an explicit target (the node under a drop point) rather
+  // than the current selection — used by the drag-and-drop palette.
+  const addNodeAt = useCallback(
+    (kind: AddKind, targetId: string | null) => {
+      const doc = ed.state.doc;
+      const target = targetId ? doc.nodes[targetId] : null;
+      const parent = target
+        ? CONTAINER_TYPES.has(target.type)
+          ? target.id
+          : target.parent
+        : (doc.sections[doc.sections.length - 1] ?? null);
+      const siblings = childrenOf(doc, parent);
+      const order = keyBetween(siblings.length ? siblings[siblings.length - 1]!.order : null, null);
+      const id = `n${doc.seq + 1}-${Math.floor(performance.now())}`;
+      const def = ADD_DEFAULTS[kind];
+      ed.apply({ t: "insert_node", node: { id, type: def.type, parent, order, props: { ...def.props }, style: { base: { ...def.style } } } });
+      ed.select(id);
+    },
+    [ed],
+  );
+
+  // Right-edge Element palette: reveals when the pointer nears the right screen
+  // edge, hides while an Element is being dragged onto the page.
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [draggingEl, setDraggingEl] = useState(false);
+  useEffect(() => {
+    if (!editing) {
+      setPaletteOpen(false);
+      return;
+    }
+    const onMove = (e: MouseEvent) => {
+      if (draggingEl) return;
+      if (e.clientX >= window.innerWidth - 26) setPaletteOpen(true);
+      else if (e.clientX < window.innerWidth - 236) setPaletteOpen(false);
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, [editing, draggingEl]);
+
+  const onPageDrop = (e: ReactDragEvent<HTMLDivElement>) => {
+    const kind = e.dataTransfer.getData("application/x-cms-element") as AddKind;
+    if (!kind) return;
+    e.preventDefault();
+    const el = document.elementFromPoint(e.clientX, e.clientY)?.closest("[data-cms]");
+    addNodeAt(kind, el?.getAttribute("data-cms") ?? null);
+    setDraggingEl(false);
+  };
+
   const setStyle = (patch: Partial<StyleProps>) =>
     selection && ed.apply({ t: "set_style", id: selection, breakpoint: "base", patch });
   const setProps = (patch: Record<string, unknown>) =>
@@ -294,7 +343,13 @@ export function EditablePage({
   };
 
   const page = (
-    <div ref={pageRef} onClickCapture={onClickCapture} onContextMenu={onContextMenuSelect}>
+    <div
+      ref={pageRef}
+      onClickCapture={onClickCapture}
+      onContextMenu={onContextMenuSelect}
+      onDragOver={editing ? (e) => e.preventDefault() : undefined}
+      onDrop={editing ? onPageDrop : undefined}
+    >
       <CmsPage doc={ed.state.doc} registry={registry} />
     </div>
   );
@@ -379,7 +434,78 @@ export function EditablePage({
         />
       ) : null}
 
+      {editing ? <ElementPalette open={paletteOpen} onDragChange={setDraggingEl} /> : null}
+
       {editing && timelineDock ? <div style={{ position: "fixed", left: 0, right: 0, bottom: 0, zIndex: Z }}>{timelineDock}</div> : null}
+    </div>
+  );
+}
+
+/**
+ * The Element palette — a panel docked to the right edge that slides in when the
+ * pointer nears the edge (controlled by `open`) and hides while an Element is
+ * being dragged. Each tile is draggable; dropping it on the page inserts that
+ * Element (handled by EditablePage's `onPageDrop`).
+ */
+function ElementPalette({ open, onDragChange }: { open: boolean; onDragChange: (dragging: boolean) => void }): ReactElement {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 64,
+        bottom: 96,
+        right: 0,
+        width: 216,
+        transform: open ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.18s ease",
+        background: "#0b1220",
+        color: "#e2e8f0",
+        borderLeft: "1px solid #1e293b",
+        borderTopLeftRadius: 12,
+        borderBottomLeftRadius: 12,
+        boxShadow: "-18px 0 48px -20px rgba(0,0,0,0.6)",
+        zIndex: Z + 2,
+        fontFamily: "system-ui, sans-serif",
+        padding: 12,
+        overflowY: "auto",
+      }}
+    >
+      <div style={{ fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", opacity: 0.5, marginBottom: 10 }}>Elements</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        {ADD_MENU.map((m) => (
+          <div
+            key={m.kind}
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.setData("application/x-cms-element", m.kind);
+              e.dataTransfer.effectAllowed = "copy";
+              onDragChange(true);
+            }}
+            onDragEnd={() => onDragChange(false)}
+            title={`Drag "${m.label}" onto the page`}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 4,
+              height: 56,
+              borderRadius: 8,
+              background: "#0f172a",
+              border: "1px solid #1e293b",
+              cursor: "grab",
+              fontSize: 12,
+              userSelect: "none",
+            }}
+          >
+            <span style={{ fontSize: 16, opacity: 0.7 }}>＋</span>
+            {m.label}
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize: 10.5, opacity: 0.45, marginTop: 12, lineHeight: 1.4 }}>
+        Drag an Element onto the page. It drops into the container you release over.
+      </p>
     </div>
   );
 }
@@ -675,7 +801,7 @@ function EditBar({
       {editing ? (
         <>
           <div style={{ position: "relative" }}>
-            <button type="button" style={{ ...btn, background: open ? "#1e293b" : "transparent" }} onClick={() => setOpen((v) => !v)} title="Add an element">＋ Add ▾</button>
+            <button type="button" style={{ ...btn, background: open ? "#1e293b" : "transparent" }} onClick={() => setOpen((v) => !v)} title="Add an Element (or drag from the right-edge palette)">＋ Element ▾</button>
             {open ? (
               <div style={{ position: "absolute", top: "calc(100% + 6px)", right: 0, background: "#0f172a", border: "1px solid #1e293b", borderRadius: 10, padding: 4, display: "flex", flexDirection: "column", minWidth: 132, boxShadow: "0 12px 32px -10px rgba(0,0,0,0.6)" }}>
                 {ADD_MENU.map((m) => (
@@ -734,7 +860,7 @@ function EditMenuItems({
     <>
       {editable ? <ContextMenu.Item onClick={onEditText}>Edit text</ContextMenu.Item> : null}
       <ContextMenu.Sub>
-        <ContextMenu.SubTrigger>{isContainer ? "Add inside" : "Add"}</ContextMenu.SubTrigger>
+        <ContextMenu.SubTrigger>{isContainer ? "Add Element inside" : "Add Element"}</ContextMenu.SubTrigger>
         <ContextMenu.SubContent className="!z-[2147483647]">
           {ADD_MENU.map((m) => (
             <ContextMenu.Item key={m.kind} onClick={() => onAdd(m.kind)}>{m.label}</ContextMenu.Item>
