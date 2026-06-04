@@ -20,7 +20,7 @@ export interface NodeInspectorProps {
   onClose: () => void;
 }
 
-const CONTAINER_TYPES = new Set(["section", "frame", "stack", "grid", "shape"]);
+const CONTAINER_TYPES = new Set(["section", "frame", "stack", "grid", "shape", "card", "device"]);
 
 /**
  * The on-page element Inspector — a docked properties panel shown while a node

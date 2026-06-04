@@ -30,8 +30,28 @@ export const defaultRegistry: ElementRegistry = {
   grid: ({ children }) => children,
   frame: ({ children }) => children,
   shape: ({ children }) => children,
+  card: ({ children }) => children,
   text: ({ node }) => literal(node.props.content),
   heading: ({ node }) => literal(node.props.content) || "Heading",
+  link: ({ node }) => (
+    <a href={literal(node.props.href) || "#"} style={{ color: "inherit", textDecoration: "underline" }}>
+      {literal(node.props.content) || "link"}
+    </a>
+  ),
+  divider: () => <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: 0 }} />,
+  callout: ({ node }) => {
+    const tone = ({ info: "#3b82f6", success: "#10b981", warning: "#f59e0b", danger: "#ef4444" } as Record<string, string>)[literal(node.props.variant)] ?? "#3b82f6";
+    return (
+      <div style={{ display: "flex", gap: 10, padding: "12px 14px", borderRadius: 10, background: `${tone}14`, borderLeft: `3px solid ${tone}` }}>
+        <span style={{ fontSize: 13 }}>{literal(node.props.content) || "Callout"}</span>
+      </div>
+    );
+  },
+  code: ({ node }) => (
+    <pre style={{ margin: 0, padding: "12px 14px", borderRadius: 10, background: "#0b1220", color: "#e2e8f0", fontFamily: "ui-monospace, monospace", fontSize: 13, overflowX: "auto" }}>
+      <code>{literal(node.props.content)}</code>
+    </pre>
+  ),
   button: ({ node }) => {
     const label = literal(node.props.label) || literal(node.props.content) || "Button";
     const variant = literal(node.props.variant) || "primary";

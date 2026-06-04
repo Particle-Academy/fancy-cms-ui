@@ -208,7 +208,7 @@ export function EditablePage({
       const order = keyBetween(siblings.length ? siblings[siblings.length - 1]!.order : null, null);
       const id = `n${doc.seq + 1}-${Math.floor(performance.now())}`;
       const def = ADD_DEFAULTS[kind];
-      ed.apply({ t: "insert_node", node: { id, type: def.type, parent, order, props: { ...def.props }, style: { base: { ...def.style } } } });
+      ed.apply({ t: "insert_node", node: { id, type: def.type, parent, order, layout: def.layout, props: { ...def.props }, style: { base: { ...def.style } } } });
       ed.select(id);
     },
     [ed, selNode],
@@ -229,7 +229,7 @@ export function EditablePage({
       const order = keyBetween(siblings.length ? siblings[siblings.length - 1]!.order : null, null);
       const id = `n${doc.seq + 1}-${Math.floor(performance.now())}`;
       const def = ADD_DEFAULTS[kind];
-      ed.apply({ t: "insert_node", node: { id, type: def.type, parent, order, props: { ...def.props }, style: { base: { ...def.style } } } });
+      ed.apply({ t: "insert_node", node: { id, type: def.type, parent, order, layout: def.layout, props: { ...def.props }, style: { base: { ...def.style } } } });
       ed.select(id);
     },
     [ed],
@@ -510,15 +510,34 @@ function ElementPalette({ open, onDragChange }: { open: boolean; onDragChange: (
   );
 }
 
-const CONTAINER_TYPES = new Set(["section", "frame", "stack", "grid", "shape"]);
+const CONTAINER_TYPES = new Set(["section", "frame", "stack", "grid", "shape", "card", "device"]);
 
-type AddKind = "text" | "heading" | "button" | "image" | "box";
-const ADD_DEFAULTS: Record<AddKind, { type: string; props: Record<string, Json>; style: StyleProps }> = {
+type AddKind =
+  | "text"
+  | "heading"
+  | "button"
+  | "link"
+  | "image"
+  | "box"
+  | "stack"
+  | "grid"
+  | "card"
+  | "callout"
+  | "divider"
+  | "code";
+const ADD_DEFAULTS: Record<AddKind, { type: string; props: Record<string, Json>; style: StyleProps; layout?: LayoutMode }> = {
   text: { type: "text", props: { content: "New text" }, style: { color: "inherit" } },
   heading: { type: "heading", props: { content: "New heading" }, style: { fontSize: { value: 28, unit: "px" }, fontWeight: 700 } },
   button: { type: "button", props: { label: "Button", href: "#", variant: "primary" }, style: {} },
+  link: { type: "link", props: { content: "link text", href: "#" }, style: { color: "#7c3aed" } },
   image: { type: "image", props: { src: "", alt: "" }, style: {} },
   box: { type: "frame", props: {}, style: { padding: { value: 16, unit: "px" } } },
+  stack: { type: "stack", props: {}, style: { gap: { value: 12, unit: "px" } }, layout: "stack" },
+  grid: { type: "grid", props: {}, style: { gap: { value: 12, unit: "px" } }, layout: "grid" },
+  card: { type: "card", props: {}, style: { padding: { value: 16, unit: "px" }, radius: { value: 12, unit: "px" }, border: "1px solid #e2e8f0" } },
+  callout: { type: "callout", props: { content: "Heads up — this is a callout.", variant: "info" }, style: {} },
+  divider: { type: "divider", props: {}, style: {} },
+  code: { type: "code", props: { content: "npm install @particle-academy/react-fancy", lang: "bash" }, style: {} },
 };
 
 /** A resize grip: which edges it drags, its position, and its cursor. */
@@ -766,11 +785,18 @@ function FloatingToolbar({
 }
 
 const ADD_MENU: Array<{ kind: AddKind; label: string }> = [
-  { kind: "text", label: "Text" },
   { kind: "heading", label: "Heading" },
+  { kind: "text", label: "Text" },
   { kind: "button", label: "Button" },
+  { kind: "link", label: "Link" },
   { kind: "image", label: "Image" },
+  { kind: "card", label: "Card" },
+  { kind: "callout", label: "Callout" },
+  { kind: "stack", label: "Stack" },
+  { kind: "grid", label: "Grid" },
   { kind: "box", label: "Box" },
+  { kind: "divider", label: "Divider" },
+  { kind: "code", label: "Code" },
 ];
 
 function EditBar({
