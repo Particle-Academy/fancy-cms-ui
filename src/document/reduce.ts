@@ -116,6 +116,11 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       });
     }
 
+    case "set_layout": {
+      if (!doc.nodes[op.id]) return invalid("node not found");
+      return patchNode(doc, op.id, { layout: op.layout });
+    }
+
     case "set_style": {
       const node = doc.nodes[op.id];
       if (!node) return invalid("node not found");
@@ -223,6 +228,12 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
       const prev: Record<string, unknown> = {};
       for (const k of Object.keys(op.patch)) prev[k] = node.props[k];
       return [{ t: "set_props", id: op.id, patch: prev }];
+    }
+
+    case "set_layout": {
+      const node = doc.nodes[op.id];
+      if (!node) return [];
+      return [{ t: "set_layout", id: op.id, layout: node.layout }];
     }
 
     case "set_style": {

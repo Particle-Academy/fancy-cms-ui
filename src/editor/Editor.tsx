@@ -43,7 +43,12 @@ export function Editor({ defaultValue, onChange }: EditorProps): ReactElement {
     <div style={shell}>
       <div style={{ borderRight: "1px solid #e2e8f0", display: "flex", flexDirection: "column", minHeight: 0 }}>
         <Toolbar ed={ed} />
-        <LayersPanel doc={ed.state.doc} selection={ed.state.selection} onSelect={ed.select} />
+        <LayersPanel
+          doc={ed.state.doc}
+          selection={ed.state.selection}
+          onSelect={ed.select}
+          onMove={(id, parent, order) => ed.apply({ t: "move_node", id, parent, order })}
+        />
       </div>
       <Canvas doc={ed.state.doc} selection={ed.state.selection} onSelect={ed.select} apply={ed.apply} />
       <div style={{ borderLeft: "1px solid #e2e8f0", minHeight: 0 }}>

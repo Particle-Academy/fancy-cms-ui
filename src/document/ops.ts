@@ -8,6 +8,7 @@ import type {
   Anim,
   Breakpoint,
   Constraints,
+  LayoutMode,
   Node,
   NodeId,
   PageMeta,
@@ -22,6 +23,7 @@ export type PageOp =
   | { t: "remove_node"; id: NodeId }
   | { t: "move_node"; id: NodeId; parent: NodeId | null; order: string }
   | { t: "set_props"; id: NodeId; patch: Record<string, unknown> }
+  | { t: "set_layout"; id: NodeId; layout: LayoutMode | undefined }
   | { t: "set_style"; id: NodeId; breakpoint: Breakpoint; patch: Partial<StyleProps> }
   | { t: "set_constraints"; id: NodeId; breakpoint: Breakpoint; patch: Partial<Constraints> }
   | { t: "set_animation"; id: NodeId; anim: Anim }

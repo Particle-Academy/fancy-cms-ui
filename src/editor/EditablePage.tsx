@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from "react";
 import { ContextMenu } from "@particle-academy/react-fancy";
-import type { Json, NodeId, PageDoc, StyleProps } from "../document/types";
+import type { Json, LayoutMode, NodeId, PageDoc, StyleProps } from "../document/types";
 import type { PageOp } from "../document/ops";
 import { childrenOf } from "../document/reduce";
 import { keyBetween } from "../document/fractional";
@@ -215,6 +215,8 @@ export function EditablePage({
     selection && ed.apply({ t: "set_style", id: selection, breakpoint: "base", patch });
   const setProps = (patch: Record<string, unknown>) =>
     selection && ed.apply({ t: "set_props", id: selection, patch });
+  const setLayout = (layout: LayoutMode | undefined) =>
+    selection && ed.apply({ t: "set_layout", id: selection, layout });
   const removeSelected = () => {
     if (!selection) return;
     ed.apply({ t: "remove_node", id: selection });
@@ -242,6 +244,11 @@ export function EditablePage({
     requestAnimationFrame(() => pageRef.current?.querySelector<HTMLElement>(`[data-cms="${cssEscape(id)}"]`)?.focus());
   };
 
+  // Latest transforms + commit fn for keyboard nudge — read via ref so the
+  // keydown handler never sees a stale snapshot (transforms change ~30×/s).
+  const nudgeRef = useRef({ transforms, onNodeTransform });
+  nudgeRef.current = { transforms, onNodeTransform };
+
   // Keyboard shortcuts in EditMode (ignored while typing in a field/contentEditable).
   useEffect(() => {
     if (!editing) return;
@@ -261,6 +268,16 @@ export function EditablePage({
       } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "v") {
         e.preventDefault();
         paste(selection);
+      } else if (selection && /^Arrow(Left|Right|Up|Down)$/.test(e.key)) {
+        // Nudge: arrows move ±1px, Shift+arrows ±10px — committed as a transform.
+        const { transforms: tf, onNodeTransform: commit } = nudgeRef.current;
+        if (!commit) return;
+        e.preventDefault();
+        const step = e.shiftKey ? 10 : 1;
+        const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
+        const dy = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+        const cur = tf?.[selection] ?? {};
+        commit(selection, { ...cur, x: (cur.x ?? 0) + dx, y: (cur.y ?? 0) + dy });
       }
     };
     window.addEventListener("keydown", onKey);
@@ -334,6 +351,7 @@ export function EditablePage({
           measured={{ w: box.w, h: box.h }}
           onProps={setProps}
           onStyle={setStyle}
+          onLayout={setLayout}
           onTransform={(t) => selection && onNodeTransform?.(selection, t)}
           onRemove={removeSelected}
           onClose={() => ed.select(null)}

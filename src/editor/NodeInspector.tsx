@@ -1,5 +1,5 @@
 import { type CSSProperties, type ReactElement, type ReactNode } from "react";
-import type { Length, Node, StyleProps } from "../document/types";
+import type { LayoutMode, Length, Node, StyleProps } from "../document/types";
 import type { NodeTransform } from "./EditablePage";
 
 export interface NodeInspectorProps {
@@ -12,6 +12,8 @@ export interface NodeInspectorProps {
   onProps: (patch: Record<string, unknown>) => void;
   /** Patch the node's base style. */
   onStyle: (patch: Partial<StyleProps>) => void;
+  /** Set how a container arranges its children (free / stack / grid). */
+  onLayout?: (layout: LayoutMode | undefined) => void;
   /** Commit a transform (position / size / opacity / scale / rotate) into the active keyframe. */
   onTransform: (t: NodeTransform) => void;
   onRemove: () => void;
@@ -34,6 +36,7 @@ export function NodeInspector({
   measured,
   onProps,
   onStyle,
+  onLayout,
   onTransform,
   onRemove,
   onClose,
@@ -146,6 +149,12 @@ export function NodeInspector({
         {CONTAINER_TYPES.has(node.type) ? (
           <Group label="Layout">
             <Row>
+              <Sel
+                label="Mode"
+                value={node.layout ?? "free"}
+                options={[["free", "Free"], ["stack", "Stack"], ["grid", "Grid"]]}
+                onChange={(v) => onLayout?.(v as LayoutMode)}
+              />
               <Num label="Gap" value={base.gap?.value} placeholder="0" onChange={(v) => onStyle({ gap: v == null ? undefined : len(v) })} />
             </Row>
             <Row>
