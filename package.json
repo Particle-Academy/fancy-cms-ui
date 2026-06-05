@@ -83,7 +83,7 @@
     }
   },
   "devDependencies": {
-    "@particle-academy/react-fancy": "^3.5.0",
+    "@particle-academy/react-fancy": "^4.0.0",
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
