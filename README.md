@@ -1,5 +1,7 @@
 # @particle-academy/fancy-cms-ui
 
+[![Fancified](art/fancified.svg)](https://particle.academy)
+
 The editor + isomorphic renderer for **fancy-cms** — an extendable inline-WYSIWYG
 website + app-shell builder for Laravel, built on the Fancy UI suite.
 
