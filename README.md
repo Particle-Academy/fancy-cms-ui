@@ -2,6 +2,12 @@
 
 [![Fancified](art/fancified.svg)](https://particle.academy)
 
+> ⚠️ **Early-release BETA.** This package is young and moving fast — expect
+> rough edges, gaps, and breaking changes between 0.x releases. If you hit
+> anything odd (bugs, missing pieces, confusing docs), please report it at
+> [github.com/Particle-Academy/fancy-cms-ui/issues](https://github.com/Particle-Academy/fancy-cms-ui/issues)
+> — every discovery helps.
+
 The editor + isomorphic renderer for **fancy-cms** — an extendable inline-WYSIWYG
 website + app-shell builder for Laravel, built on the Fancy UI suite.
 
@@ -16,6 +22,64 @@ website + app-shell builder for Laravel, built on the Fancy UI suite.
 > land in later phases.
 
 Architecture & plan: `fancy-ui/docs/fancy-cms.md`.
+
+## Use
+
+```bash
+npm install @particle-academy/fancy-cms-ui
+```
+
+Everything ships from the main entry — the renderer (`CmsPage` / `CmsRegion`),
+the WYSIWYG `Editor`, and the framework-agnostic spine (document model, ops,
+`reduce`, `emitDocCss`):
+
+```tsx
+import { useState } from "react";
+import { CmsPage, Editor, emptyDoc, reduce, type PageDoc } from "@particle-academy/fancy-cms-ui";
+
+// A tiny Stages document — every mutation is a PageOp through the pure reduce.
+let initial = emptyDoc("home");
+initial = reduce(initial, {
+  t: "insert_node",
+  node: { id: "s1", type: "section", parent: null, order: "a", layout: "stack",
+          props: {}, style: { base: { padding: { value: 32, unit: "px" } } } },
+});
+initial = reduce(initial, {
+  t: "insert_node",
+  node: { id: "h1", type: "heading", parent: "s1", order: "a",
+          props: { content: "Hello" }, style: { base: { fontSize: { value: 32, unit: "px" } } } },
+});
+initial = reduce(initial, {
+  t: "insert_node",
+  node: { id: "p1", type: "text", parent: "s1", order: "b",
+          props: { content: "Built with fancy-cms." }, style: { base: {} } },
+});
+
+// Author: the full editor (layers · canvas · inspector, snapshot undo/redo).
+function Author() {
+  const [doc, setDoc] = useState(initial);
+  return <Editor defaultValue={doc} onChange={setDoc} />;
+}
+
+// Publish: render the document (or one subtree via <CmsRegion doc={doc} root="s1" />).
+function Page({ doc }: { doc: PageDoc }) {
+  return <CmsPage doc={doc} />;
+}
+```
+
+Lean subpath entries also exist: `@particle-academy/fancy-cms-ui/react`
+(renderer only) and `@particle-academy/fancy-cms-ui/editor` (the editor, plus
+the inline `EditablePage` — the one component that additionally requires the
+optional `@particle-academy/react-fancy` peer).
+
+### Styling
+
+There is **no stylesheet to import**. Authored page styles are compiled by the
+deterministic CSS emitter and injected as an inline `<style data-cms-styles>`
+tag by `CmsPage` / `CmsRegion` (set `includeStyles={false}` when the host emits
+CSS itself, e.g. via the PHP renderer). Editor chrome is self-contained inline
+styles. `EditablePage`'s context menu comes from `@particle-academy/react-fancy`,
+whose Tailwind classes your app's Tailwind build compiles as usual.
 
 ## What's here (Phase 0)
 

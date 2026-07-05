@@ -9,6 +9,9 @@ export { CmsPage, type CmsPageProps } from "./CmsPage";
 export { CmsRegion, type CmsRegionProps } from "./CmsRegion";
 export {
   defaultRegistry,
+  getPath,
+  resolveValue,
+  type DataContext,
   type ElementContext,
   type ElementRegistry,
   type ElementRenderer,
