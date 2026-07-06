@@ -21,6 +21,7 @@ import { defaultRegistry, type DataContext, type ElementRegistry } from "../reac
 import { NodeInspector } from "./NodeInspector";
 import { duplicateOps, pasteOps, reorderOps, snapshotSubtree, wrapInBoxOps, type NodeMap, type ReorderDir } from "./editorOps";
 import { useEditor } from "./useEditor";
+import { useLatestRef } from "./useLatestRef";
 
 /** Animatable per-node transform (mirrors fancy-motion's NodeState, kept local to avoid a hard dep). */
 export interface NodeTransform {
@@ -98,7 +99,10 @@ export function EditablePage({
   const { selection } = ed.state;
   const selNode = selection ? ed.state.doc.nodes[selection] : null;
 
-  useEffect(() => onSelect?.(selection), [selection, onSelect]);
+  // Notify effects depend only on the data, never on the callback prop's
+  // identity — inline-closure consumers would loop them otherwise (see #1).
+  const onSelectRef = useLatestRef(onSelect);
+  useEffect(() => onSelectRef.current?.(selection), [selection, onSelectRef]);
 
   // Ctrl+Shift reveal gesture.
   useEffect(() => {
@@ -131,13 +135,15 @@ export function EditablePage({
   // rAF is throttled or fully suspended in hidden/background tabs, which silently
   // freezes the playhead at 0; a direct getBoundingClientRect on one element per
   // scroll event is cheap and always fires.
+  const onProgressRef = useLatestRef(onProgress);
+  const hasProgress = !!onProgress;
   useEffect(() => {
     const spacer = spacerRef.current;
-    if (!spacer || !onProgress) return;
+    if (!spacer || !hasProgress) return;
     const compute = () => {
       const len = spacer.offsetHeight - window.innerHeight;
       const top = spacer.getBoundingClientRect().top;
-      onProgress(len > 0 ? Math.min(1, Math.max(0, -top / len)) : 0);
+      onProgressRef.current?.(len > 0 ? Math.min(1, Math.max(0, -top / len)) : 0);
     };
     compute();
     window.addEventListener("scroll", compute, { passive: true });
@@ -146,7 +152,7 @@ export function EditablePage({
       window.removeEventListener("scroll", compute);
       window.removeEventListener("resize", compute);
     };
-  }, [onProgress, frames]);
+  }, [hasProgress, onProgressRef, frames]);
 
   const measureBox = useCallback(() => {
     if (!editing || !selection || !pageRef.current) return setBox(null);

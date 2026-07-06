@@ -1,6 +1,7 @@
 import { useEffect, useRef, type CSSProperties, type ReactElement } from "react";
 import type { PageDoc } from "../document/types";
 import { useEditor, type EditorApi } from "./useEditor";
+import { useLatestRef } from "./useLatestRef";
 import { Canvas } from "./Canvas";
 import { LayersPanel } from "./LayersPanel";
 import { Inspector } from "./Inspector";
@@ -19,13 +20,17 @@ export function Editor({ defaultValue, onChange }: EditorProps): ReactElement {
   const ed = useEditor(defaultValue);
   const first = useRef(true);
 
+  // Notify depends ONLY on the doc — the latest onChange lives in a ref, so an
+  // inline-closure consumer (whose handler identity changes every render) can't
+  // re-trigger the notify and loop it (#1).
+  const onChangeRef = useLatestRef(onChange);
   useEffect(() => {
     if (first.current) {
       first.current = false;
       return;
     }
-    onChange?.(ed.state.doc);
-  }, [ed.state.doc, onChange]);
+    onChangeRef.current?.(ed.state.doc);
+  }, [ed.state.doc, onChangeRef]);
 
   const shell: CSSProperties = {
     display: "grid",
