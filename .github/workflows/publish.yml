@@ -35,4 +35,4 @@ jobs:
           VERSION=$(node -p "require('./package.json').version")
           if [[ "$VERSION" == *-* ]]; then TAG=dev; else TAG=latest; fi
           echo "Publishing $VERSION under dist-tag '$TAG'"
-          npx -y npm@latest publish --provenance --access public --tag "$TAG"
+          npx -y npm@11.18.0 publish --provenance --access public --tag "$TAG"
