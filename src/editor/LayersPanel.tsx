@@ -93,10 +93,10 @@ function LayerRow({ doc, id, depth, selection, onSelect, onMove, overId, setOver
           cursor: draggable ? "grab" : "pointer",
           padding: "4px 8px",
           paddingLeft: 8 + depth * 14,
-          background: selected ? "#ede9fe" : "transparent",
-          color: selected ? "#5b21b6" : "#334155",
+          background: selected ? "var(--fcms-sel-bg)" : "transparent",
+          color: selected ? "var(--fcms-sel-fg)" : "var(--fcms-row-fg)",
           font: "inherit",
-          boxShadow: overId === id ? "inset 0 -2px 0 0 #8b5cf6" : "none",
+          boxShadow: overId === id ? "inset 0 -2px 0 0 var(--fcms-accent, #8b5cf6)" : "none",
         }}
       >
         <span style={{ opacity: 0.6 }}>{node.type}</span> · {id}

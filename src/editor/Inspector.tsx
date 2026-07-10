@@ -13,7 +13,7 @@ const label: CSSProperties = {
   fontSize: 11,
   textTransform: "uppercase",
   letterSpacing: "0.04em",
-  color: "#94a3b8",
+  color: "var(--fcms-muted)",
   margin: "10px 0 4px",
 };
 const input: CSSProperties = {
@@ -21,7 +21,9 @@ const input: CSSProperties = {
   boxSizing: "border-box",
   padding: "6px 8px",
   borderRadius: 6,
-  border: "1px solid #e2e8f0",
+  border: "1px solid var(--fcms-border)",
+  background: "var(--fcms-input-bg)",
+  color: "var(--fcms-fg)",
   font: "inherit",
   fontSize: 13,
 };
@@ -31,7 +33,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
   const node = selection ? doc.nodes[selection] : null;
   if (!node) {
     return (
-      <div style={{ padding: 16, color: "#94a3b8", fontFamily: "system-ui, sans-serif", fontSize: 13 }}>
+      <div style={{ padding: 16, color: "var(--fcms-muted)", fontFamily: "system-ui, sans-serif", fontSize: 13 }}>
         Select an element to edit.
       </div>
     );
@@ -45,8 +47,8 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
 
   return (
     <div style={{ overflow: "auto", padding: 16, fontFamily: "system-ui, sans-serif", height: "100%", boxSizing: "border-box" }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{node.type}</div>
-      <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 8 }}>{node.id}</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--fcms-fg)" }}>{node.type}</div>
+      <div style={{ fontSize: 11, color: "var(--fcms-muted)", marginBottom: 8 }}>{node.id}</div>
 
       {node.type === "text" ? (
         <>

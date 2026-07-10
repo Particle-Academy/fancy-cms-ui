@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { PageDoc } from "../document/types";
 import type { PageOp } from "../document/ops";
+import type { DataContext, ElementRegistry } from "../react/registry";
 import { CmsPage } from "../react/CmsPage";
 
 export interface CanvasProps {
@@ -16,6 +17,10 @@ export interface CanvasProps {
   selection: string | null;
   onSelect: (id: string | null) => void;
   apply: (op: PageOp) => void;
+  /** Custom element registry so custom node types render on the canvas (not a blank placeholder). */
+  registry?: ElementRegistry;
+  /** Data context for `{ $bind }` props + repeaters previewed on the canvas. */
+  data?: DataContext;
 }
 
 interface Box {
@@ -30,7 +35,7 @@ interface Box {
  * select; drag the box to move (px constraints). Phase 1 cut: free-parent
  * move + resize handles, stack/grid reordering, and snapping come next.
  */
-export function Canvas({ doc, selection, onSelect, apply }: CanvasProps): ReactElement {
+export function Canvas({ doc, selection, onSelect, apply, registry, data }: CanvasProps): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<Box | null>(null);
   const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
@@ -93,7 +98,7 @@ export function Canvas({ doc, selection, onSelect, apply }: CanvasProps): ReactE
     position: "relative",
     overflow: "auto",
     height: "100%",
-    background: "#f8fafc",
+    background: "var(--fcms-canvas)",
   };
   const overlay: CSSProperties = box
     ? {
@@ -102,7 +107,7 @@ export function Canvas({ doc, selection, onSelect, apply }: CanvasProps): ReactE
         top: box.y,
         width: box.w,
         height: box.h,
-        outline: "2px solid #8b5cf6",
+        outline: "2px solid var(--fcms-accent, #8b5cf6)",
         outlineOffset: -1,
         cursor: "move",
         touchAction: "none",
@@ -111,7 +116,7 @@ export function Canvas({ doc, selection, onSelect, apply }: CanvasProps): ReactE
 
   return (
     <div ref={ref} onClick={handleClick} style={surface}>
-      <CmsPage doc={doc} />
+      <CmsPage doc={doc} registry={registry} data={data} />
       <div
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
