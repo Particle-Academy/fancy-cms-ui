@@ -16,6 +16,7 @@ import type { Json, LayoutMode, NodeId, PageDoc, StyleProps } from "../document/
 import type { PageOp } from "../document/ops";
 import { childrenOf } from "../document/reduce";
 import { keyBetween } from "../document/fractional";
+import { ADD_DEFAULTS, ADD_MENU, CONTAINER_TYPES, buildInsertOp, type AddKind } from "./insert";
 import { CmsPage } from "../react/CmsPage";
 import { defaultRegistry, type DataContext, type ElementRegistry } from "../react/registry";
 import { NodeInspector } from "./NodeInspector";
@@ -594,39 +595,8 @@ function ElementPalette({ open, onDragChange }: { open: boolean; onDragChange: (
   );
 }
 
-const CONTAINER_TYPES = new Set(["section", "frame", "stack", "grid", "shape", "card", "device", "repeater"]);
-
-type AddKind =
-  | "text"
-  | "heading"
-  | "button"
-  | "link"
-  | "image"
-  | "box"
-  | "stack"
-  | "grid"
-  | "card"
-  | "callout"
-  | "divider"
-  | "code"
-  | "richtext"
-  | "repeater";
-const ADD_DEFAULTS: Record<AddKind, { type: string; props: Record<string, Json>; style: StyleProps; layout?: LayoutMode }> = {
-  text: { type: "text", props: { content: "New text" }, style: { color: "inherit" } },
-  heading: { type: "heading", props: { content: "New heading" }, style: { fontSize: { value: 28, unit: "px" }, fontWeight: 700 } },
-  button: { type: "button", props: { label: "Button", href: "#", variant: "primary" }, style: {} },
-  link: { type: "link", props: { content: "link text", href: "#" }, style: { color: "#7c3aed" } },
-  image: { type: "image", props: { src: "", alt: "" }, style: {} },
-  box: { type: "frame", props: {}, style: { padding: { value: 16, unit: "px" } } },
-  stack: { type: "stack", props: {}, style: { gap: { value: 12, unit: "px" } }, layout: "stack" },
-  grid: { type: "grid", props: {}, style: { gap: { value: 12, unit: "px" } }, layout: "grid" },
-  card: { type: "card", props: {}, style: { padding: { value: 16, unit: "px" }, radius: { value: 12, unit: "px" }, border: "1px solid #e2e8f0" } },
-  callout: { type: "callout", props: { content: "Heads up — this is a callout.", variant: "info" }, style: {} },
-  divider: { type: "divider", props: {}, style: {} },
-  code: { type: "code", props: { content: "npm install @particle-academy/react-fancy", lang: "bash" }, style: {} },
-  richtext: { type: "richtext", props: { html: "<p>Rich <strong>text</strong> with <em>inline</em> formatting.</p>" }, style: {} },
-  repeater: { type: "repeater", props: { items: "" }, style: { gap: { value: 12, unit: "px" } }, layout: "stack" },
-};
+// CONTAINER_TYPES / AddKind / ADD_DEFAULTS / ADD_MENU now live in ./insert, so
+// the standalone <Editor> can offer the same palette (#3).
 
 /** A resize grip: which edges it drags, its position, and its cursor. */
 interface Grip {
@@ -872,22 +842,6 @@ function FloatingToolbar({
   );
 }
 
-const ADD_MENU: Array<{ kind: AddKind; label: string }> = [
-  { kind: "heading", label: "Heading" },
-  { kind: "text", label: "Text" },
-  { kind: "button", label: "Button" },
-  { kind: "link", label: "Link" },
-  { kind: "image", label: "Image" },
-  { kind: "card", label: "Card" },
-  { kind: "callout", label: "Callout" },
-  { kind: "stack", label: "Stack" },
-  { kind: "grid", label: "Grid" },
-  { kind: "box", label: "Box" },
-  { kind: "divider", label: "Divider" },
-  { kind: "code", label: "Code" },
-  { kind: "richtext", label: "Rich text" },
-  { kind: "repeater", label: "Repeater" },
-];
 
 function EditBar({
   editing,

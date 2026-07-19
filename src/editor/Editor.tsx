@@ -1,4 +1,4 @@
-import { useEffect, useRef, type CSSProperties, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from "react";
 import type { PageDoc } from "../document/types";
 import type { DataContext, ElementRegistry } from "../react/registry";
 import { useEditor, type EditorApi } from "./useEditor";
@@ -6,10 +6,15 @@ import { useLatestRef } from "./useLatestRef";
 import { Canvas } from "./Canvas";
 import { LayersPanel } from "./LayersPanel";
 import { Inspector } from "./Inspector";
+import { ADD_MENU, buildInsertOp, type AddKind } from "./insert";
+import { emptyDoc } from "../document/types";
 
 export interface EditorProps {
-  /** Initial document; edits are surfaced via {@link EditorProps.onChange}. */
-  defaultValue: PageDoc;
+  /**
+   * Initial document; edits are surfaced via {@link EditorProps.onChange}.
+   * Omit to start from an empty page.
+   */
+  defaultValue?: PageDoc;
   onChange?: (doc: PageDoc) => void;
   /**
    * Custom element registry — mirrors {@link CmsPageProps.registry} so the edit
@@ -26,7 +31,11 @@ export interface EditorProps {
  * cut — chrome is plain markup for now; it graduates to react-fancy next.
  */
 export function Editor({ defaultValue, onChange, registry, data }: EditorProps): ReactElement {
-  const ed = useEditor(defaultValue);
+  // Render an empty page rather than throwing on a missing document. Reading
+  // `.sections` off undefined crashed the entire editor, which is a hostile way
+  // to tell a host "you haven't passed a doc yet" (#3).
+  const initial = useMemo(() => defaultValue ?? emptyDoc("untitled"), [defaultValue]);
+  const ed = useEditor(initial);
   const first = useRef(true);
 
   // Notify depends ONLY on the doc — the latest onChange lives in a ref, so an
@@ -100,6 +109,95 @@ function Toolbar({ ed }: { ed: EditorApi }): ReactElement {
       <button type="button" style={{ ...btn, opacity: ed.canRedo ? 1 : 0.4 }} disabled={!ed.canRedo} onClick={ed.redo}>
         Redo
       </button>
+      <AddElementMenu ed={ed} btn={btn} />
+    </div>
+  );
+}
+
+/**
+ * Insert control for the standalone editor.
+ *
+ * Without this, `Editor` could not add an element at all: a host starting from
+ * `emptyDoc()` got a blank canvas with nothing to select and no way to put
+ * anything on it (#3). The palette itself was only ever wired into
+ * `EditablePage`, which has no `onChange` to hand the document back — so
+ * neither surface alone was embeddable.
+ */
+function AddElementMenu({ ed, btn }: { ed: EditorApi; btn: CSSProperties }): ReactElement {
+  const [open, setOpen] = useState(false);
+
+  // Dismiss on any outside click or Escape.
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("click", close);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("click", close);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const add = (kind: AddKind) => {
+    const { op, id } = buildInsertOp(ed.state.doc, kind, ed.state.selection);
+    ed.apply(op);
+    ed.select(id);
+    setOpen(false);
+  };
+
+  return (
+    <div style={{ position: "relative", marginLeft: "auto" }} onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        style={{ ...btn, borderColor: "var(--fcms-accent, #7c3aed)" }}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        data-cms-add-trigger=""
+        onClick={() => setOpen((v) => !v)}
+      >
+        + Add
+      </button>
+      {open && (
+        <div
+          role="menu"
+          data-cms-add-menu=""
+          style={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            left: 0,
+            zIndex: 20,
+            minWidth: 150,
+            maxHeight: 280,
+            overflowY: "auto",
+            padding: 4,
+            borderRadius: 8,
+            border: "1px solid var(--fcms-border)",
+            background: "var(--fcms-bg)",
+            boxShadow: "0 12px 32px rgba(0,0,0,.28)",
+          }}
+        >
+          {ADD_MENU.map((item) => (
+            <button
+              key={item.kind}
+              type="button"
+              role="menuitem"
+              data-cms-add={item.kind}
+              style={{
+                ...btn,
+                display: "block",
+                width: "100%",
+                textAlign: "left",
+                border: 0,
+                background: "transparent",
+              }}
+              onClick={() => add(item.kind)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -32,3 +32,6 @@ export { LayersPanel, type LayersPanelProps } from "./editor/LayersPanel";
 export { Inspector, type InspectorProps } from "./editor/Inspector";
 export { useEditor, type EditorApi } from "./editor/useEditor";
 export { editorReduce, initEditor, type EditorAction, type EditorState } from "./editor/state";
+// Element insertion — exported so a host can build its own palette instead of
+// the built-in Add menu, while sharing the editor's defaults and placement.
+export { ADD_MENU, ADD_DEFAULTS, CONTAINER_TYPES, buildInsertOp, resolveInsertParent, type AddKind } from "./editor/insert";
