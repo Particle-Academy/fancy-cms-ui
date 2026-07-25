@@ -21,7 +21,7 @@ website + app-shell builder for Laravel, built on the Fancy UI suite.
 > engine, addon SDK, file manager, and the opt-in `/collab` + `/agent` layers
 > land in later phases.
 
-Architecture & plan: `fancy-ui/docs/fancy-cms.md`.
+Architecture & plan: `.ai/plans/fancy-cms.md` in the [fancy.agi envelope](https://github.com/Particle-Academy).
 
 ## Use
 
