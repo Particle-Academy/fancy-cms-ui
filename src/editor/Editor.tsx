@@ -27,8 +27,19 @@ export interface EditorProps {
 }
 
 /**
- * The fancy-cms editor: layers · canvas · inspector over the op-spine. Phase 1
- * cut — chrome is plain markup for now; it graduates to react-fancy next.
+ * The fancy-cms editor: layers · canvas · inspector over the op-spine.
+ *
+ * The chrome is plain markup **deliberately**, and stays that way. It themes
+ * through the `--fcms-*` layer defined at the bottom of this file — light by
+ * default, dark under `prefers-color-scheme` or a `.dark` ancestor — and
+ * react-fancy's primitives are hardcoded Tailwind palette classes that read no
+ * custom properties, so swapping them in would ignore `--fcms-accent` and strand
+ * a themed host with a half-themed editor.
+ *
+ * An earlier revision of this comment said the chrome "graduates to react-fancy
+ * next". That predates the token layer by three weeks and is no longer the
+ * plan; it is recorded here because it is the kind of note that gets acted on
+ * long after it stopped being true.
  */
 export function Editor({ defaultValue, onChange, registry, data }: EditorProps): ReactElement {
   // Render an empty page rather than throwing on a missing document. Reading
@@ -212,10 +223,12 @@ function AddElementMenu({ ed, btn }: { ed: EditorApi; btn: CSSProperties }): Rea
 const DARK_VARS =
   "color-scheme:dark;--fcms-bg:#0b0f19;--fcms-fg:#e5e7eb;--fcms-muted:#94a3b8;--fcms-border:#27272a;" +
   "--fcms-canvas:#0f141f;--fcms-input-bg:#111827;--fcms-row-fg:#cbd5e1;" +
-  "--fcms-sel-bg:color-mix(in oklab, #8b5cf6 24%, transparent);--fcms-sel-fg:#ddd6fe;";
+  "--fcms-sel-bg:color-mix(in oklab, #8b5cf6 24%, transparent);--fcms-sel-fg:#ddd6fe;" +
+  "--fcms-drop:#ec4899;--fcms-danger:#fca5a5;";
 const LIGHT_VARS =
   "color-scheme:light;--fcms-bg:#ffffff;--fcms-fg:#0f172a;--fcms-muted:#64748b;--fcms-border:#e2e8f0;" +
-  "--fcms-canvas:#f8fafc;--fcms-input-bg:#ffffff;--fcms-row-fg:#334155;--fcms-sel-bg:#ede9fe;--fcms-sel-fg:#5b21b6;";
+  "--fcms-canvas:#f8fafc;--fcms-input-bg:#ffffff;--fcms-row-fg:#334155;--fcms-sel-bg:#ede9fe;--fcms-sel-fg:#5b21b6;" +
+  "--fcms-drop:#db2777;--fcms-danger:#dc2626;";
 const CHROME_CSS =
   `.fancy-cms-editor{--fcms-accent:#8b5cf6;${LIGHT_VARS}}` +
   `@media (prefers-color-scheme:dark){.fancy-cms-editor{${DARK_VARS}}}` +

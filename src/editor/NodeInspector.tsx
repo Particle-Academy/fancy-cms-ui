@@ -61,13 +61,13 @@ export function NodeInspector({
           </span>
         </div>
         <span style={{ flex: 1 }} />
-        <button type="button" style={{ ...iconBtn, color: "#fca5a5" }} title="Delete element" onClick={onRemove}>🗑</button>
+        <button type="button" style={{ ...iconBtn, color: "var(--fcms-danger, #fca5a5)" }} title="Delete element" onClick={onRemove}>🗑</button>
         <button type="button" style={iconBtn} title="Close" onClick={onClose}>✕</button>
       </div>
 
       <div style={body}>
         {"content" in node.props || node.type === "richtext" ? (
-          <p style={{ fontSize: 11, color: "var(--fg-3, #94a3b8)", margin: "0 0 12px", lineHeight: 1.45, paddingBottom: 12, borderBottom: "1px solid #1e293b" }}>
+          <p style={{ fontSize: 11, color: "var(--fcms-muted, #94a3b8)", margin: "0 0 12px", lineHeight: 1.45, paddingBottom: 12, borderBottom: "1px solid var(--fcms-border, #1e293b)" }}>
             ✎ Edit the text <strong>directly on the page</strong> — click in and type. This panel is for layout, style, and bindings.
           </p>
         ) : null}
@@ -178,7 +178,7 @@ export function NodeInspector({
 
 function Group({ label, children }: { label: string; children: ReactNode }): ReactElement {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingBottom: 12, marginBottom: 12, borderBottom: "1px solid #1e293b" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 8, paddingBottom: 12, marginBottom: 12, borderBottom: "1px solid var(--fcms-border, #1e293b)" }}>
       <span style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase", opacity: 0.5 }}>{label}</span>
       {children}
     </div>
@@ -197,7 +197,7 @@ function PropField({ name, value, onChange }: { name: string; value: unknown; on
       type="button"
       title={bound ? "Unbind (use a literal value)" : "Bind to data (e.g. item.name)"}
       onClick={() => onChange(bound ? "" : ({ $bind: "" } satisfies Binding))}
-      style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 11, color: bound ? "#a78bfa" : "#64748b" }}
+      style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontSize: 11, color: bound ? "var(--fcms-accent, #a78bfa)" : "var(--fcms-muted, #64748b)" }}
     >
       🔗
     </button>
@@ -209,7 +209,7 @@ function PropField({ name, value, onChange }: { name: string; value: unknown; on
         <span style={{ ...fieldLabel, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           {name} {link}
         </span>
-        <input style={{ ...input, borderColor: "#7c3aed" }} placeholder="data path · e.g. item.name" value={(value as Binding).$bind} onChange={(e) => onChange({ $bind: e.target.value } satisfies Binding)} />
+        <input style={{ ...input, borderColor: "var(--fcms-accent, #7c3aed)" }} placeholder="data path · e.g. item.name" value={(value as Binding).$bind} onChange={(e) => onChange({ $bind: e.target.value } satisfies Binding)} />
       </label>
     );
   }
@@ -313,7 +313,7 @@ const panel: CSSProperties = {
   fontFamily: "system-ui, sans-serif",
   overflow: "hidden",
 };
-const headRow: CSSProperties = { display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderBottom: "1px solid #1e293b" };
+const headRow: CSSProperties = { display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderBottom: "1px solid var(--fcms-border, #1e293b)" };
 const body: CSSProperties = { padding: 12, overflowY: "auto" };
 const field: CSSProperties = { display: "flex", flexDirection: "column", gap: 4, flex: 1, minWidth: 0 };
 const fieldLabel: CSSProperties = { fontSize: 10, opacity: 0.6 };

@@ -1,5 +1,69 @@
 # Changelog
 
+All notable changes to this project are documented here.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+> **Pre-1.0:** breaking changes land in MINOR releases. Read the entry, not the
+> version number.
+
+> **0.2.0 and 0.3.0 are missing below.** This file was last updated at 0.1.1 and
+> the two releases after it were never written up; `git log` is the record for
+> those. Noted rather than quietly back-filled from memory.
+
+## [Unreleased]
+
+## [0.3.1] — 2026-07-27
+
+### Fixed
+
+- **`Inspector`'s labels were attached to nothing.** Every one was a plain
+  sibling of its control — `<label>Background</label><input/>` — so clicking a
+  label focused nothing and a screen reader announced the style panel as a
+  column of unlabelled boxes.
+
+  Worth distinguishing: `NodeInspector`'s labels **wrap** their inputs, which
+  associates them implicitly and was always correct. This was seven fields in
+  one file, not a package-wide defect.
+
+  Each control now has an `id` its label points at, plus a `data-cms-field`
+  handle keyed by the field — the stable identity the Human+ contract asks for,
+  so an agent addresses a field by name instead of guessing at the DOM.
+
+- **The element palette was hardcoded dark inside a light-themed host.** The
+  editor ships a `--fcms-*` light/dark token layer and then set
+  `background: "#0b1220"`, `color: "#e2e8f0"` and a slate border directly, so a
+  host on the light theme got a permanently dark flyout. The overlay's selection
+  outlines, the drop hint and several `NodeInspector` colours bypassed the layer
+  the same way.
+
+  All of them now resolve through `--fcms-*` **with the previous values as
+  fallbacks**, so default rendering is unchanged and only a host that themes the
+  editor sees a difference. `--fcms-drop` and `--fcms-danger` were added to the
+  light and dark blocks, since a token nothing defines cannot be themed from one
+  place.
+
+  **Nothing to do.** No prop or markup changed.
+
+### Changed
+
+- **A stale note in `Editor.tsx` said the chrome "graduates to react-fancy
+  next".** It dates from the Phase 0+1 commit and the `--fcms-*` token layer
+  landed three weeks after it, superseding it — react-fancy's primitives are
+  hardcoded Tailwind palette classes that read no custom properties, so adopting
+  them would ignore `--fcms-accent` and strand a themed host with a half-themed
+  editor. The comment now records why the chrome stays plain markup, and that
+  the old plan is no longer the plan. It is the kind of note that gets acted on
+  long after it stopped being true.
+
+### Added
+
+- **11 tests** covering label association, the field handles, per-instance ids,
+  the select → deselect → reselect transition, and that every `--fcms-*` token
+  referenced anywhere is actually defined. Ten of them fail against the previous
+  code.
+
 ## 0.1.1 — 2026-07-06
 
 ### Fixed

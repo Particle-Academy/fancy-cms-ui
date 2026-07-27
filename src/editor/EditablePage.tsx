@@ -518,7 +518,7 @@ function DropIndicator({
 }): ReactElement | null {
   const r = hint.rect;
   if (!r) return null;
-  const color = "#ec4899";
+  const color = "var(--fcms-drop, #ec4899)";
   if (hint.edge === "inside") {
     return <div style={{ position: "fixed", left: r.x, top: r.y, width: r.w, height: r.h, outline: `2px dashed ${color}`, outlineOffset: -2, borderRadius: 6, pointerEvents: "none", zIndex: Z + 4 }} />;
   }
@@ -543,9 +543,9 @@ function ElementPalette({ open, onDragChange }: { open: boolean; onDragChange: (
         width: 216,
         transform: open ? "translateX(0)" : "translateX(100%)",
         transition: "transform 0.18s ease",
-        background: "#0b1220",
-        color: "#e2e8f0",
-        borderLeft: "1px solid #1e293b",
+        background: "var(--fcms-bg, #0b1220)",
+        color: "var(--fcms-fg, #e2e8f0)",
+        borderLeft: "1px solid var(--fcms-border, #1e293b)",
         borderTopLeftRadius: 12,
         borderBottomLeftRadius: 12,
         boxShadow: "-18px 0 48px -20px rgba(0,0,0,0.6)",
@@ -576,8 +576,8 @@ function ElementPalette({ open, onDragChange }: { open: boolean; onDragChange: (
               gap: 4,
               height: 56,
               borderRadius: 8,
-              background: "#0f172a",
-              border: "1px solid #1e293b",
+              background: "var(--fcms-canvas, #0f172a)",
+              border: "1px solid var(--fcms-border, #1e293b)",
               cursor: "grab",
               fontSize: 12,
               userSelect: "none",
@@ -740,7 +740,7 @@ function SelectionOverlay({
     top: box.y - 1,
     width: box.w + 2,
     height: box.h + 2,
-    outline: "2px solid #8b5cf6",
+    outline: "2px solid var(--fcms-accent, #8b5cf6)",
     borderRadius: 4,
     pointerEvents: "none",
     zIndex: Z,
@@ -750,7 +750,7 @@ function SelectionOverlay({
     width: 12,
     height: 12,
     background: "#fff",
-    border: "2px solid #8b5cf6",
+    border: "2px solid var(--fcms-accent, #8b5cf6)",
     borderRadius: 3,
     zIndex: Z + 1,
     touchAction: "none",
