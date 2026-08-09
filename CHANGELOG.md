@@ -14,6 +14,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-08-09
+
+### Added
+
+- **`$source` on a binding — where its data comes from, in the Live Contract's
+  vocabulary.** Story #171, AC2.
+
+  ```ts
+  { $bind: "products.0.name", $source: ["catalog", "products"] }
+  ```
+
+  `{ $bind: "profile.coins" }` is a path into whatever blob the host passes as
+  `data`. It says nothing about which query produced that blob, so nothing could
+  know what to re-render when the underlying data changed — a host wiring live
+  data had to work it out per page, by hand.
+
+  `$source` names it in the same `[namespace, resource, …]` shape
+  `fancy-query`'s `liveKey()` produces and every backend twin declares its
+  broadcast events against. This is exactly why the work was gated behind the
+  Live Contract: had the substrate invented its own name for "where this data
+  lives", that vocabulary would have been baked into every **saved document**.
+
+  - `bindingSources(doc)` answers *what live queries does this page read?* —
+    walking props and a repeater's `each`, which is the densest data dependency
+    in the model.
+  - A malformed `$source` reads as absent rather than throwing. Documents arrive
+    from databases and from agents; a renderer that throws takes the page down.
+  - Deliberately a plain array — structurally a TanStack `QueryKey` without the
+    dependency, and it survives JSON.
+
+  **What you must do:** nothing. `$source` is optional, and every document saved
+  before this has none.
+
+- **Asserts `fancy-doc-commons`' `CANONICAL_WALKS`** — the shared fixture
+  `fancy-screens` asserts too, so both surfaces are checked against one tree
+  rather than each being inspected separately (AC1).
+
+### Changed
+
+- `@particle-academy/fancy-doc-commons` to `>=0.4 <2.0`.
+
 ## [0.6.0] — 2026-08-09
 
 ### Changed

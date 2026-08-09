@@ -17,6 +17,8 @@
 
 // ── The spine (framework-agnostic) ──────────────────────────────────────────
 export * from "./document/types";
+export { bindingSources, isLiveBinding } from "./document/bindings";
+export type { BindingSource, LiveBinding } from "./document/bindings";
 export * from "./document/ops";
 export * from "./document/reduce";
 export * from "./document/migrate";

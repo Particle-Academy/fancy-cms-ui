@@ -22,6 +22,18 @@ export type Json = string | number | boolean | null | Json[] | { [key: string]: 
 /** A literal value OR a binding into the page's data context (`{ $bind: "profile.coins" }`). */
 export interface Binding {
   $bind: string;
+  /**
+   * Which live query this path reads from — `["catalog", "products"]`.
+   *
+   * Optional: a host-supplied static context is still legitimate, and every
+   * document saved before this has no `$source`.
+   *
+   * When present it is the Live Contract's vocabulary — the same
+   * `[namespace, resource, …]` shape `fancy-query`'s `liveKey()` produces —
+   * NOT a CMS-local name. See `./bindings` for why that matters and for
+   * `bindingSources()`, which answers "what does this page depend on?".
+   */
+  $source?: readonly (string | number)[];
 }
 export type Bound<T> = T | Binding;
 
