@@ -25,7 +25,7 @@ function mkNode(id: string, order: string): Node {
     parent: null,
     order,
     props: { content: id.toUpperCase() },
-    style: {},
+    style: { base: {} },
   };
 }
 

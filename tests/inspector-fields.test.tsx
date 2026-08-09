@@ -136,7 +136,7 @@ describe("theming", () => {
 
     const referenced = new Set<string>();
     for (const file of ["Editor.tsx", "EditablePage.tsx", "NodeInspector.tsx", "Inspector.tsx", "Canvas.tsx", "LayersPanel.tsx"]) {
-      for (const m of read(file).matchAll(/var\((--fcms-[a-z-]+)/g)) referenced.add(m[1]);
+      for (const m of read(file).matchAll(/var\((--fcms-[a-z-]+)/g)) referenced.add(m[1]!);
     }
 
     // A token nobody defines silently falls back per-usage, so a host that

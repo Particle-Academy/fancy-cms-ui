@@ -14,6 +14,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] — 2026-08-09
+
+### Fixed
+
+- **`NodeTransform` is exported from the `/editor` entry.** It appears in two of
+  `EditablePage`'s props — `transforms?: Record<string, NodeTransform>` and
+  `onNodeTransform?: (id, transform: NodeTransform) => void` — but had never
+  been exported, so a consumer writing an `onNodeTransform` handler had no way
+  to name its second argument. The showcase imported it anyway and carried a
+  permanent type error in the app that exists to demonstrate this package.
+
+  **What you must do:** nothing. This only adds an export.
+
+  The gap was invisible from inside the package: it built and tested clean, and
+  only a CONSUMER could discover it. There is now a type-only fixture
+  (`tests/editor-exports.types.ts`) that imports every public prop type through
+  the same barrel a consumer uses, so the next one fails the build here rather
+  than in someone else's app.
+
+### Added
+
+- `tsconfig.test.json`, wired into `npm run lint`. `tests/` was excluded from
+  type checking entirely, so test files were unchecked TypeScript — turning it
+  on surfaced four real type errors that had been sitting in the suite.
+
 ## [0.5.0] — 2026-08-09
 
 ### Added

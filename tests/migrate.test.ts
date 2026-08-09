@@ -4,7 +4,7 @@ import { rootIds } from "../src/document/reduce";
 import { type LegacyPageDoc, migrateDoc, migrateDocVerbose, needsMigration } from "../src/document/migrate";
 
 function mkNode(id: string, parent: string | null, order: string): Node {
-  return { id, type: "section", parent, order, props: {}, style: {} };
+  return { id, type: "section", parent, order, props: {}, style: { base: {} } };
 }
 
 /** A document as it was persisted under the old model. */
