@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The migration is now tested against a **real saved document** — the showcase's
+  own CMS home page as it was actually persisted before 0.5.0, 62 nodes and
+  seven sections, extracted from `px-ui-sandbox` at the commit before the
+  migration landed. A hand-built fixture only contains the cases its author
+  already thought of.
+
+  That document's `sections` happens to agree with its order keys, because
+  nobody ever reordered it — so a further test permutes `sections` and leaves
+  the keys alone, which is exactly what the old `reorder_sections` op did, and
+  asserts the migration recovers the dragged order.
+
 ## [0.5.1] — 2026-08-09
 
 ### Fixed

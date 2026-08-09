@@ -1,0 +1,635 @@
+{
+ "id": "home",
+ "seq": 0,
+ "sections": [
+  "hero",
+  "sec-packages",
+  "sec-human-plus",
+  "sec-components",
+  "sec-philosophy",
+  "sec-quickstart",
+  "sec-explore"
+ ],
+ "nodes": {
+  "hero": {
+   "id": "hero",
+   "type": "section",
+   "parent": null,
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "grid": {
+   "id": "grid",
+   "type": "frame",
+   "parent": "hero",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "left": {
+   "id": "left",
+   "type": "frame",
+   "parent": "grid",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "eyebrow": {
+   "id": "eyebrow",
+   "type": "richtext",
+   "parent": "left",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "heading": {
+   "id": "heading",
+   "type": "richtext",
+   "parent": "left",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "cta": {
+   "id": "cta",
+   "type": "richtext",
+   "parent": "left",
+   "order": "d",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "meta": {
+   "id": "meta",
+   "type": "richtext",
+   "parent": "left",
+   "order": "e",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "card": {
+   "id": "card",
+   "type": "device",
+   "parent": "grid",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "card-code": {
+   "id": "card-code",
+   "type": "richtext",
+   "parent": "card",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "card-status": {
+   "id": "card-status",
+   "type": "richtext",
+   "parent": "card",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "sec-packages": {
+   "id": "sec-packages",
+   "type": "section",
+   "parent": null,
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-container": {
+   "id": "pk-container",
+   "type": "frame",
+   "parent": "sec-packages",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-eyebrow": {
+   "id": "pk-eyebrow",
+   "type": "richtext",
+   "parent": "pk-container",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-title": {
+   "id": "pk-title",
+   "type": "heading",
+   "parent": "pk-container",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-sub": {
+   "id": "pk-sub",
+   "type": "text",
+   "parent": "pk-container",
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-rep": {
+   "id": "pk-rep",
+   "type": "repeater",
+   "parent": "pk-container",
+   "order": "d",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-card": {
+   "id": "pk-card",
+   "type": "frame",
+   "parent": "pk-rep",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-head": {
+   "id": "pk-head",
+   "type": "frame",
+   "parent": "pk-card",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-glyph": {
+   "id": "pk-glyph",
+   "type": "text",
+   "parent": "pk-head",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-name": {
+   "id": "pk-name",
+   "type": "text",
+   "parent": "pk-head",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-ver": {
+   "id": "pk-ver",
+   "type": "text",
+   "parent": "pk-head",
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-desc": {
+   "id": "pk-desc",
+   "type": "text",
+   "parent": "pk-card",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-tags": {
+   "id": "pk-tags",
+   "type": "frame",
+   "parent": "pk-card",
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-tag1": {
+   "id": "pk-tag1",
+   "type": "text",
+   "parent": "pk-tags",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-tag2": {
+   "id": "pk-tag2",
+   "type": "text",
+   "parent": "pk-tags",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-companions": {
+   "id": "pk-companions",
+   "type": "frame",
+   "parent": "pk-container",
+   "order": "e",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-comp-label": {
+   "id": "pk-comp-label",
+   "type": "text",
+   "parent": "pk-companions",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-comp-note": {
+   "id": "pk-comp-note",
+   "type": "text",
+   "parent": "pk-companions",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-comp-rep": {
+   "id": "pk-comp-rep",
+   "type": "repeater",
+   "parent": "pk-companions",
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "pk-comp-item": {
+   "id": "pk-comp-item",
+   "type": "link",
+   "parent": "pk-comp-rep",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "sec-components": {
+   "id": "sec-components",
+   "type": "jsx",
+   "parent": null,
+   "order": "d",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "sec-philosophy": {
+   "id": "sec-philosophy",
+   "type": "section",
+   "parent": null,
+   "order": "e",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ph-container": {
+   "id": "ph-container",
+   "type": "frame",
+   "parent": "sec-philosophy",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ph-eyebrow": {
+   "id": "ph-eyebrow",
+   "type": "richtext",
+   "parent": "ph-container",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ph-title": {
+   "id": "ph-title",
+   "type": "heading",
+   "parent": "ph-container",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ph-sub": {
+   "id": "ph-sub",
+   "type": "text",
+   "parent": "ph-container",
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ph-grid": {
+   "id": "ph-grid",
+   "type": "frame",
+   "parent": "ph-container",
+   "order": "d",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ph-c1": {
+   "id": "ph-c1",
+   "type": "richtext",
+   "parent": "ph-grid",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ph-c2": {
+   "id": "ph-c2",
+   "type": "richtext",
+   "parent": "ph-grid",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ph-c3": {
+   "id": "ph-c3",
+   "type": "richtext",
+   "parent": "ph-grid",
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "sec-quickstart": {
+   "id": "sec-quickstart",
+   "type": "section",
+   "parent": null,
+   "order": "f",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-container": {
+   "id": "qs-container",
+   "type": "frame",
+   "parent": "sec-quickstart",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-eyebrow": {
+   "id": "qs-eyebrow",
+   "type": "richtext",
+   "parent": "qs-container",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-title": {
+   "id": "qs-title",
+   "type": "heading",
+   "parent": "qs-container",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-sub": {
+   "id": "qs-sub",
+   "type": "richtext",
+   "parent": "qs-container",
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-grid": {
+   "id": "qs-grid",
+   "type": "frame",
+   "parent": "qs-container",
+   "order": "d",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-card1": {
+   "id": "qs-card1",
+   "type": "richtext",
+   "parent": "qs-grid",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-card2": {
+   "id": "qs-card2",
+   "type": "richtext",
+   "parent": "qs-grid",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-mcp": {
+   "id": "qs-mcp",
+   "type": "richtext",
+   "parent": "qs-container",
+   "order": "e",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "qs-cta": {
+   "id": "qs-cta",
+   "type": "richtext",
+   "parent": "qs-container",
+   "order": "f",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "sec-explore": {
+   "id": "sec-explore",
+   "type": "section",
+   "parent": null,
+   "order": "g",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-container": {
+   "id": "ex-container",
+   "type": "frame",
+   "parent": "sec-explore",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-eyebrow": {
+   "id": "ex-eyebrow",
+   "type": "frame",
+   "parent": "ex-container",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-eyebrow-t": {
+   "id": "ex-eyebrow-t",
+   "type": "text",
+   "parent": "ex-eyebrow",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-title": {
+   "id": "ex-title",
+   "type": "heading",
+   "parent": "ex-container",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-rep": {
+   "id": "ex-rep",
+   "type": "repeater",
+   "parent": "ex-container",
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-card": {
+   "id": "ex-card",
+   "type": "frame",
+   "parent": "ex-rep",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-card-head": {
+   "id": "ex-card-head",
+   "type": "frame",
+   "parent": "ex-card",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-card-name": {
+   "id": "ex-card-name",
+   "type": "text",
+   "parent": "ex-card-head",
+   "order": "a",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-card-ver": {
+   "id": "ex-card-ver",
+   "type": "text",
+   "parent": "ex-card-head",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "ex-card-desc": {
+   "id": "ex-card-desc",
+   "type": "text",
+   "parent": "ex-card",
+   "order": "b",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  },
+  "sec-human-plus": {
+   "id": "sec-human-plus",
+   "type": "jsx",
+   "parent": null,
+   "order": "c",
+   "props": {},
+   "style": {
+    "base": {}
+   }
+  }
+ }
+}
