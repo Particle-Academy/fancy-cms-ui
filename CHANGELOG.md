@@ -14,6 +14,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-08-09
+
+### Changed
+
+- **BREAKING — the `set_props` op is now `set_node_props`.**
+
+  `@particle-academy/fancy-doc-commons`' `TreeOp` uses the same discriminator
+  `t` and also had a `set_props` variant, with a byte-identical shape. So a
+  stored `{ t: "set_props", id, patch }` was **valid under two vocabularies and
+  reduced by two different reducers**, with nothing in the document able to say
+  which one it meant. Now that `PageDoc` IS a `DocTree`, both reducers can
+  plausibly be handed the same document.
+
+  **What you must do:** if you emit this op directly, rename the tag. If you
+  only use `Editor`, `EditablePage`, `Inspector` or `useEditor`, nothing — they
+  emit it for you. Stored documents are unaffected: this is an op vocabulary,
+  not a document field, so nothing persisted contains it.
+
+  Every other variant was already disjoint (`insert_node` vs `insert`,
+  `move_node` vs `move`), so closing the collision cost exactly one rename. The
+  alternative on the table was a versioned envelope (`{v:"tree/1", t:…}`) on
+  every op across the kit; that would have been the right answer if the overlap
+  were wide, and it is one variant.
+
+### Added
+
+- A test asserting the two vocabularies stay **disjoint**, so the next
+  collision fails the build rather than shipping. Keeping tag spaces disjoint
+  is the cheap version of a versioned envelope — but only while something
+  checks.
+
+
 ### Added
 
 - The migration is now tested against a **real saved document** — the showcase's

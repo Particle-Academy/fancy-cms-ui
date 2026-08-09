@@ -111,7 +111,7 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       };
     }
 
-    case "set_props": {
+    case "set_node_props": {
       if (!doc.nodes[op.id]) return invalid("node not found");
       return patchNode(doc, op.id, {
         props: { ...doc.nodes[op.id]!.props, ...op.patch } as unknown as Node["props"],
@@ -239,12 +239,12 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
       return back;
     }
 
-    case "set_props": {
+    case "set_node_props": {
       const node = doc.nodes[op.id];
       if (!node) return [];
       const prev: Record<string, unknown> = {};
       for (const k of Object.keys(op.patch)) prev[k] = node.props[k];
-      return [{ t: "set_props", id: op.id, patch: prev }];
+      return [{ t: "set_node_props", id: op.id, patch: prev }];
     }
 
     case "set_layout": {

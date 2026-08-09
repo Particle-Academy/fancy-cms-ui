@@ -191,7 +191,7 @@ export function EditablePage({
     el.setAttribute("contenteditable", "true");
     el.style.outline = "none";
     el.focus();
-    const commit = () => ed.apply({ t: "set_props", id: selection, patch: isRich ? { html: el.innerHTML } : { content: el.innerText } });
+    const commit = () => ed.apply({ t: "set_node_props", id: selection, patch: isRich ? { html: el.innerHTML } : { content: el.innerText } });
     el.addEventListener("blur", commit);
     return () => {
       el.removeEventListener("blur", commit);
@@ -331,7 +331,7 @@ export function EditablePage({
   const setStyle = (patch: Partial<StyleProps>) =>
     selection && ed.apply({ t: "set_style", id: selection, breakpoint: "base", patch });
   const setProps = (patch: Record<string, unknown>) =>
-    selection && ed.apply({ t: "set_props", id: selection, patch });
+    selection && ed.apply({ t: "set_node_props", id: selection, patch });
   const setLayout = (layout: LayoutMode | undefined) =>
     selection && ed.apply({ t: "set_layout", id: selection, layout });
   const removeSelected = () => {

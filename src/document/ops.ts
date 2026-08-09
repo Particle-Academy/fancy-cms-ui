@@ -22,7 +22,21 @@ export type PageOp =
   | { t: "insert_node"; node: Node }
   | { t: "remove_node"; id: NodeId }
   | { t: "move_node"; id: NodeId; parent: NodeId | null; order: string }
-  | { t: "set_props"; id: NodeId; patch: Record<string, unknown> }
+  /**
+   * Renamed from `set_props` in 0.6.0, and the reason is a wire-format
+   * collision rather than taste.
+   *
+   * `fancy-doc-commons`' `TreeOp` uses the SAME discriminator `t` and also had
+   * a `set_props` variant with a byte-identical shape — so a stored
+   * `{t:"set_props", id, patch}` was valid under two vocabularies and reduced
+   * by two different reducers, with nothing in the document able to say which
+   * one it meant.
+   *
+   * Every other variant here was already disjoint (`insert_node` vs `insert`,
+   * `move_node` vs `move`), so closing the collision cost exactly one rename
+   * rather than a versioned envelope on every op in the kit.
+   */
+  | { t: "set_node_props"; id: NodeId; patch: Record<string, unknown> }
   | { t: "set_layout"; id: NodeId; layout: LayoutMode | undefined }
   | { t: "set_style"; id: NodeId; breakpoint: Breakpoint; patch: Partial<StyleProps> }
   | { t: "set_constraints"; id: NodeId; breakpoint: Breakpoint; patch: Partial<Constraints> }

@@ -60,7 +60,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
   const setStyle = (patch: Partial<StyleProps>) =>
     apply({ t: "set_style", id: node.id, breakpoint: "base", patch });
   const setProp = (key: string, value: unknown) =>
-    apply({ t: "set_props", id: node.id, patch: { [key]: value } });
+    apply({ t: "set_node_props", id: node.id, patch: { [key]: value } });
 
   return (
     <div style={{ overflow: "auto", padding: 16, fontFamily: "system-ui, sans-serif", height: "100%", boxSizing: "border-box" }}>
