@@ -4,9 +4,17 @@
  * property is what makes undo, revisions, collaboration, and agent edits all
  * flow through one spine.
  *
- * Ordering: top-level order is the canonical `sections` array; child order is
- * the fractional `order` field among siblings (see `fractional.ts`).
+ * Ordering: EVERY level uses the fractional `order` field among siblings,
+ * including the roots. Top-level order used to live in a separate `sections`
+ * array, which meant two mechanisms that could disagree — a node could be a
+ * root by `parent === null` and missing from `sections`, and then simply not
+ * render, with nothing reporting it.
  */
+import {
+  childrenOf as docChildrenOf,
+  descendantsOf,
+  fractionalKey,
+} from "@particle-academy/fancy-doc-commons";
 import type { Action, Node, NodeId, PageDoc, StyleProps } from "./types";
 import type { PageOp } from "./ops";
 
@@ -15,35 +23,37 @@ export interface ReduceOptions {
   onInvalid?: (op: PageOp, reason: string) => void;
 }
 
-/** Children of a node (or top-level when `parent` is null), in order. */
+/**
+ * Children of a node (or the roots when `parent` is null), in order.
+ *
+ * Delegates to doc-commons so the CMS, fancy-screens and any future surface
+ * walk a document the same way. Roots are no longer a special case.
+ */
 export function childrenOf(doc: PageDoc, parent: NodeId | null): Node[] {
-  if (parent === null) {
-    return doc.sections.map((id) => doc.nodes[id]).filter((n): n is Node => Boolean(n));
-  }
-  const out: Node[] = [];
-  for (const id of Object.keys(doc.nodes)) {
-    const n = doc.nodes[id]!;
-    if (n.parent === parent) out.push(n);
-  }
-  out.sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0));
-  return out;
+  return docChildrenOf<Node>(doc, parent);
+}
+
+/**
+ * The top-level node ids, in order.
+ *
+ * Replaces the old `doc.sections` array. Kept as a named helper because the two
+ * things callers actually wanted from that array — "list the roots" and "the
+ * last root" — read badly as `childrenOf(doc, null).map(n => n.id)` at every
+ * call site.
+ */
+export function rootIds(doc: PageDoc): NodeId[] {
+  return childrenOf(doc, null).map((n) => n.id);
+}
+
+/** The last top-level node, or null — the default parent for a new insert. */
+export function lastRootId(doc: PageDoc): NodeId | null {
+  const r = rootIds(doc);
+  return r[r.length - 1] ?? null;
 }
 
 /** Every transitive descendant id of `id` (excludes `id`). */
 export function descendantIds(doc: PageDoc, id: NodeId): NodeId[] {
-  const out: NodeId[] = [];
-  const stack: NodeId[] = [id];
-  while (stack.length) {
-    const current = stack.pop()!;
-    for (const childId of Object.keys(doc.nodes)) {
-      const n = doc.nodes[childId]!;
-      if (n.parent === current) {
-        out.push(childId);
-        stack.push(childId);
-      }
-    }
-  }
-  return out;
+  return descendantsOf<Node>(doc, id);
 }
 
 function patchNode(doc: PageDoc, id: NodeId, patch: Partial<Node>): PageDoc {
@@ -68,7 +78,6 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       return {
         ...doc,
         nodes: { ...doc.nodes, [op.node.id]: op.node },
-        sections: op.node.parent === null ? [...doc.sections, op.node.id] : doc.sections,
         seq: doc.seq + 1,
       };
     }
@@ -83,7 +92,6 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       return {
         ...doc,
         nodes,
-        sections: doc.sections.filter((s) => !dead.has(s)),
         seq: doc.seq + 1,
       };
     }
@@ -96,15 +104,9 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       if (op.parent !== null && descendantIds(doc, op.id).includes(op.parent)) {
         return invalid("move would create a cycle");
       }
-      const wasTop = node.parent === null;
-      const nowTop = op.parent === null;
-      let sections = doc.sections;
-      if (wasTop && !nowTop) sections = sections.filter((s) => s !== op.id);
-      else if (!wasTop && nowTop) sections = [...sections, op.id];
       return {
         ...doc,
         nodes: { ...doc.nodes, [op.id]: { ...node, parent: op.parent, order: op.order } },
-        sections,
         seq: doc.seq + 1,
       };
     }
@@ -175,12 +177,23 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
     case "set_theme":
       return { ...doc, theme: { ...doc.theme, ...op.patch }, seq: doc.seq + 1 };
 
-    case "reorder_sections": {
-      const current = new Set(doc.sections);
+    case "reorder_roots": {
+      // Roots are ordered by their own fractional keys now, so a reorder
+      // REWRITES those keys rather than replacing a list. Still validated as a
+      // permutation: a partial list would silently drop roots out of the page.
+      const currentRoots = childrenOf(doc, null);
+      const current = new Set(currentRoots.map((n) => n.id));
       const same =
-        op.order.length === doc.sections.length && op.order.every((id) => current.has(id));
-      if (!same) return invalid("reorder must be a permutation of current sections");
-      return { ...doc, sections: [...op.order], seq: doc.seq + 1 };
+        op.order.length === currentRoots.length && op.order.every((id) => current.has(id));
+      if (!same) return invalid("reorder must be a permutation of the current roots");
+
+      const nodes = { ...doc.nodes };
+      let prev: string | null = null;
+      for (const id of op.order) {
+        prev = fractionalKey(prev, null);
+        nodes[id] = { ...nodes[id]!, order: prev };
+      }
+      return { ...doc, nodes, seq: doc.seq + 1 };
     }
 
     default:
@@ -210,7 +223,9 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
       // Re-insert the subtree parent-first, then restore section order.
       const ids = [op.id, ...descendantIds(doc, op.id)];
       const inserts: PageOp[] = ids.map((id) => ({ t: "insert_node", node: doc.nodes[id]! }));
-      if (node.parent === null) inserts.push({ t: "reorder_sections", order: [...doc.sections] });
+      if (node.parent === null) {
+        inserts.push({ t: "reorder_roots", order: childrenOf(doc, null).map((n) => n.id) });
+      }
       return inserts;
     }
 
@@ -218,7 +233,9 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
       const node = doc.nodes[op.id];
       if (!node) return [];
       const back: PageOp[] = [{ t: "move_node", id: op.id, parent: node.parent, order: node.order }];
-      if (node.parent === null) back.push({ t: "reorder_sections", order: [...doc.sections] });
+      if (node.parent === null) {
+        back.push({ t: "reorder_roots", order: childrenOf(doc, null).map((n) => n.id) });
+      }
       return back;
     }
 
@@ -251,8 +268,8 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
     case "set_theme":
       return [{ t: "set_theme", patch: pick(doc.theme, Object.keys(op.patch)) }];
 
-    case "reorder_sections":
-      return [{ t: "reorder_sections", order: [...doc.sections] }];
+    case "reorder_roots":
+      return [{ t: "reorder_roots", order: childrenOf(doc, null).map((n) => n.id) }];
 
     default:
       return [];

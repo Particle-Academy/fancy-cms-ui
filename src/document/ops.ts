@@ -31,7 +31,7 @@ export type PageOp =
   | { t: "set_action"; id: NodeId; index: number; action: Action | null }
   | { t: "set_meta"; patch: Partial<PageMeta> }
   | { t: "set_theme"; patch: Partial<ThemeTokens> }
-  | { t: "reorder_sections"; order: NodeId[] };
+  | { t: "reorder_roots"; order: NodeId[] };
 
 export type PageOpType = PageOp["t"];
 

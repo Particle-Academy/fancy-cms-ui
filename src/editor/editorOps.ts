@@ -5,8 +5,8 @@
  */
 import type { Node, NodeId, PageDoc } from "../document/types";
 import type { PageOp } from "../document/ops";
-import { childrenOf } from "../document/reduce";
-import { keyBetween } from "../document/fractional";
+import { childrenOf, lastRootId } from "../document/reduce";
+import { fractionalKey as keyBetween } from "@particle-academy/fancy-doc-commons";
 
 export type NodeMap = Record<NodeId, Node>;
 
@@ -65,9 +65,9 @@ export function duplicateOps(doc: PageDoc, id: NodeId): { ops: PageOp[]; newRoot
   const newOrder = keyBetween(node.order, sibs[idx + 1]?.order ?? null);
   const { ops, newRootId } = cloneFrom(doc.nodes, id, node.parent, newOrder, doc.seq);
   if (node.parent === null && newRootId) {
-    const base = doc.sections;
+    const base = childrenOf(doc, null).map((n) => n.id);
     const at = base.indexOf(id);
-    ops.push({ t: "reorder_sections", order: [...base.slice(0, at + 1), newRootId, ...base.slice(at + 1)] });
+    ops.push({ t: "reorder_roots", order: [...base.slice(0, at + 1), newRootId, ...base.slice(at + 1)] });
   }
   return { ops, newRootId };
 }
@@ -80,7 +80,7 @@ export function pasteOps(
   containerTypes: Set<string>,
 ): { ops: PageOp[]; newRootId: NodeId | null } {
   const sel = target ? doc.nodes[target] : null;
-  const parent = sel ? (containerTypes.has(sel.type) ? sel.id : sel.parent) : (doc.sections[doc.sections.length - 1] ?? null);
+  const parent = sel ? (containerTypes.has(sel.type) ? sel.id : sel.parent) : lastRootId(doc);
   const sibs = childrenOf(doc, parent);
   const newOrder = keyBetween(sibs.length ? sibs[sibs.length - 1]!.order : null, null);
   const { ops, newRootId } = cloneFrom(clip.nodes, clip.rootId, parent, newOrder, doc.seq);
@@ -98,14 +98,14 @@ export function reorderOps(doc: PageDoc, id: NodeId, dir: ReorderDir): PageOp[] 
   if (!node) return [];
 
   if (node.parent === null) {
-    const s = [...doc.sections];
+    const s = childrenOf(doc, null).map((n) => n.id);
     const i = s.indexOf(id);
     if (i < 0) return [];
     s.splice(i, 1);
     if (dir === "front") s.unshift(id);
     else if (dir === "back") s.push(id);
     else s.splice(Math.max(0, Math.min(s.length, dir === "up" ? i - 1 : i + 1)), 0, id);
-    return [{ t: "reorder_sections", order: s }];
+    return [{ t: "reorder_roots", order: s }];
   }
 
   const sibs = childrenOf(doc, node.parent);

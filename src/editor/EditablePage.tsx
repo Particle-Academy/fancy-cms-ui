@@ -14,8 +14,8 @@ import {
 import { ContextMenu } from "@particle-academy/react-fancy";
 import type { Json, LayoutMode, NodeId, PageDoc, StyleProps } from "../document/types";
 import type { PageOp } from "../document/ops";
-import { childrenOf } from "../document/reduce";
-import { keyBetween } from "../document/fractional";
+import { childrenOf, lastRootId } from "../document/reduce";
+import { fractionalKey as keyBetween } from "@particle-academy/fancy-doc-commons";
 import { ADD_DEFAULTS, ADD_MENU, CONTAINER_TYPES, buildInsertOp, type AddKind } from "./insert";
 import { CmsPage } from "../react/CmsPage";
 import { defaultRegistry, type DataContext, type ElementRegistry } from "../react/registry";
@@ -219,7 +219,7 @@ export function EditablePage({
         ? CONTAINER_TYPES.has(selNode.type)
           ? selNode.id
           : selNode.parent
-        : (doc.sections[doc.sections.length - 1] ?? null);
+        : lastRootId(doc);
       const siblings = childrenOf(doc, parent);
       const order = keyBetween(siblings.length ? siblings[siblings.length - 1]!.order : null, null);
       const id = `n${doc.seq + 1}-${Math.floor(performance.now())}`;
@@ -240,7 +240,7 @@ export function EditablePage({
         ? CONTAINER_TYPES.has(target.type)
           ? target.id
           : target.parent
-        : (doc.sections[doc.sections.length - 1] ?? null);
+        : lastRootId(doc);
       const siblings = childrenOf(doc, parent);
       const order = keyBetween(siblings.length ? siblings[siblings.length - 1]!.order : null, null);
       const id = `n${doc.seq + 1}-${Math.floor(performance.now())}`;
@@ -300,7 +300,7 @@ export function EditablePage({
     let parent: string | null;
     let order: string;
     if (!hint.id || hint.edge === "inside") {
-      parent = hint.id ?? (doc.sections[doc.sections.length - 1] ?? null);
+      parent = hint.id ?? lastRootId(doc);
       const sib = childrenOf(doc, parent);
       order = keyBetween(sib.length ? sib[sib.length - 1]!.order : null, null);
     } else {

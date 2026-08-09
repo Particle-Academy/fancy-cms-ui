@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { emptyDoc, type Node, type PageDoc } from "../src/document/types";
-import { childrenOf, invert, reduce, reduceAll } from "../src/document/reduce";
-import { keyBetween } from "../src/document/fractional";
+import { childrenOf, invert, reduce, reduceAll, rootIds } from "../src/document/reduce";
+import { fractionalKey as keyBetween } from "@particle-academy/fancy-doc-commons";
 import { emitDocCss } from "../src/render/css";
 
 function mkNode(id: string, parent: string | null, order: string, extra: Partial<Node> = {}): Node {
@@ -28,7 +28,7 @@ describe("reduce", () => {
   it("inserts nodes and tracks top-level order + seq", () => {
     const doc = seed();
     expect(Object.keys(doc.nodes).sort()).toEqual(["s1", "s2", "t1"]);
-    expect(doc.sections).toEqual(["s1", "s2"]);
+    expect(rootIds(doc)).toEqual(["s1", "s2"]);
     expect(doc.seq).toBe(3);
     expect(childrenOf(doc, "s1").map((n) => n.id)).toEqual(["t1"]);
   });
@@ -46,7 +46,7 @@ describe("reduce", () => {
     const doc = seed();
     const next = reduce(doc, { t: "remove_node", id: "s1" });
     expect(Object.keys(next.nodes).sort()).toEqual(["s2"]);
-    expect(next.sections).toEqual(["s2"]);
+    expect(rootIds(next)).toEqual(["s2"]);
   });
 
   it("moves a node and prevents cycles", () => {
@@ -66,12 +66,12 @@ describe("reduce", () => {
     expect(doc.nodes.t1!.style.base).toEqual({ color: "#fff", opacity: 0.5 });
   });
 
-  it("reorders sections only with a valid permutation", () => {
+  it("reorders roots only with a valid permutation", () => {
     const doc = seed();
-    const ok = reduce(doc, { t: "reorder_sections", order: ["s2", "s1"] });
-    expect(ok.sections).toEqual(["s2", "s1"]);
+    const ok = reduce(doc, { t: "reorder_roots", order: ["s2", "s1"] });
+    expect(rootIds(ok)).toEqual(["s2", "s1"]);
     const onInvalid = vi.fn();
-    const bad = reduce(doc, { t: "reorder_sections", order: ["s1", "x"] }, { onInvalid });
+    const bad = reduce(doc, { t: "reorder_roots", order: ["s1", "x"] }, { onInvalid });
     expect(bad).toBe(doc);
     expect(onInvalid).toHaveBeenCalledOnce();
   });
@@ -84,7 +84,7 @@ describe("invert (undo)", () => {
     const next = reduce(doc, op);
     const back = reduceAll(next, invert(doc, op));
     expect(back.nodes).toEqual(doc.nodes);
-    expect(back.sections).toEqual(doc.sections);
+    expect(rootIds(back)).toEqual(rootIds(doc));
   });
 
   it("round-trips a move", () => {

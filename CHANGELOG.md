@@ -14,6 +14,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `migrateDoc(doc)` / `migrateDocVerbose(doc)` / `needsMigration(doc)` — forward
+  migration for documents saved before this release. Idempotent, and returns an
+  already-migrated document by reference, so it is safe to call unconditionally
+  on load. `migrateDocVerbose` additionally reports `danglingIds` (ids listed in
+  `sections[]` with no matching node) and `unlistedRootIds` (roots the array
+  never mentioned, which previously did not render at all).
+- `rootIds(doc)` and `lastRootId(doc)` on `document/reduce` — the two things
+  callers actually wanted from `doc.sections`.
+
+### Changed
+
+- **BREAKING — `PageDoc.sections[]` is gone; roots are ordered by their `order`
+  key like every other sibling group.** `PageDoc` is now a `DocTree` from
+  `@particle-academy/fancy-doc-commons`, so `childrenOf`, `roots` and
+  `descendantsOf` from that package work on a CMS document directly.
+
+  **What you must do:**
+
+  - **Reading `doc.sections`** → use `rootIds(doc)`.
+  - **Emitting the `reorder_sections` op** → it is now `reorder_roots`, and it
+    rewrites the roots' `order` keys rather than permuting an array. The payload
+    shape (`{ t, order: NodeId[] }`) is unchanged.
+  - **Loading documents you persisted before this release** → nothing, if you
+    go through `CmsPage` or `initEditor`; both migrate on the way in. If you
+    read a stored document yourself — to index it, diff it, or render it on a
+    server — call `migrateDoc` first.
+
+  This one genuinely bites, so it is worth being precise about why: the old
+  `reorder_sections` permuted `sections[]` and left every node's `order` key
+  untouched. On any page whose sections were ever dragged into a new order, the
+  keys are stale and the array is the **only** record of the real order. So a
+  consumer who drops the array and falls back to the keys does not lose a
+  redundant field — that page silently reverts to the order it was first
+  authored in. Nothing throws, nothing logs, and the layout is wrong. That is
+  the case `migrateDoc` exists for, and the reason both entry points call it
+  for you.
+
+- Top-level order used to live in its own array while every other level used
+  fractional keys — two ordering mechanisms that could disagree. A node could be
+  a root by `parent === null` and absent from `sections[]`, and then simply not
+  render. That is now unrepresentable.
+
+### Removed
+
+- **BREAKING — `src/document/fractional.ts` is deleted.** `keyBetween` is still
+  exported from the package root, now re-exported from
+  `@particle-academy/fancy-doc-commons` (which also exports it as
+  `fractionalKey`).
+
+  **What you must do:** if you imported `keyBetween` from the package root,
+  nothing — it is the same function and produces byte-identical keys, which the
+  test suite pins against golden values captured from the deleted
+  implementation. If you deep-imported `@particle-academy/fancy-cms-ui/dist/document/fractional`,
+  import from the package root instead.
+
 ## [0.4.0] — 2026-08-07
 
 ### Changed

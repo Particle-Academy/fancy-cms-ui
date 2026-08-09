@@ -4,6 +4,7 @@
  * (simple + robust); the op-level `invert` in the spine is for collab/op-stream
  * undo.
  */
+import { migrateDoc, type LegacyPageDoc } from "../document/migrate";
 import type { PageDoc } from "../document/types";
 import type { PageOp } from "../document/ops";
 import { reduce } from "../document/reduce";
@@ -24,8 +25,18 @@ export type EditorAction =
 
 const HISTORY_LIMIT = 100;
 
-export function initEditor(doc: PageDoc): EditorState {
-  return { doc, past: [], future: [], selection: null };
+/**
+ * Seed the editor from a document.
+ *
+ * Migrates a pre-`sections[]` document on the way in. Doing it here rather than
+ * leaving it to the host is deliberate: the legacy failure is SILENT — a page
+ * whose sections were ever reordered would simply open in the wrong order, with
+ * nothing thrown and nothing logged — so a host that has not heard of the
+ * migration is exactly the one that needs it. Already-migrated documents pass
+ * through by reference.
+ */
+export function initEditor(doc: LegacyPageDoc | PageDoc): EditorState {
+  return { doc: migrateDoc(doc), past: [], future: [], selection: null };
 }
 
 export function editorReduce(state: EditorState, action: EditorAction): EditorState {

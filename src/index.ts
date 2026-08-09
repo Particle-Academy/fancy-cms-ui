@@ -19,7 +19,10 @@
 export * from "./document/types";
 export * from "./document/ops";
 export * from "./document/reduce";
-export { keyBetween } from "./document/fractional";
+export * from "./document/migrate";
+// Ordering now comes from the shared substrate. Re-exported so existing
+// imports of `keyBetween` from this package keep working.
+export { fractionalKey as keyBetween, fractionalKey } from "@particle-academy/fancy-doc-commons";
 export { emitDocCss } from "./render/css";
 
 // ── The React renderer (shared by the editor and published islands) ─────────

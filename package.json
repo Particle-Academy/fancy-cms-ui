@@ -103,5 +103,8 @@
   "license": "MIT",
   "overrides": {
     "esbuild": "^0.28.1"
+  },
+  "dependencies": {
+    "@particle-academy/fancy-doc-commons": ">=0.2 <2.0"
   }
 }

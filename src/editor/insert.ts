@@ -1,7 +1,7 @@
 import type { Json, LayoutMode, NodeId, PageDoc, StyleProps } from "../document/types";
 import type { PageOp } from "../document/ops";
-import { childrenOf } from "../document/reduce";
-import { keyBetween } from "../document/fractional";
+import { childrenOf, lastRootId } from "../document/reduce";
+import { fractionalKey as keyBetween } from "@particle-academy/fancy-doc-commons";
 
 /**
  * Element insertion — shared by `EditablePage` (inline editing) and `Editor`
@@ -92,7 +92,7 @@ export function resolveInsertParent(doc: PageDoc, selectedId: NodeId | null): No
   if (selected) {
     return CONTAINER_TYPES.has(selected.type) ? selected.id : selected.parent;
   }
-  return doc.sections[doc.sections.length - 1] ?? null;
+  return lastRootId(doc);
 }
 
 /**

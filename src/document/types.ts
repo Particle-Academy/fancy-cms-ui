@@ -7,6 +7,9 @@
  * (Figma-style) so ops target a stable identity and collab merges stay clean.
  */
 
+import type { DocNode, DocTree } from "@particle-academy/fancy-doc-commons";
+
+/** A node id. Alias of doc-commons' `DocId`, kept for readability in CMS code. */
 export type NodeId = string;
 
 export type ScrollMode = "snap" | "smooth";
@@ -123,16 +126,18 @@ export interface Action {
 
 // ── Nodes & document ────────────────────────────────────────────────────────
 
-export interface Node {
-  id: NodeId;
+/**
+ * A page node.
+ *
+ * Extends {@link DocNode} from `fancy-doc-commons` rather than redeclaring it:
+ * id / type / parent / order / props are the shared substrate every Fancy
+ * document surface uses, and the CMS adds its own domain fields on top. That
+ * is what lets `registerDocBridge` drive a CMS page and a fancy-screens screen
+ * through the same tools, with no CMS-specific bridge.
+ */
+export interface Node extends DocNode<Record<string, Bound<Json>>> {
   /** Addon key: `section | text | image | shape | stack | grid | frame | <addon>`. */
   type: string;
-  /** `null` = a top-level section. */
-  parent: NodeId | null;
-  /** Fractional index — collab-safe ordering among siblings. */
-  order: string;
-  /** Addon-specific props; any value may be a {@link Binding}. */
-  props: Record<string, Bound<Json>>;
   /** How this node arranges its children. */
   layout?: LayoutMode;
   /** How this node positions itself within its parent. */
@@ -172,9 +177,17 @@ export interface PageDoc {
   theme: ThemeTokens;
   /** Ordered, mobile-first. */
   breakpoints: Breakpoint[];
-  /** Top-level section order. */
-  sections: NodeId[];
-  /** Flat map — not a nested tree. */
+  /**
+   * Flat map — not a nested tree. This is a {@link DocTree}, so every
+   * doc-commons walk (`childrenOf`, `roots`, `descendantsOf`) works on it
+   * directly.
+   *
+   * There is no separate `sections[]` any more. Top-level order used to live in
+   * its own array while every other level used fractional `order` keys, which
+   * meant two ordering mechanisms that could disagree — a node could be a root
+   * by `parent === null` and absent from `sections`, and then simply not
+   * render. Roots are now ordered exactly like any other sibling group.
+   */
   nodes: Record<NodeId, Node>;
 }
 
@@ -193,7 +206,6 @@ export function emptyDoc(id: string, slug = "/"): PageDoc {
     meta: { title: "Untitled", slug, scrollMode: "smooth" },
     theme: { name: "default" },
     breakpoints: ["base", "md", "lg"],
-    sections: [],
     nodes: {},
   };
 }

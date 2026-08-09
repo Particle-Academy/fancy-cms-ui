@@ -1,7 +1,7 @@
 import { Fragment, useState, type DragEvent as ReactDragEvent, type ReactElement } from "react";
 import type { NodeId, PageDoc } from "../document/types";
-import { childrenOf } from "../document/reduce";
-import { keyBetween } from "../document/fractional";
+import { childrenOf, rootIds } from "../document/reduce";
+import { fractionalKey as keyBetween } from "@particle-academy/fancy-doc-commons";
 
 export interface LayersPanelProps {
   doc: PageDoc;
@@ -27,7 +27,7 @@ export function LayersPanel({ doc, selection, onSelect, onMove }: LayersPanelPro
 
   return (
     <div style={{ overflow: "auto", padding: 8, fontSize: 13, fontFamily: "system-ui, sans-serif" }}>
-      {doc.sections.map((id) => (
+      {rootIds(doc).map((id: string) => (
         <LayerRow key={id} doc={doc} id={id} depth={0} selection={selection} onSelect={onSelect} onMove={onMove} overId={overId} setOverId={setOverId} />
       ))}
     </div>
