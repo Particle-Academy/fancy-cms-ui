@@ -10,6 +10,7 @@
  */
 import {
   DEFAULT_BREAKPOINTS,
+  hasNodeMap,
   type Constraints,
   type Length,
   type Node,
@@ -124,6 +125,8 @@ function serializeRule(selector: string, decls: Record<string, string>, indent: 
 
 /** Emit the full stylesheet for a document. Deterministic. */
 export function emitDocCss(doc: PageDoc): string {
+  if (!hasNodeMap(doc)) return "";
+
   const breakpointPx = DEFAULT_BREAKPOINTS;
   const blocks: string[] = [];
 

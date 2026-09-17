@@ -27,7 +27,7 @@
  */
 
 import { fractionalKey } from "@particle-academy/fancy-doc-commons";
-import type { NodeId, PageDoc } from "./types";
+import { emptyDoc, hasNodeMap, type NodeId, type PageDoc } from "./types";
 
 /** A `PageDoc` as persisted before this change — with the extra array. */
 export type LegacyPageDoc = PageDoc & { sections?: NodeId[] };
@@ -51,17 +51,30 @@ export interface MigrateResult {
   unlistedRootIds: NodeId[];
 }
 
+function normalizeDoc(input: unknown): LegacyPageDoc | PageDoc {
+  if (hasNodeMap(input)) return input as LegacyPageDoc | PageDoc;
+
+  const id =
+    typeof input === "object" && input !== null && !Array.isArray(input) &&
+    typeof (input as { id?: unknown }).id === "string"
+      ? (input as { id: string }).id
+      : "malformed";
+
+  return emptyDoc(id);
+}
+
 /**
  * Migrate a possibly-legacy document, reporting what was found.
  *
  * Use {@link migrateDoc} unless you want the diagnostics.
  */
 export function migrateDocVerbose(input: LegacyPageDoc | PageDoc): MigrateResult {
-  const legacy = input as LegacyPageDoc;
+  const normalized = normalizeDoc(input);
+  const legacy = normalized as LegacyPageDoc;
   const sections = legacy.sections;
 
   if (!Array.isArray(sections)) {
-    return { doc: input as PageDoc, migrated: false, danglingIds: [], unlistedRootIds: [] };
+    return { doc: normalized as PageDoc, migrated: false, danglingIds: [], unlistedRootIds: [] };
   }
 
   const danglingIds: NodeId[] = [];
@@ -69,7 +82,7 @@ export function migrateDocVerbose(input: LegacyPageDoc | PageDoc): MigrateResult
   const seen = new Set<NodeId>();
 
   for (const id of sections) {
-    if (!input.nodes[id]) {
+    if (!normalized.nodes[id]) {
       danglingIds.push(id);
       continue;
     }
@@ -82,14 +95,14 @@ export function migrateDocVerbose(input: LegacyPageDoc | PageDoc): MigrateResult
 
   // Roots that the array never mentioned. Sorted by their existing key so their
   // relative order is at least stable rather than dependent on object insertion.
-  const unlistedRootIds = Object.values(input.nodes)
+  const unlistedRootIds = Object.values(normalized.nodes)
     .filter((n) => n.parent === null && !seen.has(n.id))
     .sort((a, b) => (a.order < b.order ? -1 : a.order > b.order ? 1 : 0))
     .map((n) => n.id);
 
   const finalOrder = [...ordered, ...unlistedRootIds];
 
-  const nodes = { ...input.nodes };
+  const nodes = { ...normalized.nodes };
   let prev: string | null = null;
 
   for (const id of finalOrder) {

@@ -15,7 +15,7 @@ import {
   descendantsOf,
   fractionalKey,
 } from "@particle-academy/fancy-doc-commons";
-import type { Action, Node, NodeId, PageDoc, StyleProps } from "./types";
+import { hasNodeMap, type Action, type Node, type NodeId, type PageDoc, type StyleProps } from "./types";
 import type { PageOp } from "./ops";
 
 export interface ReduceOptions {
@@ -42,6 +42,7 @@ export function childrenOf(doc: PageDoc, parent: NodeId | null): Node[] {
  * call site.
  */
 export function rootIds(doc: PageDoc): NodeId[] {
+  if (!hasNodeMap(doc)) return [];
   return childrenOf(doc, null).map((n) => n.id);
 }
 

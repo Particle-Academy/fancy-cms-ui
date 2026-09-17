@@ -203,6 +203,13 @@ export interface PageDoc {
   nodes: Record<NodeId, Node>;
 }
 
+/** Runtime boundary check for the one structural field every document walk needs. */
+export function hasNodeMap(value: unknown): value is { nodes: Record<NodeId, Node> } {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const nodes = (value as { nodes?: unknown }).nodes;
+  return typeof nodes === "object" && nodes !== null && !Array.isArray(nodes);
+}
+
 /** Default breakpoint → min-width (px) map. `base` has no media query. */
 export const DEFAULT_BREAKPOINTS: Record<string, number> = {
   base: 0,

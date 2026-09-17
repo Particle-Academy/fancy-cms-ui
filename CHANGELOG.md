@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] — 2026-09-17
+
+### Fixed
+
+- **Malformed authored documents now render empty instead of throwing during
+  React render.** `CmsPage` normalizes a missing, null, array, or otherwise
+  invalid `nodes` map at its migration boundary, while direct `emitDocCss()`
+  and `rootIds()` calls defensively return empty results. A bad agent-authored
+  value can no longer unmount the host subtree around the CMS page.
+
+  **What you must do:** nothing. Well-formed documents render unchanged; the
+  fallback only applies when `nodes` is not a non-null object.
+
 ## [0.7.0] — 2026-08-09
 
 ### Added
