@@ -1,110 +1,110 @@
 {
-  "name": "@particle-academy/fancy-cms-ui",
-  "version": "0.7.1",
-  "description": "Editor + isomorphic renderer for fancy-cms \u2014 the Stages document model, PageOp op-spine, the JS style\u2192CSS emitter (one half of the dual-emitter pair with the PHP particle-academy/fancy-cms), and the React renderer. Built on the Fancy UI suite.",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Particle-Academy/fancy-cms-ui.git"
-  },
-  "homepage": "https://github.com/Particle-Academy/fancy-cms-ui#readme",
-  "bugs": "https://github.com/Particle-Academy/fancy-cms-ui/issues",
-  "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
-      },
-      "require": {
-        "types": "./dist/index.d.cts",
-        "default": "./dist/index.cjs"
-      }
+    "name": "@particle-academy/fancy-cms-ui",
+    "version": "0.7.1",
+    "description": "Editor + isomorphic renderer for fancy-cms — the Stages document model, PageOp op-spine, the JS style→CSS emitter (one half of the dual-emitter pair with the PHP particle-academy/fancy-cms), and the React renderer. Built on the Fancy UI suite.",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Particle-Academy/fancy-cms-ui.git"
     },
-    "./react": {
-      "import": {
-        "types": "./dist/react.d.ts",
-        "default": "./dist/react.js"
-      },
-      "require": {
-        "types": "./dist/react.d.cts",
-        "default": "./dist/react.cjs"
-      }
+    "homepage": "https://github.com/Particle-Academy/fancy-cms-ui#readme",
+    "bugs": "https://github.com/Particle-Academy/fancy-cms-ui/issues",
+    "type": "module",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/index.cjs"
+            }
+        },
+        "./react": {
+            "import": {
+                "types": "./dist/react.d.ts",
+                "default": "./dist/react.js"
+            },
+            "require": {
+                "types": "./dist/react.d.cts",
+                "default": "./dist/react.cjs"
+            }
+        },
+        "./editor": {
+            "import": {
+                "types": "./dist/editor.d.ts",
+                "default": "./dist/editor.js"
+            },
+            "require": {
+                "types": "./dist/editor.d.cts",
+                "default": "./dist/editor.cjs"
+            }
+        }
     },
-    "./editor": {
-      "import": {
-        "types": "./dist/editor.d.ts",
-        "default": "./dist/editor.js"
-      },
-      "require": {
-        "types": "./dist/editor.d.cts",
-        "default": "./dist/editor.cjs"
-      }
+    "files": [
+        "dist",
+        "README.md",
+        "CHANGELOG.md"
+    ],
+    "sideEffects": false,
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "lint": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit && eslint .",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "parity": "node parity/run.mjs",
+        "clean": "rm -rf dist",
+        "prepublishOnly": "tsup"
+    },
+    "keywords": [
+        "cms",
+        "website-builder",
+        "wysiwyg",
+        "editor",
+        "fancy",
+        "human-plus",
+        "laravel",
+        "inertia"
+    ],
+    "peerDependencies": {
+        "@particle-academy/react-fancy": ">=3",
+        "react": "^19.0.0"
+    },
+    "peerDependenciesMeta": {
+        "@particle-academy/react-fancy": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@particle-academy/react-fancy": "^4.10.0",
+        "@types/node": "^22",
+        "@types/react": "^19.2.18",
+        "@types/react-dom": "^19.2.4",
+        "eslint": "^10.8.0",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "jsdom": "^29.1.1",
+        "react": "^19.2.8",
+        "react-dom": "^19.2.8",
+        "tsup": "^8.5.0",
+        "typescript": "^5.8.0",
+        "typescript-eslint": "^8.65.0",
+        "vitest": "^4.1.11"
+    },
+    "engines": {
+        "node": ">=22"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "license": "MIT",
+    "overrides": {
+        "esbuild": "^0.28.1"
+    },
+    "dependencies": {
+        "@particle-academy/fancy-doc-commons": ">=0.4 <2.0"
     }
-  },
-  "files": [
-    "dist",
-    "README.md",
-    "CHANGELOG.md"
-  ],
-  "sideEffects": false,
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "lint": "tsc --noEmit && tsc -p tsconfig.test.json --noEmit && eslint .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "parity": "node parity/run.mjs",
-    "clean": "rm -rf dist",
-    "prepublishOnly": "tsup"
-  },
-  "keywords": [
-    "cms",
-    "website-builder",
-    "wysiwyg",
-    "editor",
-    "fancy",
-    "human-plus",
-    "laravel",
-    "inertia"
-  ],
-  "peerDependencies": {
-    "@particle-academy/react-fancy": ">=3",
-    "react": "^19.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@particle-academy/react-fancy": {
-      "optional": true
-    }
-  },
-  "devDependencies": {
-    "@particle-academy/react-fancy": "^4.10.0",
-    "@types/node": "^20.0.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.4",
-    "eslint": "^10.8.0",
-    "eslint-plugin-react-hooks": "^7.1.1",
-    "jsdom": "^29.1.1",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
-    "tsup": "^8.5.0",
-    "typescript": "^5.8.0",
-    "typescript-eslint": "^8.65.0",
-    "vitest": "^4.1.11"
-  },
-  "engines": {
-    "node": ">=22"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "license": "MIT",
-  "overrides": {
-    "esbuild": "^0.28.1"
-  },
-  "dependencies": {
-    "@particle-academy/fancy-doc-commons": ">=0.4 <2.0"
-  }
 }
