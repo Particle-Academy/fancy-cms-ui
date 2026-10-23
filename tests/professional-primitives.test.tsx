@@ -193,6 +193,7 @@ describe("semantic elements", () => {
   it("an image takes its fit from props, and keeps its alt", () => {
     const out = html(docWith(mk("i", null, "a", { type: "image", props: { src: "/team.jpg", alt: "The team", fit: "contain" } })));
     expect(out).toContain('alt="The team"');
-    expect(out).toContain("object-fit:contain");
+    // 0.9.0: the fit is an attribute the base stylesheet reads, not an inline style.
+    expect(out).toContain('data-cms-fit="contain"');
   });
 });

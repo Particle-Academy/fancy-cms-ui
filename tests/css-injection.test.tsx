@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { emptyDoc, type Node, type PageDoc } from "../src/document/types";
 import { reduce } from "../src/document/reduce";
-import { emitDocCss } from "../src/render/css";
+import { BASE_CSS, emitDocCss } from "../src/render/css";
 import { CmsPage } from "../src/react/CmsPage";
 
 /*
@@ -34,7 +34,10 @@ describe("node ids in selectors", () => {
 });
 
 describe("enum and unit fields", () => {
-  const cssOf = (style: Record<string, unknown>, layout?: Node["layout"]) => emitDocCss(one(mk("n", { layout, style: { base: style as never } })));
+  // The node's own rules only: the base stylesheet legitimately contains
+  // align-items and padding of its own.
+  const cssOf = (style: Record<string, unknown>, layout?: Node["layout"]) =>
+    emitDocCss(one(mk("n", { layout, style: { base: style as never } }))).slice(BASE_CSS.length);
 
   it("an unknown align or justify is dropped, not passed through", () => {
     const css = cssOf({ align: "center;} body{display:none", justify: "x</style>" }, "stack");

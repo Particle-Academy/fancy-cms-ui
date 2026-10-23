@@ -97,10 +97,18 @@ export function elementFor(node: Node, text: (v: Bound<Json> | undefined) => str
     case "button":
     case "link": {
       const href = safeHref(text(node.props.href));
-      if (href === null) return { tag: node.type === "link" ? "span" : "div" };
-      const attrs: Record<string, string> = { href };
-      if (/^https?:\/\//i.test(href)) attrs.rel = "noopener noreferrer";
-      return { tag: "a", attrs };
+      const attrs: Record<string, string> = {};
+      if (href !== null) {
+        attrs.href = href;
+        if (/^https?:\/\//i.test(href)) attrs.rel = "noopener noreferrer";
+      }
+      // The button's look is the base stylesheet's, keyed by this attribute.
+      if (node.type === "button") attrs["data-cms-button"] = BUTTON_VARIANTS.has(text(node.props.variant)) ? text(node.props.variant) : "primary";
+      return { tag: href !== null ? "a" : node.type === "link" ? "span" : "div", attrs };
+    }
+    case "callout": {
+      const variant = text(node.props.variant);
+      return { tag: "div", attrs: { "data-cms-callout": CALLOUT_VARIANTS.has(variant) ? variant : "info" } };
     }
     default:
       return { tag: CONTAINERS.has(node.type) && LANDMARKS.has(as) ? as : "div" };
@@ -126,59 +134,30 @@ export const defaultRegistry: ElementRegistry = {
     const items = resolve(node.props.items);
     return Array.isArray(items) ? items.map((item, i) => <li key={i}>{item === null || item === undefined ? "" : String(item)}</li>) : null;
   },
-  divider: () => <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: 0 }} />,
-  callout: ({ node, text }) => {
-    const tone = ({ info: "#3b82f6", success: "#10b981", warning: "#f59e0b", danger: "#ef4444" } as Record<string, string>)[text(node.props.variant)] ?? "#3b82f6";
-    return (
-      <div style={{ display: "flex", gap: 10, padding: "12px 14px", borderRadius: 10, background: `${tone}14`, borderLeft: `3px solid ${tone}` }}>
-        <span style={{ fontSize: 13 }}>{text(node.props.content) || "Callout"}</span>
-      </div>
-    );
-  },
+  // Looks come from the base stylesheet (render/css.ts BASE_CSS), never from
+  // inline style objects, so the PHP renderer emits the same markup.
+  divider: () => <hr />,
+  callout: ({ node, text }) => text(node.props.content) || "Callout",
   code: ({ node, text }) => (
-    <pre style={{ margin: 0, padding: "12px 14px", borderRadius: 10, background: "#0b1220", color: "#e2e8f0", fontFamily: "ui-monospace, monospace", fontSize: 13, overflowX: "auto" }}>
+    <pre>
       <code>{text(node.props.content)}</code>
     </pre>
   ),
-  button: ({ node, text }) => {
-    const label = text(node.props.label) || text(node.props.content) || "Button";
-    const variant = text(node.props.variant) || "primary";
-    return <span data-cms-button={variant} style={buttonStyle(variant)}>{label}</span>;
-  },
+  button: ({ node, text }) => text(node.props.label) || text(node.props.content) || "Button",
   image: ({ node, text }) => {
     const fit = text(node.props.fit);
     return (
       <img
-        src={text(node.props.src)}
+        src={text(node.props.src) || undefined}
         alt={text(node.props.alt)}
         loading={text(node.props.loading) === "eager" ? "eager" : "lazy"}
-        style={{ width: "100%", height: "100%", objectFit: IMAGE_FITS.has(fit) ? (fit as "cover") : "cover", display: "block" }}
+        data-cms-fit={IMAGE_FITS.has(fit) && fit !== "cover" ? fit : undefined}
       />
     );
   },
 };
 
 const IMAGE_FITS = new Set(["cover", "contain", "fill", "none", "scale-down"]);
+const BUTTON_VARIANTS = new Set(["primary", "outline", "ghost"]);
+const CALLOUT_VARIANTS = new Set(["info", "success", "warning", "danger"]);
 
-/**
- * A self-contained button look so the `button` primitive renders sensibly with
- * zero host CSS. Hosts that want their own button classes override the `button`
- * renderer in their registry (e.g. the sandbox maps it to `.btn .btn-primary`).
- */
-function buttonStyle(variant: string): import("react").CSSProperties {
-  const base: import("react").CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: 6,
-    padding: "9px 16px",
-    borderRadius: 8,
-    fontWeight: 600,
-    fontSize: 14,
-    lineHeight: 1,
-    cursor: "pointer",
-    userSelect: "none",
-  };
-  if (variant === "ghost") return { ...base, background: "transparent", color: "inherit", border: "1px solid currentColor" };
-  if (variant === "outline") return { ...base, background: "transparent", color: "#7c3aed", border: "1px solid #7c3aed" };
-  return { ...base, background: "#7c3aed", color: "#fff", border: "1px solid #7c3aed" };
-}

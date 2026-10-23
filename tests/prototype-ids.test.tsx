@@ -62,6 +62,21 @@ describe("node ids that are also Object.prototype names", () => {
     expect(reduce(doc, { t: "insert_node", node: mk("child", "constructor") })).toBe(doc);
   });
 
+  it("a breakpoint named after an Object.prototype member never reaches a media query", () => {
+    let doc: PageDoc = { ...emptyDoc("p"), breakpoints: ["base", "constructor", "toString", "md"] };
+    // The node sets a style under that name, as a document may: the old
+    // emitter then read DEFAULT_BREAKPOINTS["constructor"] (Object's own
+    // constructor) as the min-width and printed it into the media query.
+    doc = reduce(doc, {
+      t: "insert_node",
+      node: mk("n", null, { style: { base: { color: "#111111" }, md: { color: "#222222" }, constructor: { color: "#333333" } } as never }),
+    });
+    const css = emitDocCss(doc);
+    expect(css).not.toContain("function");
+    expect(css).not.toContain("[native code]");
+    expect(css).toContain("@media (min-width: 768px)");
+  });
+
   it("the renderer and the CSS emitter handle such ids", () => {
     let doc: PageDoc = emptyDoc("p");
     doc = reduce(doc, { t: "insert_node", node: mk("constructor", null, { style: { base: { color: "#111111" } } }) });

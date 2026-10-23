@@ -11,11 +11,11 @@
 import {
   DEFAULT_BREAKPOINTS,
   hasNodeMap,
+  withNodeDefaults,
   type Constraints,
   type Length,
   type Node,
   type PageDoc,
-  type SizeMode,
   type StyleProps,
 } from "../document/types";
 import { own } from "../document/own";
@@ -38,6 +38,40 @@ export function cssString(value: string): string {
 }
 
 const selectorFor = (id: string): string => `[data-cms="${cssString(id)}"]`;
+
+/**
+ * The fixed base stylesheet, emitted first by every page and mirrored
+ * byte-for-byte by the PHP emitter.
+ *
+ * It replaces the inline style objects the JS renderer used to attach to
+ * buttons, callouts, code, dividers and images, which the PHP renderer could
+ * not reproduce, and it resets the user-agent margins that stacked on top of a
+ * layout's `gap`. Every selector is wrapped in `:where()` and is never more
+ * specific than a node's own `[data-cms="<id>"]` rule, and comes before it, so
+ * whatever a node sets wins.
+ */
+export const BASE_CSS = [
+  "/* fancy-cms base */",
+  ":where([data-cms]) {\n  box-sizing: border-box;\n}",
+  ":where(h1, h2, h3, h4, h5, h6, p, ul, ol)[data-cms] {\n  margin: 0;\n}",
+  ":where(ul, ol)[data-cms] {\n  padding-left: 1.25em;\n}",
+  ":where(a[data-cms]) {\n  color: inherit;\n}",
+  ":where([data-cms] > img) {\n  display: block;\n  height: 100%;\n  object-fit: cover;\n  width: 100%;\n}",
+  ':where([data-cms] > img[data-cms-fit="contain"]) {\n  object-fit: contain;\n}',
+  ':where([data-cms] > img[data-cms-fit="fill"]) {\n  object-fit: fill;\n}',
+  ':where([data-cms] > img[data-cms-fit="none"]) {\n  object-fit: none;\n}',
+  ':where([data-cms] > img[data-cms-fit="scale-down"]) {\n  object-fit: scale-down;\n}',
+  ":where([data-cms-button]) {\n  align-items: center;\n  border: 1px solid var(--cms-color-primary, #7c3aed);\n  border-radius: 8px;\n  cursor: pointer;\n  display: inline-flex;\n  font-weight: 600;\n  gap: 6px;\n  justify-content: center;\n  line-height: 1.2;\n  padding: 10px 18px;\n  text-decoration: none;\n}",
+  ':where([data-cms-button="primary"]) {\n  background: var(--cms-color-primary, #7c3aed);\n  color: #ffffff;\n}',
+  ':where([data-cms-button="outline"]) {\n  background: transparent;\n  color: var(--cms-color-primary, #7c3aed);\n}',
+  ':where([data-cms-button="ghost"]) {\n  background: transparent;\n  border-color: currentColor;\n  color: inherit;\n}',
+  ":where([data-cms-callout]) {\n  background: #3b82f614;\n  border-left: 3px solid #3b82f6;\n  border-radius: 10px;\n  padding: 12px 14px;\n}",
+  ':where([data-cms-callout="success"]) {\n  background: #10b98114;\n  border-left-color: #10b981;\n}',
+  ':where([data-cms-callout="warning"]) {\n  background: #f59e0b14;\n  border-left-color: #f59e0b;\n}',
+  ':where([data-cms-callout="danger"]) {\n  background: #ef444414;\n  border-left-color: #ef4444;\n}',
+  ":where([data-cms] > hr) {\n  border: none;\n  border-top: 1px solid #e2e8f0;\n  margin: 0;\n}",
+  ":where([data-cms] > pre) {\n  background: #0b1220;\n  border-radius: 10px;\n  color: #e2e8f0;\n  font-family: ui-monospace, monospace;\n  font-size: 13px;\n  margin: 0;\n  overflow-x: auto;\n  padding: 12px 14px;\n}",
+].join("\n\n");
 
 const UNITS = new Set(["px", "%", "vw", "vh", "rem", "fr"]);
 
@@ -303,7 +337,7 @@ export function emitDocCss(doc: PageDoc): string {
   if (themeRule) blocks.push(themeRule);
 
   for (const id of Object.keys(doc.nodes).sort()) {
-    const node = doc.nodes[id]!;
+    const node = withNodeDefaults(doc.nodes[id]!);
     const selector = selectorFor(id);
     const parentFree = isParentFree(doc, node);
 
@@ -320,12 +354,15 @@ export function emitDocCss(doc: PageDoc): string {
     // per-breakpoint overrides (mobile-first, in doc order, skipping base)
     for (const bp of doc.breakpoints) {
       if (bp === "base") continue;
-      const px = breakpointPx[bp];
-      if (px === undefined) continue;
-      const bpStyle = node.style[bp];
+      // Own-property lookups: a breakpoint named "constructor" must not read
+      // Object.prototype and print a function into a media query.
+      const px = own(breakpointPx, bp);
+      if (typeof px !== "number") continue;
+      const bpStyle = own(node.style as Record<string, Partial<StyleProps>>, bp);
+      const bpConstraints = node.constraints ? own(node.constraints as Record<string, Partial<Constraints>>, bp) : undefined;
       const decls: Record<string, string> = {
         ...(bpStyle ? containerDecls(node, bpStyle, false) : {}),
-        ...(node.constraints?.[bp] ? constraintDecls(node.constraints[bp]!, parentFree) : {}),
+        ...(bpConstraints ? constraintDecls(bpConstraints, parentFree) : {}),
         ...(bpStyle ? styleDecls(bpStyle) : {}),
         ...(bpStyle ? visibilityDecls(node, bpStyle, false) : {}),
       };
@@ -334,5 +371,8 @@ export function emitDocCss(doc: PageDoc): string {
     }
   }
 
-  return blocks.join("\n\n") + (blocks.length ? "\n" : "");
+  // An empty document (no nodes, no tokens) emits nothing at all; anything
+  // else gets the base first, even when no node sets a style of its own.
+  if (blocks.length === 0 && Object.keys(doc.nodes).length === 0) return "";
+  return [BASE_CSS, ...blocks].join("\n\n") + "\n";
 }

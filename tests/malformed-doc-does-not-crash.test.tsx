@@ -67,6 +67,23 @@ describe("a malformed document renders empty instead of taking down its host", (
     expect(rootIds(doc as PageDoc)).toEqual([]);
   });
 
+  it("a node with no props or no style renders, and does not take the page down", () => {
+    // Found by the HTML parity runner: the original canonical document has
+    // nodes without `props`, and the renderer read `node.props.as` and threw.
+    const doc = {
+      ...emptyDoc("d1"),
+      nodes: {
+        a: { id: "a", type: "section", parent: null, order: "a0" },
+        b: { id: "b", type: "text", parent: "a", order: "a0", props: { content: "STILL HERE" } },
+      },
+    } as unknown as PageDoc;
+
+    expect(() => emitDocCss(doc)).not.toThrow();
+    const { host, unmount } = mount(<CmsPage doc={doc} includeStyles={false} />);
+    expect(host.textContent).toContain("STILL HERE");
+    unmount();
+  });
+
   it("still renders a well-formed document, so the guard is not a mute button", () => {
     const doc: PageDoc = {
       ...emptyDoc("d1"),

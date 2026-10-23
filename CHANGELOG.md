@@ -14,6 +14,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+Found by rendering the lab's reference page server-side and capturing it at
+phone and desktop widths: browser-default margins stacked on top of every
+layout's `gap`, buttons were underlined links, and the JS and PHP renderers
+produced different markup because the JS one used inline style objects.
+
+### Changed
+
+- **BREAKING (markup + CSS): one fixed base stylesheet replaces inline styles.**
+  `emitDocCss` now emits `BASE_CSS` first: it resets the margins of headings,
+  paragraphs and lists, sets `box-sizing`, and styles buttons, callouts, code,
+  dividers and images. Every rule is wrapped in `:where()`, is never more
+  specific than a node's own `[data-cms="<id>"]` rule and comes before it, so
+  whatever a node sets wins. Elements carry data attributes instead:
+  - a `button` is ONE element, the `<a>` (or `<div>` without an href), with
+    `data-cms-button="primary|outline|ghost"`; there is no inner `<span>`;
+  - a `callout` is `data-cms-callout="info|success|warning|danger"` with its
+    text directly inside;
+  - an `image` keeps `<img>` and carries `data-cms-fit` when not `cover`;
+  - `divider` and `code` render bare `<hr>` and `<pre><code>`.
+  Buttons and callouts take `var(--cms-color-primary)` when the theme sets it.
+  **What to do:** nothing, unless your CSS targeted the old inner
+  `span[data-cms-button]` or your design relied on browser-default margins;
+  set the margin on the node instead. Unknown variants fall back to the
+  default rather than being written into the attribute.
+- `emitDocCss` emits the base whenever a document has nodes or theme tokens,
+  even if no node sets a style; an empty document still emits nothing.
+
+### Fixed
+
+- A node with no `props` or no `style` (a stored or legacy node) crashed both
+  the renderer and the emitter, taking the whole page with it. Both now read
+  nodes through `withNodeDefaults` (exported).
+- A breakpoint named after an `Object.prototype` member (`constructor`, ...)
+  made the emitter print a function into a media query; breakpoint and
+  per-breakpoint lookups are now own-property only.
+- An image with no `src` rendered `src=""`, which makes a browser request the
+  page again; the attribute is now omitted.
+
+### Added
+
+- `parity/html.mjs`: the markup half of the parity gate. It renders every
+  canonical document with `CmsPage` and with fancy-cms's PHP renderer and
+  requires byte-identical HTML. `canonical-page-ledgerline.json` is the lab's
+  premium reference page, so a real page is in the corpus.
+
 ## [0.8.0] - 2026-10-23
 
 What a professional landing page needs from the renderer, found by mapping

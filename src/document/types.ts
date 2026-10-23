@@ -238,6 +238,18 @@ export function hasNodeMap(value: unknown): value is { nodes: Record<NodeId, Nod
   return typeof nodes === "object" && nodes !== null && !Array.isArray(nodes);
 }
 
+/**
+ * A node as the renderer and emitter read it: `props` and `style.base` always
+ * present. A stored or legacy node may lack either, and one such node must not
+ * take the whole page down with it.
+ */
+export function withNodeDefaults(node: Node): Node {
+  const props = typeof node.props === "object" && node.props !== null ? node.props : {};
+  const style = typeof node.style === "object" && node.style !== null ? node.style : ({ base: {} } as Node["style"]);
+  const base = typeof style.base === "object" && style.base !== null ? style.base : {};
+  return props === node.props && style === node.style && base === style.base ? node : { ...node, props, style: { ...style, base } };
+}
+
 /** Default breakpoint → min-width (px) map. `base` has no media query. */
 export const DEFAULT_BREAKPOINTS: Record<string, number> = {
   base: 0,

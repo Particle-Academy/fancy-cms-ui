@@ -1,0 +1,55 @@
+/**
+ * Dual-renderer HTML parity harness (0.9.0): the markup half of the
+ * acceptance gate, beside `run.mjs` for CSS.
+ *
+ * Renders each canonical document (`parity/canonical*.json`) through BOTH
+ * engines with styles excluded:
+ *   - JS:  renderToStaticMarkup(<CmsPage doc includeStyles={false} />) from ../dist
+ *   - PHP: particle-academy/fancy-cms bin/render-html.php (PageRenderer html)
+ * and asserts byte-identical output. A server-rendered page and a
+ * browser-rendered page must be the same page.
+ *
+ *   npm run build && node parity/html.mjs
+ */
+import { readFileSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { CmsPage } from "../dist/react.js";
+
+const here = dirname(fileURLToPath(import.meta.url));
+const phpBin = resolve(here, "../../fancy-cms/bin/render-html.php");
+const files = readdirSync(here).filter((f) => /^canonical.*\.json$/.test(f)).sort();
+
+let failed = 0;
+for (const file of files) {
+  const docPath = resolve(here, file);
+  const doc = JSON.parse(readFileSync(docPath, "utf8"));
+  const jsHtml = renderToStaticMarkup(createElement(CmsPage, { doc, includeStyles: false }));
+  let phpHtml;
+  try {
+    // `php` resolves through the shell on this machine.
+    phpHtml = execFileSync("php", [phpBin, docPath], { encoding: "utf8", shell: true });
+  } catch (e) {
+    failed++;
+    console.log(`HTML PARITY FAIL  ${file}: the PHP renderer could not run (${e.message.split("\n")[0]})`);
+    continue;
+  }
+
+  if (jsHtml === phpHtml) {
+    console.log(`HTML PARITY PASS  ${file}: byte-identical markup (${jsHtml.length} bytes).`);
+    continue;
+  }
+
+  failed++;
+  let i = 0;
+  while (i < jsHtml.length && jsHtml[i] === phpHtml[i]) i++;
+  console.log(`HTML PARITY FAIL  ${file}: first difference at byte ${i}.`);
+  console.log(`  JS:  ${JSON.stringify(jsHtml.slice(Math.max(0, i - 60), i + 80))}`);
+  console.log(`  PHP: ${JSON.stringify(phpHtml.slice(Math.max(0, i - 60), i + 80))}`);
+}
+
+console.log(`\n${files.length - failed} of ${files.length} canonical documents in HTML parity.`);
+process.exit(failed ? 1 : 0);
