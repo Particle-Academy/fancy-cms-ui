@@ -51,6 +51,10 @@ the stack for the lab's website-builder agent.
 - `props.as` on containers: `section`, `header`, `nav`, `main`, `footer`,
   `article`, `aside`, `div`. Anything else is ignored, never used as a tag.
 - `list` element (`props.items`, `props.ordered`), and List in the editor's add menu.
+- `props.anchor` on any node renders as its `id`, so an in-page link
+  (`href="#pricing"`) has somewhere to land. Only a lowercase slug of up to 64
+  characters is rendered (`ANCHOR_PATTERN`, `anchorFor` exported); anything
+  else is ignored. The PHP renderer follows in fancy-cms 0.5.0.
 - `image`: `props.fit` (`cover` default, `contain`, `fill`, `none`,
   `scale-down`) and `props.loading` (lazy by default).
 - **`agent-guide/professional-pages.md`**, shipped in the tarball: how an agent

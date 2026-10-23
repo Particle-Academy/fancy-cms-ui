@@ -178,6 +178,18 @@ describe("semantic elements", () => {
     expect(out).toContain('<ol data-cms="o"><li>Sign up</li><li>Invite</li></ol>');
   });
 
+  it("props.anchor gives the element an id an in-page link can target", () => {
+    const out = html(docWith(mk("p", null, "a", { props: { anchor: "pricing" } })));
+    expect(out).toContain('<section data-cms="p" id="pricing">');
+  });
+
+  it("an anchor that is not a lowercase slug is ignored, never rendered", () => {
+    for (const anchor of ["Pricing", "a b", "x\"onclick=\"y", "1st", "-x", "a".repeat(65)]) {
+      const out = html(docWith(mk("p", null, "a", { props: { anchor } })));
+      expect(out).toContain('<section data-cms="p">');
+    }
+  });
+
   it("an image takes its fit from props, and keeps its alt", () => {
     const out = html(docWith(mk("i", null, "a", { type: "image", props: { src: "/team.jpg", alt: "The team", fit: "contain" } })));
     expect(out).toContain('alt="The team"');

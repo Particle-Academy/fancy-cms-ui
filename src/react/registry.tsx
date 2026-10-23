@@ -58,6 +58,19 @@ export function safeHref(raw: string): string | null {
   return href;
 }
 
+/** What `props.anchor` must look like to become an `id`: a lowercase slug, 64 chars at most. */
+export const ANCHOR_PATTERN = /^[a-z][a-z0-9-]{0,63}$/;
+
+/**
+ * The in-page anchor a node declares (`props.anchor`), or null. Rendered as the
+ * element's `id`, so `href="#pricing"` scrolls to it. Anything that is not a
+ * lowercase slug is ignored rather than rendered.
+ */
+export function anchorFor(node: Node, text: (v: Bound<Json> | undefined) => string): string | null {
+  const anchor = text(node.props.anchor);
+  return ANCHOR_PATTERN.test(anchor) ? anchor : null;
+}
+
 /** The element a node renders as: its tag and the attributes that tag needs. */
 export interface ElementSpec {
   tag: string;
