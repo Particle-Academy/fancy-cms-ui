@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- **vitest 4.1.12 in development** (was 4.1.11), clearing GHSA-qxg6-89mg-rqv8
+  and GHSA-xp26-3454-mjgp in `@vitest/mocker`. Test tooling only: nothing in
+  the published package changes, so **nothing to do** as a consumer.
+
 ## [0.9.0] - 2026-10-23
 
 Released together with `particle-academy/fancy-cms` 0.5.0, whose PHP renderer
