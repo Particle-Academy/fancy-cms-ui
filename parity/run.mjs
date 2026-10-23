@@ -29,8 +29,8 @@ let failed = 0;
 for (const file of files) {
   const docPath = resolve(here, file);
   const jsCss = emitDocCss(JSON.parse(readFileSync(docPath, "utf8")));
-  // `php` resolves through the shell on this machine.
-  const phpCss = execFileSync("php", [phpBin, docPath], { encoding: "utf8", shell: true });
+  // No shell: a fixture's filename must never be read as shell text.
+  const phpCss = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, docPath], { encoding: "utf8" });
 
   if (jsCss === phpCss) {
     console.log(`PARITY PASS  ${file}: byte-identical CSS (${jsCss.length} bytes).`);

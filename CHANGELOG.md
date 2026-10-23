@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-23
+
+Released together with `particle-academy/fancy-cms` 0.5.0, whose PHP renderer
+emits the same markup and CSS: all five canonical documents are byte-identical
+in both `parity/run.mjs` (CSS) and `parity/html.mjs` (HTML).
+
 Found by rendering the lab's reference page server-side and capturing it at
 phone and desktop widths: browser-default margins stacked on top of every
 layout's `gap`, buttons were underlined links, and the JS and PHP renderers
@@ -54,6 +60,8 @@ produced different markup because the JS one used inline style objects.
 
 ### Added
 
+- The parity runners call PHP without a shell (`FANCY_CMS_PHP` overrides the
+  binary), so a fixture's filename can never be read as shell text.
 - `parity/html.mjs`: the markup half of the parity gate. It renders every
   canonical document with `CmsPage` and with fancy-cms's PHP renderer and
   requires byte-identical HTML. `canonical-page-ledgerline.json` is the lab's

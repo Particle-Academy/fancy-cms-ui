@@ -30,8 +30,8 @@ for (const file of files) {
   const jsHtml = renderToStaticMarkup(createElement(CmsPage, { doc, includeStyles: false }));
   let phpHtml;
   try {
-    // `php` resolves through the shell on this machine.
-    phpHtml = execFileSync("php", [phpBin, docPath], { encoding: "utf8", shell: true });
+    // No shell: a fixture's filename must never be read as shell text.
+    phpHtml = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, docPath], { encoding: "utf8" });
   } catch (e) {
     failed++;
     console.log(`HTML PARITY FAIL  ${file}: the PHP renderer could not run (${e.message.split("\n")[0]})`);
