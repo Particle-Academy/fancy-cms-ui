@@ -17,6 +17,7 @@ import {
 } from "@particle-academy/fancy-doc-commons";
 import { hasNodeMap, type Action, type Node, type NodeId, type PageDoc, type StyleProps } from "./types";
 import type { PageOp } from "./ops";
+import { own, setOwn } from "./own";
 
 export interface ReduceOptions {
   /** Called when an op can't apply. Default: silent. */
@@ -58,7 +59,7 @@ export function descendantIds(doc: PageDoc, id: NodeId): NodeId[] {
 }
 
 function patchNode(doc: PageDoc, id: NodeId, patch: Partial<Node>): PageDoc {
-  const node = doc.nodes[id]!;
+  const node = own(doc.nodes, id)!;
   return {
     ...doc,
     nodes: { ...doc.nodes, [id]: { ...node, ...patch } },
@@ -74,8 +75,8 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
 
   switch (op.t) {
     case "insert_node": {
-      if (doc.nodes[op.node.id]) return invalid("node id already exists");
-      if (op.node.parent !== null && !doc.nodes[op.node.parent]) return invalid("parent not found");
+      if (own(doc.nodes, op.node.id)) return invalid("node id already exists");
+      if (op.node.parent !== null && !own(doc.nodes, op.node.parent)) return invalid("parent not found");
       return {
         ...doc,
         nodes: { ...doc.nodes, [op.node.id]: op.node },
@@ -84,11 +85,11 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
     }
 
     case "remove_node": {
-      if (!doc.nodes[op.id]) return invalid("node not found");
+      if (!own(doc.nodes, op.id)) return invalid("node not found");
       const dead = new Set<NodeId>([op.id, ...descendantIds(doc, op.id)]);
       const nodes: Record<NodeId, Node> = {};
       for (const id of Object.keys(doc.nodes)) {
-        if (!dead.has(id)) nodes[id] = doc.nodes[id]!;
+        if (!dead.has(id)) setOwn(nodes, id, own(doc.nodes, id)!);
       }
       return {
         ...doc,
@@ -98,10 +99,10 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
     }
 
     case "move_node": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return invalid("node not found");
       if (op.parent === op.id) return invalid("cannot parent a node to itself");
-      if (op.parent !== null && !doc.nodes[op.parent]) return invalid("new parent not found");
+      if (op.parent !== null && !own(doc.nodes, op.parent)) return invalid("new parent not found");
       if (op.parent !== null && descendantIds(doc, op.id).includes(op.parent)) {
         return invalid("move would create a cycle");
       }
@@ -113,38 +114,39 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
     }
 
     case "set_node_props": {
-      if (!doc.nodes[op.id]) return invalid("node not found");
+      const node = own(doc.nodes, op.id);
+      if (!node) return invalid("node not found");
       return patchNode(doc, op.id, {
-        props: { ...doc.nodes[op.id]!.props, ...op.patch } as unknown as Node["props"],
+        props: { ...node.props, ...op.patch } as unknown as Node["props"],
       });
     }
 
     case "set_layout": {
-      if (!doc.nodes[op.id]) return invalid("node not found");
+      if (!own(doc.nodes, op.id)) return invalid("node not found");
       return patchNode(doc, op.id, { layout: op.layout });
     }
 
     case "set_style": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return invalid("node not found");
-      const prev = node.style[op.breakpoint] ?? {};
+      const prev = own(node.style as Record<string, Partial<StyleProps>>, op.breakpoint) ?? {};
       return patchNode(doc, op.id, {
         style: { ...node.style, [op.breakpoint]: { ...prev, ...op.patch } } as Node["style"],
       });
     }
 
     case "set_constraints": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return invalid("node not found");
       const base = node.constraints ?? { base: { width: "hug", height: "hug" } };
-      const prev = base[op.breakpoint] ?? {};
+      const prev = own(base as Record<string, object>, op.breakpoint) ?? {};
       return patchNode(doc, op.id, {
         constraints: { ...base, [op.breakpoint]: { ...prev, ...op.patch } } as Node["constraints"],
       });
     }
 
     case "set_animation": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return invalid("node not found");
       const list = node.animations ?? [];
       const idx = list.findIndex((a) => a.id === op.anim.id);
@@ -154,7 +156,7 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
     }
 
     case "remove_animation": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return invalid("node not found");
       return patchNode(doc, op.id, {
         animations: (node.animations ?? []).filter((a) => a.id !== op.animId),
@@ -162,7 +164,7 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
     }
 
     case "set_action": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return invalid("node not found");
       const list = node.actions ?? [];
       let actions: Action[];
@@ -195,7 +197,7 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       let prev: string | null = null;
       for (const id of op.order) {
         prev = fractionalKey(prev, null);
-        nodes[id] = { ...nodes[id]!, order: prev };
+        setOwn(nodes, id, { ...own(nodes, id)!, order: prev });
       }
       return { ...doc, nodes, seq: doc.seq + 1 };
     }
@@ -222,11 +224,11 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
       return [{ t: "remove_node", id: op.node.id }];
 
     case "remove_node": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return [];
       // Re-insert the subtree parent-first, then restore section order.
       const ids = [op.id, ...descendantIds(doc, op.id)];
-      const inserts: PageOp[] = ids.map((id) => ({ t: "insert_node", node: doc.nodes[id]! }));
+      const inserts: PageOp[] = ids.map((id) => ({ t: "insert_node", node: own(doc.nodes, id)! }));
       if (node.parent === null) {
         inserts.push({ t: "reorder_roots", order: childrenOf(doc, null).map((n) => n.id) });
       }
@@ -234,7 +236,7 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
     }
 
     case "move_node": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return [];
       const back: PageOp[] = [{ t: "move_node", id: op.id, parent: node.parent, order: node.order }];
       if (node.parent === null) {
@@ -244,7 +246,7 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
     }
 
     case "set_node_props": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return [];
       const prev: Record<string, unknown> = {};
       for (const k of Object.keys(op.patch)) prev[k] = node.props[k];
@@ -252,13 +254,13 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
     }
 
     case "set_layout": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return [];
       return [{ t: "set_layout", id: op.id, layout: node.layout }];
     }
 
     case "set_style": {
-      const node = doc.nodes[op.id];
+      const node = own(doc.nodes, op.id);
       if (!node) return [];
       const prevBp = (node.style[op.breakpoint] ?? {}) as Record<string, unknown>;
       const prev: Partial<StyleProps> = {};

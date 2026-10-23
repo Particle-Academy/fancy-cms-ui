@@ -61,6 +61,16 @@ the stack for the lab's website-builder agent.
   Hrefs pass for relative URLs and `http`/`https`/`mailto`/`tel`; every other
   scheme (`javascript:`, `data:` ...) is dropped. External http(s) links get
   `rel="noopener noreferrer"`.
+- **Security / Fixed: node ids and breakpoint names that are also
+  `Object.prototype` names.** Ids arrive in ops, which an agent writes. The node
+  map was read as a plain object, so `constructor`, `toString` and friends
+  resolved to built-ins: inserting a node called `constructor` was refused as a
+  duplicate, removing an absent `toString` "succeeded" and bumped `seq`, and a
+  node called `__proto__` replaced the map's prototype instead of being added.
+  Every lookup and write in the reducer, renderer, CSS emitter and migration now
+  uses own properties only (`src/document/own.ts`). **Nothing to do:** a page
+  whose ids are ordinary strings behaves exactly as before. Found by the PHP
+  port, which has no prototype to see.
 - **Fixed:** `reorder_roots` accepted a list that repeated a root as long as
   its length matched (`["s1","s1"]` for roots s1, s2), rewrote that root's key
   twice and left the other's alone, so the page order became arbitrary. It is

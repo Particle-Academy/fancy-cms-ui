@@ -18,6 +18,7 @@ import {
   type SizeMode,
   type StyleProps,
 } from "../document/types";
+import { own } from "../document/own";
 
 const selectorFor = (id: string): string => `[data-cms="${id}"]`;
 
@@ -216,7 +217,7 @@ function constraintDecls(c: Partial<Constraints>, parentFree: boolean): Record<s
 
 function isParentFree(doc: PageDoc, node: Node): boolean {
   if (node.parent === null) return false; // sections stack in the page flow
-  const parent = doc.nodes[node.parent];
+  const parent = own(doc.nodes, node.parent);
   return !parent || parent.layout === undefined || parent.layout === "free";
 }
 

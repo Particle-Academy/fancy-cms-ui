@@ -1,6 +1,7 @@
 import { createElement, type ReactElement } from "react";
 import type { Bound, Json, PageDoc } from "../document/types";
 import { childrenOf } from "../document/reduce";
+import { own } from "../document/own";
 import { defaultRegistry, elementFor, resolveValue, type DataContext, type ElementRegistry } from "./registry";
 
 export interface RenderNodeProps {
@@ -22,7 +23,7 @@ export interface RenderNodeProps {
  * and `index` to nested `{ $bind: "item.…" }` bindings.
  */
 export function RenderNode({ doc, id, registry = defaultRegistry, data }: RenderNodeProps): ReactElement | null {
-  const node = doc.nodes[id];
+  const node = own(doc.nodes, id);
   if (!node) return null;
 
   if (node.type === "repeater") {

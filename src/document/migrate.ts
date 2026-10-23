@@ -28,6 +28,7 @@
 
 import { fractionalKey } from "@particle-academy/fancy-doc-commons";
 import { emptyDoc, hasNodeMap, type NodeId, type PageDoc } from "./types";
+import { own, setOwn } from "./own";
 
 /** A `PageDoc` as persisted before this change — with the extra array. */
 export type LegacyPageDoc = PageDoc & { sections?: NodeId[] };
@@ -82,7 +83,7 @@ export function migrateDocVerbose(input: LegacyPageDoc | PageDoc): MigrateResult
   const seen = new Set<NodeId>();
 
   for (const id of sections) {
-    if (!normalized.nodes[id]) {
+    if (!own(normalized.nodes, id)) {
       danglingIds.push(id);
       continue;
     }
@@ -107,7 +108,7 @@ export function migrateDocVerbose(input: LegacyPageDoc | PageDoc): MigrateResult
 
   for (const id of finalOrder) {
     const key = fractionalKey(prev, null);
-    nodes[id] = { ...nodes[id]!, order: key };
+    setOwn(nodes, id, { ...own(nodes, id)!, order: key });
     prev = key;
   }
 
