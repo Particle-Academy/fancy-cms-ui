@@ -20,16 +20,49 @@ import {
 } from "../document/types";
 import { own } from "../document/own";
 
-const selectorFor = (id: string): string => `[data-cms="${id}"]`;
-
-function lengthToCss(len: Length): string {
-  return `${len.value}${len.unit}`;
+/**
+ * A string as the contents of a double-quoted CSS string. `\` and `"` are
+ * backslash-escaped; control characters, and `<` (so an id can never write
+ * `</style>` into an inline stylesheet), become hex escapes followed by a
+ * space. The selector still matches the attribute's real value.
+ */
+export function cssString(value: string): string {
+  let out = "";
+  for (const ch of value) {
+    const code = ch.codePointAt(0)!;
+    if (ch === "\\" || ch === '"') out += `\\${ch}`;
+    else if (code < 0x20 || code === 0x7f || ch === "<") out += `\\${code.toString(16)} `;
+    else out += ch;
+  }
+  return out;
 }
 
-function sizeToCss(size: SizeMode): string {
+const selectorFor = (id: string): string => `[data-cms="${cssString(id)}"]`;
+
+const UNITS = new Set(["px", "%", "vw", "vh", "rem", "fr"]);
+
+/** A Length as CSS, or null unless its value is a finite number and its unit a known one. */
+function lengthToCss(len: unknown): string | null {
+  if (typeof len !== "object" || len === null) return null;
+  const { value, unit } = len as Length;
+  if (typeof value !== "number" || !Number.isFinite(value) || typeof unit !== "string" || !UNITS.has(unit)) return null;
+  return `${value}${unit}`;
+}
+
+function sizeToCss(size: unknown): string | null {
   if (size === "fill") return "100%";
   if (size === "hug") return "auto";
   return lengthToCss(size);
+}
+
+/** A finite number as CSS, or null. */
+function numberToCss(value: unknown): string | null {
+  return typeof value === "number" && Number.isFinite(value) ? String(value) : null;
+}
+
+function putLen(d: Record<string, string>, props: string[], len: unknown): void {
+  const css = lengthToCss(len);
+  if (css !== null) for (const p of props) d[p] = css;
 }
 
 const ALIGN: Record<string, string> = {
@@ -82,45 +115,72 @@ function put(d: Record<string, string>, prop: string, value: string | undefined)
 const OVERFLOW = new Set(["visible", "hidden", "auto"]);
 const TEXT_TRANSFORM = new Set(["none", "uppercase", "lowercase", "capitalize"]);
 const BACKGROUND_SIZE = new Set(["cover", "contain", "auto"]);
+const TEXT_ALIGN = new Set(["left", "center", "right", "justify"]);
+const DIRECTIONS = new Set(["row", "column"]);
 
-/** Map StyleProps → CSS declarations (property → value). Container knobs are in {@link containerDecls}. */
+/** An allowlisted keyword, or null. Keys are looked up as own properties only. */
+function keyword(map: Record<string, string>, value: unknown): string | null {
+  return typeof value === "string" && Object.prototype.hasOwnProperty.call(map, value) ? map[value]! : null;
+}
+
+function inSet(set: Set<string>, value: unknown): string | null {
+  return typeof value === "string" && set.has(value) ? value : null;
+}
+
+/**
+ * Map StyleProps → CSS declarations (property → value). Container knobs are in
+ * {@link containerDecls}. Every value passes one of three gates: a Length with a
+ * known unit and a finite number, an allowlisted keyword, or
+ * {@link safeCssValue} for the free-form colours, borders and font stacks.
+ * Anything else emits nothing.
+ */
 function styleDecls(style: Partial<StyleProps>): Record<string, string> {
   const d: Record<string, string> = {};
-  if (style.padding) d["padding"] = lengthToCss(style.padding);
-  if (style.paddingX) d["padding-left"] = d["padding-right"] = lengthToCss(style.paddingX);
-  if (style.paddingY) d["padding-top"] = d["padding-bottom"] = lengthToCss(style.paddingY);
-  if (style.margin) d["margin"] = lengthToCss(style.margin);
-  if (style.marginX) d["margin-left"] = d["margin-right"] = style.marginX === "auto" ? "auto" : lengthToCss(style.marginX);
-  if (style.marginY) d["margin-top"] = d["margin-bottom"] = lengthToCss(style.marginY);
-  if (style.radius) d["border-radius"] = lengthToCss(style.radius);
-  if (style.maxWidth) d["max-width"] = lengthToCss(style.maxWidth);
-  if (style.minHeight) d["min-height"] = lengthToCss(style.minHeight);
-  put(d, "aspect-ratio", style.aspectRatio);
+  putLen(d, ["padding"], style.padding);
+  putLen(d, ["padding-left", "padding-right"], style.paddingX);
+  putLen(d, ["padding-top", "padding-bottom"], style.paddingY);
+  putLen(d, ["margin"], style.margin);
+  if (style.marginX === "auto") d["margin-left"] = d["margin-right"] = "auto";
+  else putLen(d, ["margin-left", "margin-right"], style.marginX);
+  putLen(d, ["margin-top", "margin-bottom"], style.marginY);
+  putLen(d, ["border-radius"], style.radius);
+  putLen(d, ["max-width"], style.maxWidth);
+  putLen(d, ["min-height"], style.minHeight);
+  put(d, "aspect-ratio", typeof style.aspectRatio === "string" ? style.aspectRatio : undefined);
   if (style.sticky === true) {
     d["position"] = "sticky";
     d["top"] = "0";
   }
   if (typeof style.zIndex === "number" && Number.isFinite(style.zIndex)) d["z-index"] = String(Math.trunc(style.zIndex));
-  if (style.overflow !== undefined && OVERFLOW.has(style.overflow)) d["overflow"] = style.overflow;
-  put(d, "background", style.background);
-  if (style.backgroundSize !== undefined && BACKGROUND_SIZE.has(style.backgroundSize)) d["background-size"] = style.backgroundSize;
-  put(d, "background-position", style.backgroundPosition);
-  put(d, "color", style.color);
-  if (style.opacity !== undefined) d["opacity"] = String(style.opacity);
-  put(d, "font-family", style.fontFamily);
-  if (style.fontSize) d["font-size"] = lengthToCss(style.fontSize);
-  if (style.fontWeight !== undefined) d["font-weight"] = String(style.fontWeight);
-  if (style.lineHeight !== undefined) d["line-height"] = String(style.lineHeight);
-  put(d, "text-align", style.textAlign);
-  if (style.letterSpacing) d["letter-spacing"] = lengthToCss(style.letterSpacing);
-  if (style.textTransform !== undefined && TEXT_TRANSFORM.has(style.textTransform)) d["text-transform"] = style.textTransform;
-  put(d, "border", style.border);
-  put(d, "box-shadow", style.boxShadow);
-  put(d, "transform", style.transform);
-  put(d, "filter", style.filter);
-  if (style.gap) d["gap"] = lengthToCss(style.gap);
-  if (style.align !== undefined) d["align-items"] = ALIGN[style.align] ?? style.align;
-  if (style.justify !== undefined) d["justify-content"] = JUSTIFY[style.justify] ?? style.justify;
+  const overflow = inSet(OVERFLOW, style.overflow);
+  if (overflow) d["overflow"] = overflow;
+  put(d, "background", typeof style.background === "string" ? style.background : undefined);
+  const backgroundSize = inSet(BACKGROUND_SIZE, style.backgroundSize);
+  if (backgroundSize) d["background-size"] = backgroundSize;
+  put(d, "background-position", typeof style.backgroundPosition === "string" ? style.backgroundPosition : undefined);
+  put(d, "color", typeof style.color === "string" ? style.color : undefined);
+  const opacity = numberToCss(style.opacity);
+  if (opacity !== null) d["opacity"] = opacity;
+  put(d, "font-family", typeof style.fontFamily === "string" ? style.fontFamily : undefined);
+  putLen(d, ["font-size"], style.fontSize);
+  const fontWeight = numberToCss(style.fontWeight);
+  if (fontWeight !== null) d["font-weight"] = fontWeight;
+  const lineHeight = numberToCss(style.lineHeight);
+  if (lineHeight !== null) d["line-height"] = lineHeight;
+  const textAlign = inSet(TEXT_ALIGN, style.textAlign);
+  if (textAlign) d["text-align"] = textAlign;
+  putLen(d, ["letter-spacing"], style.letterSpacing);
+  const textTransform = inSet(TEXT_TRANSFORM, style.textTransform);
+  if (textTransform) d["text-transform"] = textTransform;
+  put(d, "border", typeof style.border === "string" ? style.border : undefined);
+  put(d, "box-shadow", typeof style.boxShadow === "string" ? style.boxShadow : undefined);
+  put(d, "transform", typeof style.transform === "string" ? style.transform : undefined);
+  put(d, "filter", typeof style.filter === "string" ? style.filter : undefined);
+  putLen(d, ["gap"], style.gap);
+  const align = keyword(ALIGN, style.align);
+  if (align) d["align-items"] = align;
+  const justify = keyword(JUSTIFY, style.justify);
+  if (justify) d["justify-content"] = justify;
   return d;
 }
 
@@ -132,8 +192,9 @@ function shownDisplay(node: Node): string {
 }
 
 function gridColumns(style: Partial<StyleProps>): string | undefined {
-  if (style.columnMin) return `repeat(auto-fit, minmax(min(${lengthToCss(style.columnMin)}, 100%), 1fr))`;
-  if (style.columns !== undefined) return `repeat(${Math.max(1, Math.trunc(style.columns))}, 1fr)`;
+  const min = lengthToCss(style.columnMin);
+  if (min !== null) return `repeat(auto-fit, minmax(min(${min}, 100%), 1fr))`;
+  if (typeof style.columns === "number" && Number.isFinite(style.columns)) return `repeat(${Math.max(1, Math.trunc(style.columns))}, 1fr)`;
   return undefined;
 }
 
@@ -146,7 +207,8 @@ function containerDecls(node: Node, style: Partial<StyleProps>, isBase: boolean)
   const d: Record<string, string> = {};
   if (node.layout === "stack") {
     if (isBase) d["display"] = "flex";
-    if (isBase || style.direction !== undefined) d["flex-direction"] = style.direction ?? "column";
+    const direction = inSet(DIRECTIONS, style.direction);
+    if (isBase || direction) d["flex-direction"] = direction ?? "column";
     if (style.wrap !== undefined) d["flex-wrap"] = style.wrap ? "wrap" : "nowrap";
   } else if (node.layout === "grid") {
     if (isBase) d["display"] = "grid";
@@ -173,7 +235,7 @@ function visibilityDecls(node: Node, style: Partial<StyleProps>, isBase: boolean
 function themeDecls(theme: unknown): Record<string, string> {
   const d: Record<string, string> = {};
   const walk = (value: unknown, path: string[]): void => {
-    if (typeof value === "string" || typeof value === "number") {
+    if (typeof value === "string" || (typeof value === "number" && Number.isFinite(value))) {
       const key = path.map((p) => p.toLowerCase().replace(/[^a-z0-9-]/g, "")).filter(Boolean).join("-");
       if (key) put(d, `--cms-${key}`, String(value));
       return;
@@ -196,10 +258,10 @@ function constraintDecls(c: Partial<Constraints>, parentFree: boolean): Record<s
   const transforms: string[] = [];
   if (parentFree) {
     d["position"] = "absolute";
-    if (c.left) d["left"] = lengthToCss(c.left);
-    if (c.right) d["right"] = lengthToCss(c.right);
-    if (c.top) d["top"] = lengthToCss(c.top);
-    if (c.bottom) d["bottom"] = lengthToCss(c.bottom);
+    putLen(d, ["left"], c.left);
+    putLen(d, ["right"], c.right);
+    putLen(d, ["top"], c.top);
+    putLen(d, ["bottom"], c.bottom);
     if (c.centerX) {
       d["left"] = "50%";
       transforms.push("translateX(-50%)");
@@ -210,8 +272,10 @@ function constraintDecls(c: Partial<Constraints>, parentFree: boolean): Record<s
     }
     if (transforms.length) d["transform"] = transforms.join(" ");
   }
-  if (c.width) d["width"] = sizeToCss(c.width);
-  if (c.height) d["height"] = sizeToCss(c.height);
+  const width = sizeToCss(c.width);
+  if (width !== null) d["width"] = width;
+  const height = sizeToCss(c.height);
+  if (height !== null) d["height"] = height;
   return d;
 }
 

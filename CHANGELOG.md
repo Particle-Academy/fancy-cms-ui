@@ -61,6 +61,18 @@ the stack for the lab's website-builder agent.
   Hrefs pass for relative URLs and `http`/`https`/`mailto`/`tel`; every other
   scheme (`javascript:`, `data:` ...) is dropped. External http(s) links get
   `rel="noopener noreferrer"`.
+- **Security: nothing a document holds can escape the inline stylesheet.**
+  Two routes carried raw strings into `<style>`. A node id went into
+  `[data-cms="<id>"]` unescaped, so an id containing `</style><script>` ended
+  the stylesheet and injected a script; ids now pass through `cssString`
+  (`\` and `"` escaped, control characters and `<` as hex escapes), and the
+  selector still matches the attribute. And `align`, `justify`, `direction`,
+  `textAlign`, a Length's unit and the numeric fields were written without a
+  check; now a Length needs a finite number and a known unit, a keyword must be
+  on its allowlist, and a number must be finite, or the declaration is dropped.
+  **Nothing to do:** every valid document emits the same CSS as before.
+  `parity/canonical-doc-hostile.json` holds the PHP emitter to the same rules.
+  Found by the PHP port's source review.
 - **Security / Fixed: node ids and breakpoint names that are also
   `Object.prototype` names.** Ids arrive in ops, which an agent writes. The node
   map was read as a plain object, so `constructor`, `toString` and friends

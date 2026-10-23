@@ -1,0 +1,55 @@
+{
+  "id": "canonical-hostile",
+  "seq": 6,
+  "meta": { "title": "Hostile values", "slug": "/parity-hostile", "scrollMode": "smooth" },
+  "theme": { "name": "x", "num": { "finite": 1.5, "big": 1e21, "small": 0.000001 } },
+  "breakpoints": ["base", "md", "lg"],
+  "nodes": {
+    "x\"]</style><script>alert(1)</script>": {
+      "id": "x\"]</style><script>alert(1)</script>", "type": "section", "parent": null, "order": "a0",
+      "props": {}, "style": { "base": { "color": "#111111" } }
+    },
+    "a\"b\\c\nd<e\u0001f": {
+      "id": "a\"b\\c\nd<e\u0001f", "type": "section", "parent": null, "order": "a1",
+      "props": {}, "style": { "base": { "color": "#222222" } }
+    },
+    "enums": {
+      "id": "enums", "type": "stack", "parent": null, "order": "a2", "layout": "stack",
+      "props": {},
+      "style": {
+        "base": { "align": "center;} body{display:none", "justify": "constructor", "direction": "row;} *{color:red", "textAlign": "left;x", "overflow": "toString" },
+        "md": { "align": "end", "justify": "around", "direction": "row", "textAlign": "center" }
+      }
+    },
+    "lengths": {
+      "id": "lengths", "type": "grid", "parent": null, "order": "a3", "layout": "grid",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": { "value": 4, "unit": "px;}*{x:y" },
+          "margin": { "value": "4px", "unit": "px" },
+          "gap": { "value": 8, "unit": "px" },
+          "radius": { "value": 0.1, "unit": "rem" },
+          "maxWidth": { "value": 1e21, "unit": "px" },
+          "fontSize": { "value": -0.5, "unit": "rem" },
+          "columns": "3; x",
+          "opacity": "1;}",
+          "fontWeight": 700,
+          "lineHeight": 1.25,
+          "zIndex": -3.7
+        },
+        "md": { "columnMin": { "value": 200, "unit": "em" }, "columns": 2 }
+      }
+    },
+    "free": {
+      "id": "free", "type": "frame", "parent": null, "order": "a4", "layout": "free",
+      "props": {}, "style": { "base": {} }
+    },
+    "pinned": {
+      "id": "pinned", "type": "frame", "parent": "free", "order": "a0",
+      "props": {},
+      "constraints": { "base": { "left": { "value": 10, "unit": "px" }, "top": { "value": 5, "unit": "bogus" }, "width": "fill", "height": { "value": 50, "unit": "%" } } },
+      "style": { "base": {} }
+    }
+  }
+}
