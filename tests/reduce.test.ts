@@ -75,6 +75,17 @@ describe("reduce", () => {
     expect(bad).toBe(doc);
     expect(onInvalid).toHaveBeenCalledOnce();
   });
+
+  it("refuses a reorder that repeats a root, even when the length matches", () => {
+    // Found while porting the reducer to PHP: ["s1","s1"] passed the length and
+    // membership checks for roots s1,s2, rewrote s1's key twice and left s2's
+    // alone, so the resulting order was whatever the old keys happened to imply.
+    const doc = seed();
+    const onInvalid = vi.fn();
+    const bad = reduce(doc, { t: "reorder_roots", order: ["s1", "s1"] }, { onInvalid });
+    expect(bad).toBe(doc);
+    expect(onInvalid).toHaveBeenCalledOnce();
+  });
 });
 
 describe("invert (undo)", () => {

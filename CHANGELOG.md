@@ -57,6 +57,11 @@ the stack for the lab's website-builder agent.
   Hrefs pass for relative URLs and `http`/`https`/`mailto`/`tel`; every other
   scheme (`javascript:`, `data:` ...) is dropped. External http(s) links get
   `rel="noopener noreferrer"`.
+- **Fixed:** `reorder_roots` accepted a list that repeated a root as long as
+  its length matched (`["s1","s1"]` for roots s1, s2), rewrote that root's key
+  twice and left the other's alone, so the page order became arbitrary. It is
+  now refused as not a permutation, like a list with an unknown id. Found while
+  porting the reducer to PHP.
 - Parity: `parity/run.mjs` checks every `parity/canonical*.json`;
   `canonical-doc-0.8.json` covers the new properties and the values that must
   be dropped.

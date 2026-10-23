@@ -184,8 +184,11 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       // permutation: a partial list would silently drop roots out of the page.
       const currentRoots = childrenOf(doc, null);
       const current = new Set(currentRoots.map((n) => n.id));
+      // Same length, every id a root, and no id twice: a permutation.
       const same =
-        op.order.length === currentRoots.length && op.order.every((id) => current.has(id));
+        op.order.length === currentRoots.length &&
+        new Set(op.order).size === op.order.length &&
+        op.order.every((id) => current.has(id));
       if (!same) return invalid("reorder must be a permutation of the current roots");
 
       const nodes = { ...doc.nodes };
