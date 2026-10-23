@@ -53,6 +53,10 @@ the stack for the lab's website-builder agent.
 - `list` element (`props.items`, `props.ordered`), and List in the editor's add menu.
 - `image`: `props.fit` (`cover` default, `contain`, `fill`, `none`,
   `scale-down`) and `props.loading` (lazy by default).
+- **`agent-guide/professional-pages.md`**, shipped in the tarball: how an agent
+  builds a professional page with these primitives (the bar, scales, batching
+  ops, deferring to a person's edits). It is what the lab's website-builder
+  agent is measured with, so its numbers are tuned by lab passes, not by taste.
 - `safeHref`, `elementFor`, `LANDMARK_TAGS` and `safeCssValue` are exported.
   Hrefs pass for relative URLs and `http`/`https`/`mailto`/`tel`; every other
   scheme (`javascript:`, `data:` ...) is dropped. External http(s) links get
