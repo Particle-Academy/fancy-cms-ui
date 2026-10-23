@@ -1,0 +1,117 @@
+{
+  "base": {
+    "id": "parity", "seq": 0,
+    "meta": {"title": "Parity 😀", "slug": "/", "scrollMode": "smooth"},
+    "theme": {"name": "default", "emptyObject": {}, "emptyList": [], "numeric": {"0": "zero", "1": "one"}},
+    "breakpoints": ["base", "md", "lg"],
+    "nodes": {
+      "a": {"id": "a", "type": "section", "parent": null, "order": "A", "props": {}, "style": {"base": {}}},
+      "b": {"id": "b", "type": "text", "parent": null, "order": "B", "props": {"content": "b"}, "style": {"base": {}}},
+      "c": {"id": "c", "type": "grid", "parent": null, "order": "C", "props": {}, "style": {"base": {}}},
+      "child": {"id": "child", "type": "text", "parent": "a", "order": "V", "props": {"content": "child"}, "style": {"base": {}}},
+      "grandchild": {"id": "grandchild", "type": "text", "parent": "child", "order": "V", "props": {}, "style": {"base": {}}}
+    }
+  },
+  "cases": [
+    {"name": "structural-subtrees", "ops": [
+      {"t": "move_node", "id": "b", "parent": "child", "order": "Z"},
+      {"t": "move_node", "id": "a", "parent": "grandchild", "order": "Z"},
+      {"t": "move_node", "id": "a", "parent": "a", "order": "Z"},
+      {"t": "remove_node", "id": "a"},
+      {"t": "remove_node", "id": "a"}
+    ]},
+    {"name": "duplicates-and-missing-parents", "ops": [
+      {"t": "insert_node", "node": {"id": "a", "type": "text", "parent": null, "order": "V", "props": {}, "style": {"base": {}}}},
+      {"t": "insert_node", "node": {"id": "orphan", "type": "text", "parent": "missing", "order": "V", "props": {}, "style": {"base": {}}}},
+      {"t": "move_node", "id": "b", "parent": "missing", "order": "V"}
+    ]},
+    {"name": "root-permutation", "ops": [
+      {"t": "reorder_roots", "order": ["c", "a", "b"]},
+      {"t": "reorder_roots", "order": ["a", "a", "a"]},
+      {"t": "reorder_roots", "order": ["a"]},
+      {"t": "reorder_roots", "order": ["a", "b", "missing"]},
+      {"t": "reorder_roots", "order": ["b", "c", "a"]}
+    ]},
+    {"name": "shallow-null-and-empty-patches", "ops": [
+      {"t": "set_node_props", "id": "b", "patch": {"content": null, "object": {}, "list": [], "nested": {"first": 1}}},
+      {"t": "set_node_props", "id": "b", "patch": {"nested": {"second": 2}}},
+      {"t": "set_node_props", "id": "a", "patch": {}},
+      {"t": "set_theme", "patch": {"name": null, "tokens": {"color": "#123"}}},
+      {"t": "set_meta", "patch": {"title": "é < > / 😀", "seo": {"description": "quoted \"text\""}}}
+    ]},
+    {"name": "layout-omission-and-breakpoints", "ops": [
+      {"t": "set_layout", "id": "a", "layout": "stack"},
+      {"t": "set_layout", "id": "a"},
+      {"t": "set_style", "id": "a", "breakpoint": "md", "patch": {"color": null}},
+      {"t": "set_style", "id": "a", "breakpoint": "base", "patch": {"padding": {"value": 12.5, "unit": "px"}}},
+      {"t": "set_constraints", "id": "a", "breakpoint": "lg", "patch": {"left": null}},
+      {"t": "set_constraints", "id": "a", "breakpoint": "base", "patch": {"width": "fill"}}
+    ]},
+    {"name": "animations-first-match", "ops": [
+      {"t": "set_animation", "id": "a", "anim": {"id": "fade", "driver": "enter", "keyframes": []}},
+      {"t": "set_animation", "id": "a", "anim": {"id": "fade", "driver": "scroll", "keyframes": [{"at": 0.5, "props": {"opacity": 0.5}}]}},
+      {"t": "set_animation", "id": "a", "anim": {"id": "second", "driver": "loop", "keyframes": []}},
+      {"t": "remove_animation", "id": "a", "animId": "fade"},
+      {"t": "remove_animation", "id": "a", "animId": "absent"}
+    ]},
+    {"name": "actions-append-replace-remove", "ops": [
+      {"t": "set_action", "id": "a", "index": 99, "action": {"on": "click", "do": {"kind": "navigate", "href": "/first"}}},
+      {"t": "set_action", "id": "a", "index": -1, "action": {"on": "click", "do": {"kind": "navigate", "href": "/negative"}}},
+      {"t": "set_action", "id": "a", "index": 0.5, "action": null},
+      {"t": "set_action", "id": "a", "index": 0, "action": {"on": "load", "do": {"kind": "runFlow", "flow": "intro"}}},
+      {"t": "set_action", "id": "a", "index": 10, "action": {"on": "hover", "do": {"kind": "toggleNode", "node": "b"}}},
+      {"t": "set_action", "id": "a", "index": 0, "action": null}
+    ]},
+    {"name": "unknown-ids", "ops": [
+      {"t": "remove_node", "id": "missing"},
+      {"t": "move_node", "id": "missing", "parent": null, "order": "V"},
+      {"t": "set_node_props", "id": "missing", "patch": {"x": 1}},
+      {"t": "set_layout", "id": "missing", "layout": "grid"},
+      {"t": "set_style", "id": "missing", "breakpoint": "base", "patch": {}},
+      {"t": "set_constraints", "id": "missing", "breakpoint": "base", "patch": {}},
+      {"t": "set_animation", "id": "missing", "anim": {"id": "x", "driver": "enter", "keyframes": []}},
+      {"t": "remove_animation", "id": "missing", "animId": "x"},
+      {"t": "set_action", "id": "missing", "index": 0, "action": null},
+      {"t": "not_a_page_op"}
+    ]},
+    {"name": "prototype-names-are-real-ids", "ops": [
+      {"t": "remove_node", "id": "constructor"},
+      {"t": "remove_node", "id": "toString"},
+      {"t": "remove_node", "id": "__proto__"},
+      {"t": "remove_node", "id": "hasOwnProperty"},
+      {"t": "insert_node", "node": {"id": "constructor", "type": "text", "parent": null, "order": "X", "props": {}, "style": {"base": {}}}},
+      {"t": "set_node_props", "id": "constructor", "patch": {"content": "own node"}},
+      {"t": "remove_node", "id": "constructor"},
+      {"t": "insert_node", "node": {"id": "__proto__", "type": "text", "parent": null, "order": "Y", "props": {}, "style": {"base": {}}}},
+      {"t": "set_style", "id": "__proto__", "breakpoint": "__proto__", "patch": {"color": "red"}},
+      {"t": "set_constraints", "id": "__proto__", "breakpoint": "constructor", "patch": {"left": null}},
+      {"t": "set_node_props", "id": "__proto__", "patch": {"__proto__": {}, "constructor": null}},
+      {"t": "remove_node", "id": "__proto__"}
+    ]},
+    {"name": "numeric-node-and-prop-maps-stay-objects", "extraNodes": [
+      {"id": "0", "type": "text", "parent": null, "order": "V", "props": {}, "style": {"base": {}}},
+      {"id": "1", "type": "text", "parent": null, "order": "V", "props": {}, "style": {"base": {}}}
+    ], "ops": [
+      {"t": "remove_node", "id": "a"},
+      {"t": "remove_node", "id": "b"},
+      {"t": "remove_node", "id": "c"},
+      {"t": "set_node_props", "id": "0", "patch": {"0": null, "1": {}, "2": []}},
+      {"t": "move_node", "id": "1", "parent": "0", "order": "V"},
+      {"t": "remove_node", "id": "0"}
+    ]},
+    {"name": "duplicate-animation-first-match", "extraNodes": [
+      {"id": "dupe", "type": "text", "parent": null, "order": "V", "props": {}, "style": {"base": {}}, "animations": [
+        {"id": "same", "driver": "enter", "keyframes": []},
+        {"id": "same", "driver": "scroll", "keyframes": []}
+      ]}
+    ], "ops": [
+      {"t": "set_animation", "id": "dupe", "anim": {"id": "same", "driver": "hover", "keyframes": []}},
+      {"t": "remove_animation", "id": "dupe", "animId": "same"}
+    ]},
+    {"name": "unicode-order-ties", "extraNodes": [
+      {"id": "😀", "type": "text", "parent": null, "order": "V", "props": {}, "style": {"base": {}}},
+      {"id": "", "type": "text", "parent": null, "order": "V", "props": {}, "style": {"base": {}}},
+      {"id": "0", "type": "text", "parent": null, "order": "V", "props": {}, "style": {"base": {}}}
+    ], "ops": [{"t": "move_node", "id": "child", "parent": null, "order": "V"}]}
+  ]
+}
