@@ -37,6 +37,63 @@ export function resolveValue(v: Bound<Json> | undefined, data?: DataContext): un
   return v;
 }
 
+/** Landmark tags a container may opt into with `props.as`. Anything else is ignored. */
+export const LANDMARK_TAGS = ["section", "header", "nav", "main", "footer", "article", "aside", "div"] as const;
+const LANDMARKS = new Set<string>(LANDMARK_TAGS);
+const CONTAINERS = new Set(["stack", "grid", "frame", "shape", "card"]);
+const SAFE_SCHEMES = new Set(["http", "https", "mailto", "tel"]);
+
+/**
+ * An href an author or agent wrote, or null when it must not be rendered.
+ * Relative URLs, fragments and http(s)/mailto/tel pass; every other scheme
+ * (`javascript:`, `data:`, `vbscript:` ...) is dropped.
+ */
+export function safeHref(raw: string): string | null {
+  const href = raw.trim();
+  if (!href) return null;
+  // Strip control characters and whitespace a browser ignores when it reads a scheme.
+  const probe = href.replace(/[\u0000- \u007f]+/g, "");
+  const scheme = /^([a-z][a-z0-9+.-]*):/i.exec(probe);
+  if (scheme && !SAFE_SCHEMES.has(scheme[1]!.toLowerCase())) return null;
+  return href;
+}
+
+/** The element a node renders as: its tag and the attributes that tag needs. */
+export interface ElementSpec {
+  tag: string;
+  attrs?: Record<string, string>;
+}
+
+/**
+ * Semantic element per node. The `[data-cms]` element IS this element, so the
+ * node's emitted CSS styles the real heading, paragraph, link or landmark.
+ */
+export function elementFor(node: Node, text: (v: Bound<Json> | undefined) => string): ElementSpec {
+  const as = text(node.props.as);
+  switch (node.type) {
+    case "heading": {
+      const level = Number(text(node.props.level) || 2);
+      return { tag: Number.isInteger(level) && level >= 1 && level <= 6 ? `h${level}` : "h2" };
+    }
+    case "text":
+      return { tag: "p" };
+    case "section":
+      return { tag: LANDMARKS.has(as) ? as : "section" };
+    case "list":
+      return { tag: text(node.props.ordered) === "true" ? "ol" : "ul" };
+    case "button":
+    case "link": {
+      const href = safeHref(text(node.props.href));
+      if (href === null) return { tag: node.type === "link" ? "span" : "div" };
+      const attrs: Record<string, string> = { href };
+      if (/^https?:\/\//i.test(href)) attrs.rel = "noopener noreferrer";
+      return { tag: "a", attrs };
+    }
+    default:
+      return { tag: CONTAINERS.has(node.type) && LANDMARKS.has(as) ? as : "div" };
+  }
+}
+
 /** Built-in native elements. Containers render their children; leaves render content. */
 export const defaultRegistry: ElementRegistry = {
   section: ({ children }) => children,
@@ -50,11 +107,12 @@ export const defaultRegistry: ElementRegistry = {
   // Rich text — inline-formatted HTML (gradient spans, links, <code>, …) that
   // plain `text` can't express. The author owns the markup (it's their content).
   richtext: ({ node, text }) => <div dangerouslySetInnerHTML={{ __html: text(node.props.html) }} />,
-  link: ({ node, text }) => (
-    <a href={text(node.props.href) || "#"} style={{ color: "inherit", textDecoration: "underline" }}>
-      {text(node.props.content) || "link"}
-    </a>
-  ),
+  // The [data-cms] element is already the <a> (see elementFor), so a link renders its label only.
+  link: ({ node, text }) => text(node.props.content) || "link",
+  list: ({ node, resolve }) => {
+    const items = resolve(node.props.items);
+    return Array.isArray(items) ? items.map((item, i) => <li key={i}>{item === null || item === undefined ? "" : String(item)}</li>) : null;
+  },
   divider: () => <hr style={{ border: "none", borderTop: "1px solid #e2e8f0", margin: 0 }} />,
   callout: ({ node, text }) => {
     const tone = ({ info: "#3b82f6", success: "#10b981", warning: "#f59e0b", danger: "#ef4444" } as Record<string, string>)[text(node.props.variant)] ?? "#3b82f6";
@@ -74,14 +132,20 @@ export const defaultRegistry: ElementRegistry = {
     const variant = text(node.props.variant) || "primary";
     return <span data-cms-button={variant} style={buttonStyle(variant)}>{label}</span>;
   },
-  image: ({ node, text }) => (
-    <img
-      src={text(node.props.src)}
-      alt={text(node.props.alt)}
-      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-    />
-  ),
+  image: ({ node, text }) => {
+    const fit = text(node.props.fit);
+    return (
+      <img
+        src={text(node.props.src)}
+        alt={text(node.props.alt)}
+        loading={text(node.props.loading) === "eager" ? "eager" : "lazy"}
+        style={{ width: "100%", height: "100%", objectFit: IMAGE_FITS.has(fit) ? (fit as "cover") : "cover", display: "block" }}
+      />
+    );
+  },
 };
+
+const IMAGE_FITS = new Set(["cover", "contain", "fill", "none", "scale-down"]);
 
 /**
  * A self-contained button look so the `button` primitive renders sensibly with

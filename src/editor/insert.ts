@@ -41,7 +41,8 @@ export type AddKind =
   | "divider"
   | "code"
   | "richtext"
-  | "repeater";
+  | "repeater"
+  | "list";
 
 export const ADD_DEFAULTS: Record<
   AddKind,
@@ -61,6 +62,7 @@ export const ADD_DEFAULTS: Record<
   code: { type: "code", props: { content: "npm install @particle-academy/react-fancy", lang: "bash" }, style: {} },
   richtext: { type: "richtext", props: { html: "<p>Rich <strong>text</strong> with <em>inline</em> formatting.</p>" }, style: {} },
   repeater: { type: "repeater", props: { items: "" }, style: { gap: { value: 12, unit: "px" } }, layout: "stack" },
+  list: { type: "list", props: { items: ["First point", "Second point"], ordered: false }, style: {} },
 };
 
 export const ADD_MENU: Array<{ kind: AddKind; label: string }> = [
@@ -77,6 +79,7 @@ export const ADD_MENU: Array<{ kind: AddKind; label: string }> = [
   { kind: "divider", label: "Divider" },
   { kind: "code", label: "Code" },
   { kind: "richtext", label: "Rich text" },
+  { kind: "list", label: "List" },
   { kind: "repeater", label: "Repeater" },
 ];
 

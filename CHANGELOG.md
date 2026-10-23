@@ -14,6 +14,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-23
+
+What a professional landing page needs from the renderer, found by mapping
+the stack for the lab's website-builder agent.
+
+### Changed
+
+- **BREAKING (markup): the `[data-cms]` element is now the semantic element.**
+  `heading` renders `<h1>`-`<h6>` (`props.level`, default 2), `text` renders
+  `<p>`, `section` renders `<section>`, `button` and `link` with a safe `href`
+  render `<a>`, and `list` renders `<ul>`/`<ol>`. Previously every node was a
+  `<div>`. **What to do:** nothing, unless your own CSS targets
+  `div[data-cms]` or `[data-cms] > a` (the inner `<a>` of a `link` is gone;
+  the link IS the element now). Select by `[data-cms="<id>"]`, which is
+  unchanged.
+- **BREAKING (security, CSS): a style value that could escape its declaration
+  is dropped.** A value containing `{`, `}` or `<`, or a `;` outside
+  parentheses or quotes, emits nothing. **What to do:** nothing for any real
+  colour, gradient, font stack or `url(data:...;base64,...)`, which all still
+  pass. Only a value that was trying to close the rule changes.
+- `direction`, `columns` and the new container knobs are read **per
+  breakpoint**. A grid can now go 1 column -> 2 -> 3, and a stack column ->
+  row. Base output is unchanged.
+
+### Added
+
+- Style properties: `paddingX` / `paddingY`, `marginX` (`"auto"` centres) /
+  `marginY`, `maxWidth`, `minHeight`, `aspectRatio`, `sticky`, `zIndex`,
+  `overflow`, `hidden` (per breakpoint), `textTransform`, `backgroundSize`,
+  `backgroundPosition`, `wrap`, and `columnMin` for an auto-fit grid that is
+  responsive with no breakpoints at all.
+- **Theme tokens are emitted** as `:root { --cms-* }` custom properties
+  (`theme.color.primary` -> `--cms-color-primary`), so styles can reference
+  `var(--cms-color-primary)`.
+- `props.as` on containers: `section`, `header`, `nav`, `main`, `footer`,
+  `article`, `aside`, `div`. Anything else is ignored, never used as a tag.
+- `list` element (`props.items`, `props.ordered`), and List in the editor's add menu.
+- `image`: `props.fit` (`cover` default, `contain`, `fill`, `none`,
+  `scale-down`) and `props.loading` (lazy by default).
+- `safeHref`, `elementFor`, `LANDMARK_TAGS` and `safeCssValue` are exported.
+  Hrefs pass for relative URLs and `http`/`https`/`mailto`/`tel`; every other
+  scheme (`javascript:`, `data:` ...) is dropped. External http(s) links get
+  `rel="noopener noreferrer"`.
+- Parity: `parity/run.mjs` checks every `parity/canonical*.json`;
+  `canonical-doc-0.8.json` covers the new properties and the values that must
+  be dropped.
+
 ### Fixed
 
 - **`CHANGELOG.md` is now in the published tarball.** `files` did not whitelist it, so npm never shipped it — and this package puts breaking changes in MINOR releases and tells you in the README to read the entry before taking one. The instruction existed for the author, who has the file, and not for the consumer, who is the only one being instructed. Nothing for you to do; the file simply arrives from this release on.

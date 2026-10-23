@@ -1,7 +1,7 @@
-import type { ReactElement } from "react";
+import { createElement, type ReactElement } from "react";
 import type { Bound, Json, PageDoc } from "../document/types";
 import { childrenOf } from "../document/reduce";
-import { defaultRegistry, resolveValue, type DataContext, type ElementRegistry } from "./registry";
+import { defaultRegistry, elementFor, resolveValue, type DataContext, type ElementRegistry } from "./registry";
 
 export interface RenderNodeProps {
   doc: PageDoc;
@@ -53,9 +53,12 @@ export function RenderNode({ doc, id, registry = defaultRegistry, data }: Render
   const renderer = registry[node.type];
   const inner = renderer ? renderer({ node, doc, children: kids, data, resolve, text }) : node.island ? null : kids;
 
-  return (
-    <div data-cms={node.id} data-cms-island={node.island ? node.type : undefined} className={node.className}>
-      {inner}
-    </div>
+  // The [data-cms] element is the semantic element itself (h1-h6, p, a, ul,
+  // section, nav ...), so the node's emitted CSS styles the real element.
+  const { tag, attrs } = elementFor(node, text);
+  return createElement(
+    tag,
+    { "data-cms": node.id, "data-cms-island": node.island ? node.type : undefined, className: node.className, ...attrs },
+    inner,
   );
 }

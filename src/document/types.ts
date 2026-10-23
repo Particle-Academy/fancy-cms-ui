@@ -70,9 +70,29 @@ export interface StyleProps {
   // box
   padding?: Length;
   margin?: Length;
+  /** Left + right padding. Sorts after `padding`, so it overrides that axis. */
+  paddingX?: Length;
+  /** Top + bottom padding. */
+  paddingY?: Length;
+  /** Left + right margin; `"auto"` centres a node with a `maxWidth`. */
+  marginX?: Length | "auto";
+  marginY?: Length;
   radius?: Length;
+  // size
+  maxWidth?: Length;
+  minHeight?: Length;
+  aspectRatio?: string; // "16 / 9"
+  // position
+  /** Stick to the top of the viewport while scrolling (`position: sticky; top: 0`). */
+  sticky?: boolean;
+  zIndex?: number;
+  overflow?: "visible" | "hidden" | "auto";
+  /** Hide at this breakpoint (and up, until a later breakpoint sets `false`). */
+  hidden?: boolean;
   // color / surface
   background?: string; // color | gradient | url(...)
+  backgroundSize?: "cover" | "contain" | "auto";
+  backgroundPosition?: string; // "center", "top right", "50% 20%"
   color?: string;
   opacity?: number;
   // typography
@@ -82,15 +102,23 @@ export interface StyleProps {
   lineHeight?: number;
   textAlign?: "left" | "center" | "right" | "justify";
   letterSpacing?: Length;
+  textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
   // border / shadow / effects (static)
   border?: string;
   boxShadow?: string;
   transform?: string;
   filter?: string;
-  // container knobs (when layout = stack | grid)
+  // container knobs (when layout = stack | grid); all of them per breakpoint
   gap?: Length;
   direction?: "row" | "column";
+  /** Stack: wrap onto more lines when the row is full. */
+  wrap?: boolean;
   columns?: number;
+  /**
+   * Grid: fit as many columns as are at least this wide (`auto-fit`). Responsive
+   * with no breakpoints at all; wins over `columns` where both are set.
+   */
+  columnMin?: Length;
   align?: "start" | "center" | "end" | "stretch";
   justify?: "start" | "center" | "end" | "between" | "around";
 }

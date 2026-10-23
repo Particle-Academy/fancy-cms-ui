@@ -1,0 +1,75 @@
+{
+  "id": "canonical-0.8",
+  "seq": 9,
+  "meta": { "title": "Professional primitives", "slug": "/parity-0-8", "scrollMode": "smooth", "seo": { "description": "Parity corpus for the 0.8 style properties." } },
+  "theme": {
+    "name": "brand",
+    "color": { "primary": "#1d4ed8", "ink": "#0f172a", "bad": "red; } body { display: none" },
+    "font": { "body": "Inter, system-ui, sans-serif", "Display Face": "'Fraunces', serif" },
+    "radius": 12,
+    "list": ["arrays", "are", "not", "tokens"]
+  },
+  "breakpoints": ["base", "md", "lg"],
+  "nodes": {
+    "header": {
+      "id": "header", "type": "stack", "parent": null, "order": "a0", "layout": "stack",
+      "props": { "as": "header" },
+      "style": {
+        "base": { "direction": "row", "wrap": true, "justify": "between", "align": "center", "paddingX": { "value": 24, "unit": "px" }, "paddingY": { "value": 16, "unit": "px" }, "sticky": true, "zIndex": 10, "background": "var(--cms-color-primary)" },
+        "md": { "paddingX": { "value": 48, "unit": "px" } }
+      }
+    },
+    "hero": {
+      "id": "hero", "type": "section", "parent": null, "order": "a1",
+      "props": {},
+      "style": {
+        "base": { "minHeight": { "value": 80, "unit": "vh" }, "background": "url(data:image/svg+xml;base64,PHN2Zy8+) center / cover no-repeat", "backgroundSize": "cover", "backgroundPosition": "50% 20%", "overflow": "hidden", "paddingY": { "value": 64, "unit": "px" } },
+        "lg": { "paddingY": { "value": 128, "unit": "px" } }
+      }
+    },
+    "container": {
+      "id": "container", "type": "stack", "parent": "hero", "order": "a0", "layout": "stack",
+      "props": {},
+      "style": { "base": { "maxWidth": { "value": 1120, "unit": "px" }, "marginX": "auto", "marginY": { "value": 0, "unit": "px" }, "padding": { "value": 8, "unit": "px" }, "paddingX": { "value": 24, "unit": "px" }, "gap": { "value": 24, "unit": "px" } } }
+    },
+    "title": {
+      "id": "title", "type": "heading", "parent": "container", "order": "a0",
+      "props": { "content": "Ship pages your team can edit", "level": 1 },
+      "style": { "base": { "fontSize": { "value": 40, "unit": "px" }, "textTransform": "none", "letterSpacing": { "value": -0.02, "unit": "rem" } }, "md": { "fontSize": { "value": 56, "unit": "px" } } }
+    },
+    "features": {
+      "id": "features", "type": "grid", "parent": "container", "order": "a1", "layout": "grid",
+      "props": {},
+      "style": {
+        "base": { "columns": 1, "gap": { "value": 16, "unit": "px" } },
+        "md": { "columns": 2 },
+        "lg": { "columns": 3 }
+      }
+    },
+    "autofit": {
+      "id": "autofit", "type": "grid", "parent": "container", "order": "a2", "layout": "grid",
+      "props": {},
+      "style": { "base": { "columnMin": { "value": 240, "unit": "px" }, "columns": 4 } }
+    },
+    "cols": {
+      "id": "cols", "type": "stack", "parent": "container", "order": "a3", "layout": "stack",
+      "props": {},
+      "style": { "base": { "direction": "column", "hidden": true }, "md": { "direction": "row", "hidden": false, "wrap": false } }
+    },
+    "mobileOnly": {
+      "id": "mobileOnly", "type": "text", "parent": "container", "order": "a4",
+      "props": { "content": "Only on phones" },
+      "style": { "base": {}, "md": { "hidden": true } }
+    },
+    "photo": {
+      "id": "photo", "type": "image", "parent": "container", "order": "a5",
+      "props": { "src": "/team.jpg", "alt": "The team", "fit": "contain" },
+      "style": { "base": { "aspectRatio": "16 / 9", "radius": { "value": 12, "unit": "px" }, "overflow": "auto" } }
+    },
+    "evil": {
+      "id": "evil", "type": "text", "parent": "container", "order": "a6",
+      "props": { "content": "x" },
+      "style": { "base": { "color": "red; } * { display: none", "boxShadow": "0 1px 2px rgba(0,0,0,.1)", "fontFamily": "'a;b', sans-serif", "zIndex": 2.9, "overflow": "scroll", "textTransform": "shout", "backgroundSize": "huge" } }
+    }
+  }
+}
