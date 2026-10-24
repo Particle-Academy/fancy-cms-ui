@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-24
+
 ### Added
 
 - Full Fancy Lucide 0.511.0 catalogue (1,803 names/aliases, 1,594 glyphs) and bounded
@@ -54,6 +56,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   payloads, bindings, extra attributes and invalid accessibility combinations.
   Rejected edits leave the document and sequence unchanged. Icons are leaves;
   malformed direct rendering emits no glyph or meaningful-image role.
+- **undici 7.30.1 in development** (was 7.30.0, through jsdom), clearing
+  GHSA-xjj6-f33q-929c (HIGH: a malicious content-encoding response can crash
+  Node's fetch). Test tooling only: nothing in the published package uses it,
+  so **nothing to do** as a consumer.
 
 ## [0.10.0] - 2026-10-23
 
