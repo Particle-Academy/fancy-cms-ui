@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from "react";
 import type { PageDoc } from "../document/types";
+import type { PageOp } from "../document/ops";
+import { reduce } from "../document/reduce";
 import type { DataContext, ElementRegistry } from "../react/registry";
 import { useEditor, type EditorApi } from "./useEditor";
 import { useLatestRef } from "./useLatestRef";
@@ -10,12 +12,18 @@ import { ADD_MENU, buildInsertOp, type AddKind } from "./insert";
 import { emptyDoc } from "../document/types";
 
 export interface EditorProps {
+  /** Controlled server/shared document. Incoming values never emit onChange/onOp. */
+  value?: PageDoc;
   /**
    * Initial document; edits are surfaced via {@link EditorProps.onChange}.
    * Omit to start from an empty page.
    */
   defaultValue?: PageDoc;
   onChange?: (doc: PageDoc) => void;
+  /** One valid native operation per local edit. A server host may use this without onChange. */
+  onOp?: (op: PageOp) => void;
+  /** Block edits while an authoritative host is accepting an operation. Selection remains available. */
+  disabled?: boolean;
   /**
    * Custom element registry — mirrors {@link CmsPageProps.registry} so the edit
    * canvas renders your own node types instead of a blank placeholder. Pass the
@@ -41,25 +49,50 @@ export interface EditorProps {
  * plan; it is recorded here because it is the kind of note that gets acted on
  * long after it stopped being true.
  */
-export function Editor({ defaultValue, onChange, registry, data }: EditorProps): ReactElement {
+export function Editor({ value, defaultValue, onChange, onOp, disabled = false, registry, data }: EditorProps): ReactElement {
   // Render an empty page rather than throwing on a missing document. Reading
   // `.sections` off undefined crashed the entire editor, which is a hostile way
   // to tell a host "you haven't passed a doc yet" (#3).
   const initial = useMemo(() => defaultValue ?? emptyDoc("untitled"), [defaultValue]);
-  const ed = useEditor(initial);
-  const first = useRef(true);
+  const local = useEditor(initial);
+  const controlled = value !== undefined;
+  const localDoc = useLatestRef(local.state.doc);
+  const lastNotified = useRef(local.state.doc);
+  const onOpRef = useLatestRef(onOp);
 
   // Notify depends ONLY on the doc — the latest onChange lives in a ref, so an
   // inline-closure consumer (whose handler identity changes every render) can't
   // re-trigger the notify and loop it (#1).
   const onChangeRef = useLatestRef(onChange);
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    onChangeRef.current?.(ed.state.doc);
-  }, [ed.state.doc, onChangeRef]);
+    if (controlled || lastNotified.current === local.state.doc) return;
+    lastNotified.current = local.state.doc;
+    onChangeRef.current?.(local.state.doc);
+  }, [controlled, local.state.doc, onChangeRef]);
+
+  const ed: EditorApi = {
+    ...local,
+    state: { ...local.state, doc: value ?? local.state.doc },
+    apply: (op) => {
+      if (disabled) return;
+      const source = value ?? localDoc.current;
+      const next = reduce(source, op);
+      if (next === source) return;
+      if (!controlled) {
+        localDoc.current = next;
+        local.apply(op);
+      }
+      onOpRef.current?.(op);
+      if (controlled) onChangeRef.current?.(next);
+    },
+    // Snapshot history belongs to the local document. Replaying it into a
+    // server-owned value could overwrite another writer's accepted work.
+    undo: () => { if (!controlled && !disabled) local.undo(); },
+    redo: () => { if (!controlled && !disabled) local.redo(); },
+    replace: (next) => { if (!controlled && !disabled) local.replace(next); },
+    canUndo: !controlled && !disabled && local.canUndo,
+    canRedo: !controlled && !disabled && local.canRedo,
+  };
 
   const shell: CSSProperties = {
     display: "grid",
@@ -74,21 +107,23 @@ export function Editor({ defaultValue, onChange, registry, data }: EditorProps):
   };
 
   return (
-    <div className="fancy-cms-editor" style={shell}>
+    <div className="fancy-cms-editor" style={shell} aria-disabled={disabled || undefined}>
       <style>{CHROME_CSS}</style>
-      <div style={{ borderRight: "1px solid var(--fcms-border)", display: "flex", flexDirection: "column", minHeight: 0 }}>
-        <Toolbar ed={ed} />
-        <LayersPanel
-          doc={ed.state.doc}
-          selection={ed.state.selection}
-          onSelect={ed.select}
-          onMove={(id, parent, order) => ed.apply({ t: "move_node", id, parent, order })}
-        />
-      </div>
-      <Canvas doc={ed.state.doc} selection={ed.state.selection} onSelect={ed.select} apply={ed.apply} registry={registry} data={data} />
-      <div style={{ borderLeft: "1px solid var(--fcms-border)", minHeight: 0 }}>
-        <Inspector doc={ed.state.doc} selection={ed.state.selection} apply={ed.apply} />
-      </div>
+      <fieldset disabled={disabled} aria-label="Page editing controls" style={{ display: "contents", border: 0, padding: 0, margin: 0 }}>
+        <div style={{ borderRight: "1px solid var(--fcms-border)", display: "flex", flexDirection: "column", minHeight: 0 }}>
+          <Toolbar ed={ed} />
+          <LayersPanel
+            doc={ed.state.doc}
+            selection={ed.state.selection}
+            onSelect={ed.select}
+            onMove={(id, parent, order) => ed.apply({ t: "move_node", id, parent, order })}
+          />
+        </div>
+        <Canvas doc={ed.state.doc} selection={ed.state.selection} onSelect={ed.select} apply={ed.apply} registry={registry} data={data} />
+        <div style={{ borderLeft: "1px solid var(--fcms-border)", minHeight: 0 }}>
+          <Inspector doc={ed.state.doc} selection={ed.state.selection} apply={ed.apply} />
+        </div>
+      </fieldset>
     </div>
   );
 }

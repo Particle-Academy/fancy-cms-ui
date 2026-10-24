@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Editor` accepts controlled `value`, native-operation `onOp` and `disabled`
+  props for server-owned shared documents. Local edits propose changes; only
+  the next host value changes the controlled document. Incoming values preserve
+  the selected handle and never echo through either callback. Local snapshot
+  Undo/Redo is disabled in controlled mode to protect other writers' work.
+
+### Fixed
+
+- An uncontrolled `Editor` mounted under React StrictMode no longer emits an
+  initial `onChange` before any edit.
+
 ### Security
 
 - **vitest 4.1.12 in development** (was 4.1.11), clearing GHSA-qxg6-89mg-rqv8

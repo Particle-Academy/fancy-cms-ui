@@ -72,6 +72,36 @@ Lean subpath entries also exist: `@particle-academy/fancy-cms-ui/react`
 the inline `EditablePage` — the one component that additionally requires the
 optional `@particle-academy/react-fancy` peer).
 
+### A server-owned document
+
+Use `value` when a server or another writer owns the document. Local edits
+propose a native `PageOp` through `onOp` and a reduced document through
+`onChange`; neither is adopted until the host supplies the next `value`.
+Incoming values update the editor without calling either callback, preserving
+the selected node handle.
+
+```tsx
+import { Editor, type PageDoc, type PageOp } from "@particle-academy/fancy-cms-ui";
+
+function SharedAuthor({ doc, pending, submit }: {
+  doc: PageDoc;
+  pending: boolean;
+  submit: (op: PageOp) => void;
+}) {
+  return <Editor value={doc} onOp={submit} disabled={pending} />;
+}
+```
+
+The host validates and authorizes operations, pins them to its current revision,
+and supplies accepted server state. Keep `pending` true while an operation is
+being accepted. `disabled` blocks document edits; node selection remains
+available. An operation-only host can omit `onChange`.
+
+Controlled editors disable local snapshot Undo/Redo, since restoring an old
+snapshot could overwrite another writer. The `defaultValue` mode retains local
+history and reports document changes through `onChange`. Choose one ownership
+mode for an editor's lifetime.
+
 ### Styling
 
 There is **no stylesheet to import**. Authored page styles are compiled by the
