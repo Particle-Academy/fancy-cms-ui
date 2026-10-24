@@ -1,0 +1,5 @@
+agent-guide/*.md text eol=lf
+icons/** text eol=lf
+licenses/** text eol=lf
+NOTICE text eol=lf
+src/document/icon-names.ts text eol=lf

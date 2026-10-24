@@ -6,6 +6,8 @@ import { dirname, resolve } from "node:path";
 import { reduce, reduceAll, invert, rootIds, keyBetween } from "../dist/index.js";
 import { generate, SEED } from "./page-ops/generate.mjs";
 import { generateNumbers } from "./page-ops/numbers.mjs";
+import { iconCases } from "./page-ops/icons.mjs";
+import { decorativeCases } from "./page-ops/decorative.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const edge = JSON.parse(readFileSync(resolve(here, "page-ops/edges.json"), "utf8"));
@@ -15,7 +17,7 @@ const cases = edge.cases.map(({ name, ops, extraNodes = [] }) => {
   const doc = structuredClone(edge.base);
   for (const node of extraNodes) doc.nodes[node.id] = node;
   return { name, doc, ops };
-}).concat(random.cases);
+}).concat(random.cases, iconCases(edge.base), decorativeCases(edge.base));
 const wire = (value) => JSON.parse(JSON.stringify(value));
 const canonical = (value) => JSON.stringify(sort(value));
 function sort(value) {

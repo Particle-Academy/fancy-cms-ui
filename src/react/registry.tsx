@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 import { isBinding, type Bound, type Json, type Node, type PageDoc } from "../document/types";
+import { validIconProps, type IconSet } from "../document/icons";
+import { NativeIcon } from "./NativeIcon";
 
 /** The page data context bindings resolve against (e.g. server props, repeater `item`). */
 export type DataContext = Record<string, unknown>;
@@ -11,6 +13,8 @@ export interface ElementContext {
   children: ReactNode;
   /** The data context this node renders in (page data + any repeater scope). */
   data?: DataContext;
+  /** Closed glyph data preloaded by the host, shared with SSR. */
+  icons?: IconSet;
   /** Resolve a (possibly bound) value to its raw resolved value. */
   resolve: (v: Bound<Json> | undefined) => unknown;
   /** Resolve a (possibly bound) value to a display string. */
@@ -84,6 +88,10 @@ export interface ElementSpec {
 export function elementFor(node: Node, text: (v: Bound<Json> | undefined) => string): ElementSpec {
   const as = text(node.props.as);
   switch (node.type) {
+    case "icon":
+      return { tag: "span", attrs: validIconProps(node.props) && !node.props.decorative
+        ? { role: "img", "aria-label": node.props.label! }
+        : { "aria-hidden": "true" } };
     case "heading": {
       const level = Number(text(node.props.level) || 2);
       return { tag: Number.isInteger(level) && level >= 1 && level <= 6 ? `h${level}` : "h2" };
@@ -117,6 +125,7 @@ export function elementFor(node: Node, text: (v: Bound<Json> | undefined) => str
 
 /** Built-in native elements. Containers render their children; leaves render content. */
 export const defaultRegistry: ElementRegistry = {
+  icon: ({ node, icons }) => <NativeIcon props={node.props} icons={icons} />,
   section: ({ children }) => children,
   stack: ({ children }) => children,
   grid: ({ children }) => children,

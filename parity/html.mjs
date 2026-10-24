@@ -11,27 +11,38 @@
  *
  *   npm run build && node parity/html.mjs
  */
-import { readFileSync, readdirSync } from "node:fs";
+import { readFileSync, readdirSync, mkdtempSync, writeFileSync, unlinkSync, rmdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CmsPage } from "../dist/react.js";
+import icons from "../icons/all.js";
+import { iconNames, emptyDoc } from "../dist/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const phpBin = resolve(here, "../../fancy-cms/bin/render-html.php");
 const files = readdirSync(here).filter((f) => /^canonical.*\.json$/.test(f)).sort();
+const scratch = mkdtempSync(resolve(tmpdir(), "fancy-cms-icons-html-"));
+const fullPath = resolve(scratch, "all-names.json");
+const fullDoc = emptyDoc("all-lucide-names");
+for (const [index, name] of iconNames().entries()) {
+  const id = `icon-${index}`;
+  fullDoc.nodes[id] = { id, type: "icon", parent: null, order: name, props: { name, decorative: index % 2 === 0, label: `${name} <label> & \"quoted\"` }, style: { base: {} } };
+}
+writeFileSync(fullPath, JSON.stringify(fullDoc));
+const cases = [...files.map(file => ({ file, docPath: resolve(here, file) })), { file: "all 1803 Lucide names/aliases", docPath: fullPath }];
 
 let failed = 0;
-for (const file of files) {
-  const docPath = resolve(here, file);
+for (const { file, docPath } of cases) {
   const doc = JSON.parse(readFileSync(docPath, "utf8"));
-  const jsHtml = renderToStaticMarkup(createElement(CmsPage, { doc, includeStyles: false }));
+  const jsHtml = renderToStaticMarkup(createElement(CmsPage, { doc, icons, includeStyles: false }));
   let phpHtml;
   try {
     // No shell: a fixture's filename must never be read as shell text.
-    phpHtml = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, docPath], { encoding: "utf8" });
+    phpHtml = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, docPath], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
   } catch (e) {
     failed++;
     console.log(`HTML PARITY FAIL  ${file}: the PHP renderer could not run (${e.message.split("\n")[0]})`);
@@ -51,5 +62,7 @@ for (const file of files) {
   console.log(`  PHP: ${JSON.stringify(phpHtml.slice(Math.max(0, i - 60), i + 80))}`);
 }
 
-console.log(`\n${files.length - failed} of ${files.length} canonical documents in HTML parity.`);
+unlinkSync(fullPath);
+rmdirSync(scratch);
+console.log(`\n${cases.length - failed} of ${cases.length} canonical documents in HTML parity.`);
 process.exit(failed ? 1 : 0);

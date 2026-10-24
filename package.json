@@ -33,6 +33,18 @@
                 "default": "./dist/react.cjs"
             }
         },
+        "./icons": {
+            "import": { "types": "./icons/index.d.ts", "default": "./icons/index.js" },
+            "require": { "types": "./icons/index.d.cts", "default": "./icons/index.cjs" }
+        },
+        "./icons/all": {
+            "import": { "types": "./icons/all.d.ts", "default": "./icons/all.js" },
+            "require": { "types": "./icons/all.d.cts", "default": "./icons/all.cjs" }
+        },
+        "./icons/*": {
+            "import": { "types": "./icons/glyph.d.ts", "default": "./icons/*.js" },
+            "require": { "types": "./icons/glyph.d.cts", "default": "./icons/*.cjs" }
+        },
         "./editor": {
             "import": {
                 "types": "./dist/editor.d.ts",
@@ -46,6 +58,9 @@
     },
     "files": [
         "dist",
+        "icons",
+        "licenses",
+        "NOTICE",
         "README.md",
         "CHANGELOG.md",
         "agent-guide"
@@ -58,6 +73,10 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "parity": "node parity/run.mjs",
+        "icons:generate": "node scripts/generate-icons.mjs",
+        "icons:check": "node scripts/generate-icons.mjs --check",
+        "icons:check:pair": "node scripts/generate-icons.mjs --check --require-twin",
+        "icons:bundle": "node scripts/check-icon-bundle.mjs",
         "clean": "rm -rf dist",
         "prepublishOnly": "tsup"
     },

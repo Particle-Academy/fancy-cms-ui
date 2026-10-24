@@ -37,6 +37,7 @@ export interface NodeTransform {
 }
 
 export interface EditablePageProps {
+  icons?: import("../document/icons").IconSet;
   doc: PageDoc;
   registry?: ElementRegistry;
   /** Data context for `{ $bind }` props + repeaters (server props, etc.). */
@@ -83,6 +84,7 @@ export function EditablePage({
   doc,
   registry = defaultRegistry,
   data,
+  icons,
   timelineDock,
   transforms,
   onNodeTransform,
@@ -417,7 +419,7 @@ export function EditablePage({
       onDragLeave={editing ? () => setDropHint(null) : undefined}
       onDrop={editing ? onPageDrop : undefined}
     >
-      <CmsPage doc={ed.state.doc} registry={registry} data={data} />
+      <CmsPage doc={ed.state.doc} registry={registry} data={data} icons={icons} />
     </div>
   );
   const pageShell = pinned ? (

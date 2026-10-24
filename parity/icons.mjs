@@ -1,0 +1,11 @@
+import { execFileSync } from 'node:child_process';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import assert from 'node:assert/strict';
+import { searchIcons } from '../dist/index.js';
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../fancy-cms');
+const cases = [...Array.from({ length: 91 }, (_, index) => ['', index * 20]), ['FILE text', 0], ['arrow', 0], ['arrow', 20], ['home', 0], ['house', 0], ['  receipt - text ', 0], ['not-an-icon-name', 0], ['', 100000]];
+const code = `declare(strict_types=1); require $argv[1].'/vendor/autoload.php'; $cases=json_decode(stream_get_contents(STDIN),true,512,JSON_THROW_ON_ERROR); echo json_encode(array_map(static fn($q)=>\\FancyCms\\Agent::icons($q[0],$q[1]),$cases),JSON_THROW_ON_ERROR);`;
+const php = JSON.parse(execFileSync(process.env.FANCY_CMS_PHP || 'php', ['-r', code, root], { input: JSON.stringify(cases), encoding: 'utf8' }));
+assert.deepEqual(cases.map(([query, cursor]) => searchIcons(query, cursor)), php);
+console.log(`ICON SEARCH PARITY PASS: ${cases.length} bounded query pages, including every catalogue name.`);

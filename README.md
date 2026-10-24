@@ -1,5 +1,60 @@
 # @particle-academy/fancy-cms-ui
 
+Native `icon` leaves use a closed catalogue exposed by `iconNames()`. Set
+literal props `{ name: "receipt-text", decorative: true }`, or set
+`decorative: false` with a nonblank `label` (up to1024 UTF-8 bytes). Size the
+one-em glyph with responsive `style.fontSize` and colour it with `style.color`
+and existing theme tokens. Documents cannot provide SVG, paths, bindings or
+extra icon attributes. Add and both inspectors use the existing controlled
+operation spine. Clearing an accessible label makes the icon decorative.
+The same generated SVG data ships in fancy-cms for byte-identical rendering.
+The wrapper follows Fancy Icon conventions without importing react-fancy;
+that peer stays optional and no runtime dependency is added.
+
+The full Lucide 0.511.0 catalogue that Fancy resolves contains 1,803 names/aliases
+and 1,594 distinct glyphs. `searchIcons(query,cursor)` (PHP twin:
+`Agent::icons(query,cursor)`) returns at most 20 names, total and nextCursor;
+expose it as `cms_icons` rather than putting all names in an agent prompt.
+Query accepts up to 128 ASCII letters, digits, hyphens and spaces; cursor is a
+nonnegative integer. Exact matches come first, then lexical order.
+
+Glyphs are opt-in data. Static consumers import only the glyphs they need:
+
+```tsx
+import { CmsPage } from "@particle-academy/fancy-cms-ui/react";
+import fileText from "@particle-academy/fancy-cms-ui/icons/file-text";
+import receiptText from "@particle-academy/fancy-cms-ui/icons/receipt-text";
+import calculator from "@particle-academy/fancy-cms-ui/icons/calculator";
+const icons = { "file-text": fileText, "receipt-text": receiptText, calculator };
+// Use the same icons for server rendering and browser hydration.
+<CmsPage doc={doc} icons={icons} />;
+```
+
+For arbitrary authored pages, await `loadIcons(names)` from `./icons` outside
+rendering, collecting names from the document's icon nodes. That separate entry
+uses per-glyph dynamic chunks; `./icons/all` is an explicit full-set opt-in.
+Pass the same preloaded map to `CmsPage`, `CmsRegion`, `RenderNode`, `Editor`,
+`Canvas` and `EditablePage`. Omitted glyphs render empty; the renderer never
+fetches or changes SVG after hydration. Main/React/editor entries include the
+closed name index, and no glyph catalogue or runtime react-fancy import.
+
+`npm run icons:generate` regenerates both workspace twins from the Lucide
+artifact resolved by installed react-fancy. `npm run icons:check` is an offline
+release check: source version/range, content SHA256, PHP/JS data and licence must
+match. See `NOTICE`, `licenses/LUCIDE-LICENSE` and `icons/metadata.json`.
+Regenerate after changing Fancy's Lucide version. Use `npm run icons:check:pair`
+for a release gate that requires the PHP twin checkout; the ordinary check/test
+also works in a standalone UI checkout and reports when the twin is absent.
+
+`frame` and `shape` can mark abstract artwork with literal boolean
+`props.decorative: true`. Their subtree may contain only frames, shapes and
+decorative icons without actions. `decorationError(doc.nodes)` exposes the same validation used
+by the reducers and renderer. Meaningful inserts, subtree moves, prop and action edits
+are refused without mutation. Invalid stored compositions fail visible when
+rendered directly; no cached verdict can hide content added later. False or
+omitted flags stay visible. The prop is reserved for frames, shapes and icons;
+rename metadata using that key on other node types.
+
 [![Fancified](art/fancified.svg)](https://particle.academy)
 
 > ⚠️ **Early-release BETA.** This package is young and moving fast — expect

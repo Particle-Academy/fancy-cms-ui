@@ -1,0 +1,17 @@
+{
+  "id": "icons", "seq": 0,
+  "meta": { "title": "Native icon parity", "slug": "/icons", "scrollMode": "smooth" },
+  "theme": { "color": { "primary": "#0f766e" } },
+  "breakpoints": ["base", "md", "lg"],
+  "nodes": {
+    "arrow": { "id": "arrow", "type": "icon", "parent": null, "order": "a0", "props": { "name": "arrow-right", "decorative": true }, "style": { "base": { "fontSize": { "value": 24, "unit": "px" }, "color": "var(--cms-color-primary)" }, "md": { "fontSize": { "value": 2, "unit": "rem" } } } },
+    "calculator": { "id": "calculator", "type": "icon", "parent": null, "order": "a1", "props": { "name": "calculator", "decorative": false, "label": "Tax <estimate> & \"quarter\"" }, "style": { "base": {} } },
+    "check": { "id": "check", "type": "icon", "parent": null, "order": "a2", "props": { "name": "check", "decorative": true, "label": "Hidden label" }, "style": { "base": {} } },
+    "file": { "id": "file", "type": "icon", "parent": null, "order": "a3", "props": { "name": "file-text", "decorative": true }, "style": { "base": {} } },
+    "quote": { "id": "quote", "type": "icon", "parent": null, "order": "a4", "props": { "name": "quote", "decorative": true }, "style": { "base": {} } },
+    "receipt": { "id": "receipt", "type": "icon", "parent": null, "order": "a5", "props": { "name": "receipt-text", "decorative": true }, "style": { "base": {} } },
+    "users": { "id": "users", "type": "icon", "parent": null, "order": "a6", "props": { "name": "users", "decorative": false, "label": "Team" }, "style": { "base": {} } },
+    "unknown": { "id": "unknown", "type": "icon", "parent": null, "order": "a7", "props": { "name": "__proto__", "decorative": false, "label": "Must not render" }, "style": { "base": {} } },
+    "injection": { "id": "injection", "type": "icon", "parent": null, "order": "a8", "props": { "name": "<svg onload='bad()'>", "decorative": true }, "style": { "base": {} } }
+  }
+}

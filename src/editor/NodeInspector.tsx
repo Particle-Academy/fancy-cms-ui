@@ -1,6 +1,7 @@
 import { type CSSProperties, type ReactElement, type ReactNode } from "react";
 import { isBinding, type Binding, type LayoutMode, type Length, type Node, type StyleProps } from "../document/types";
 import type { NodeTransform } from "./EditablePage";
+import { IconFields } from "./IconFields";
 
 export interface NodeInspectorProps {
   node: Node;
@@ -47,6 +48,7 @@ export function NodeInspector({
   // Props rendered with a bespoke control; everything else falls through to the
   // generic key/value editor so any addon's props get controls for free.
   const handled = new Set(["content", "label", "html"]);
+  if (node.type === "icon") for (const key of ["name", "decorative"]) handled.add(key);
   const extraKeys = Object.keys(node.props).filter(
     (k) => !handled.has(k) && (["string", "number", "boolean"].includes(typeof node.props[k]) || isBinding(node.props[k])),
   );
@@ -66,13 +68,14 @@ export function NodeInspector({
       </div>
 
       <div style={body}>
+        {node.type === "icon" ? <IconFields props={node.props} onChange={onProps} /> : null}
         {"content" in node.props || node.type === "richtext" ? (
           <p style={{ fontSize: 11, color: "var(--fcms-muted, #94a3b8)", margin: "0 0 12px", lineHeight: 1.45, paddingBottom: 12, borderBottom: "1px solid var(--fcms-border, #1e293b)" }}>
             ✎ Edit the text <strong>directly on the page</strong> — click in and type. This panel is for layout, style, and bindings.
           </p>
         ) : null}
 
-        {"label" in node.props ? (
+        {"label" in node.props && node.type !== "icon" ? (
           <Group label="Label">
             <input style={input} value={String(node.props.label ?? "")} onChange={(e) => onProps({ label: e.target.value })} />
           </Group>

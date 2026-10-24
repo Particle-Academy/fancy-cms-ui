@@ -1,9 +1,10 @@
 import { Fragment, useMemo, type ReactElement } from "react";
 import type { PageDoc } from "../document/types";
+import type { IconSet } from "../document/icons";
 import { rootIds } from "../document/reduce";
 import { migrateDoc, type LegacyPageDoc } from "../document/migrate";
 import { emitDocCss } from "../render/css";
-import { RenderNode } from "./RenderNode";
+import { renderNodes } from "./RenderNode";
 import { defaultRegistry, type DataContext, type ElementRegistry } from "./registry";
 
 export interface CmsPageProps {
@@ -11,6 +12,8 @@ export interface CmsPageProps {
   registry?: ElementRegistry;
   /** Data context that `{ $bind: "…" }` props + repeaters resolve against. */
   data?: DataContext;
+  /** Preloaded glyph subset. Import ./icons/<name>, or await ./icons loadIcons. */
+  icons?: IconSet;
   /** Inject the compiled stylesheet. Set false when the host emits CSS itself. */
   includeStyles?: boolean;
 }
@@ -20,6 +23,7 @@ export function CmsPage({
   doc: input,
   registry = defaultRegistry,
   data,
+  icons,
   includeStyles = true,
 }: CmsPageProps): ReactElement {
   // Renders a pre-`sections[]` document correctly rather than in whatever order
@@ -31,9 +35,7 @@ export function CmsPage({
   return (
     <Fragment>
       {includeStyles ? <style data-cms-styles="">{emitDocCss(doc)}</style> : null}
-      {rootIds(doc).map((id: string) => (
-        <RenderNode key={id} doc={doc} id={id} registry={registry} data={data} />
-      ))}
+      {renderNodes({ doc, ids: rootIds(doc), registry, data, icons })}
     </Fragment>
   );
 }

@@ -1,7 +1,9 @@
 import { createElement, type ReactElement } from "react";
-import { withNodeDefaults, type Bound, type Json, type PageDoc } from "../document/types";
+import { hasNodeMap, withNodeDefaults, type Bound, type Json, type PageDoc } from "../document/types";
 import { childrenOf } from "../document/reduce";
 import { own } from "../document/own";
+import { decorationError } from "../document/decorative";
+import type { IconSet } from "../document/icons";
 import { anchorFor, defaultRegistry, elementFor, resolveValue, type DataContext, type ElementRegistry } from "./registry";
 
 export interface RenderNodeProps {
@@ -10,6 +12,8 @@ export interface RenderNodeProps {
   registry?: ElementRegistry;
   /** Data context bindings resolve against (page data + any repeater scope). */
   data?: DataContext;
+  /** Preload the same selected glyphs for SSR and hydration. */
+  icons?: IconSet;
 }
 
 /**
@@ -22,7 +26,18 @@ export interface RenderNodeProps {
  * once per item of the bound `items` array, each in a scope that exposes `item`
  * and `index` to nested `{ $bind: "item.…" }` bindings.
  */
-export function RenderNode({ doc, id, registry = defaultRegistry, data }: RenderNodeProps): ReactElement | null {
+export function RenderNode(props: RenderNodeProps): ReactElement | null {
+  if (!hasNodeMap(props.doc) || !own(props.doc.nodes, props.id)) return null;
+  return <ValidatedNode {...props} decorativeSafe={decorationError(props.doc.nodes) === null} />;
+}
+
+/** @internal One fresh validation per page render, shared across every root. */
+export function renderNodes({ ids, ...props }: Omit<RenderNodeProps, "id"> & { ids: readonly string[] }): ReactElement[] {
+  const decorativeSafe = decorationError(props.doc.nodes) === null;
+  return ids.map((id) => <ValidatedNode key={id} {...props} id={id} decorativeSafe={decorativeSafe} />);
+}
+
+function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, decorativeSafe }: RenderNodeProps & { decorativeSafe: boolean }): ReactElement | null {
   const stored = own(doc.nodes, id);
   if (!stored) return null;
   const node = withNodeDefaults(stored);
@@ -35,7 +50,7 @@ export function RenderNode({ doc, id, registry = defaultRegistry, data }: Render
       <div data-cms={node.id} className={node.className}>
         {template
           ? items.map((item, index) => (
-              <RenderNode key={index} doc={doc} id={template.id} registry={registry} data={{ ...data, item, index }} />
+              <ValidatedNode key={index} doc={doc} id={template.id} registry={registry} data={{ ...data, item, index }} icons={icons} decorativeSafe={decorativeSafe} />
             ))
           : null}
       </div>
@@ -43,7 +58,7 @@ export function RenderNode({ doc, id, registry = defaultRegistry, data }: Render
   }
 
   const kids = childrenOf(doc, id).map((child) => (
-    <RenderNode key={child.id} doc={doc} id={child.id} registry={registry} data={data} />
+    <ValidatedNode key={child.id} doc={doc} id={child.id} registry={registry} data={data} icons={icons} decorativeSafe={decorativeSafe} />
   ));
 
   const resolve = (v: Bound<Json> | undefined) => resolveValue(v, data);
@@ -53,7 +68,7 @@ export function RenderNode({ doc, id, registry = defaultRegistry, data }: Render
   };
 
   const renderer = registry[node.type];
-  const inner = renderer ? renderer({ node, doc, children: kids, data, resolve, text }) : node.island ? null : kids;
+  const inner = renderer ? renderer({ node, doc, children: kids, data, icons, resolve, text }) : node.island ? null : kids;
 
   // The [data-cms] element is the semantic element itself (h1-h6, p, a, ul,
   // section, nav ...), so the node's emitted CSS styles the real element.
@@ -67,6 +82,7 @@ export function RenderNode({ doc, id, registry = defaultRegistry, data }: Render
       className: node.className,
       ...(anchor ? { id: anchor } : {}),
       ...attrs,
+      ...(decorativeSafe && ["frame", "shape"].includes(node.type) && node.props.decorative === true ? { "aria-hidden": "true" } : {}),
     },
     inner,
   );

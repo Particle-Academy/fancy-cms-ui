@@ -33,6 +33,7 @@ export type AddKind =
   | "button"
   | "link"
   | "image"
+  | "icon"
   | "box"
   | "stack"
   | "grid"
@@ -53,6 +54,7 @@ export const ADD_DEFAULTS: Record<
   button: { type: "button", props: { label: "Button", href: "#", variant: "primary" }, style: {} },
   link: { type: "link", props: { content: "link text", href: "#" }, style: { color: "#7c3aed" } },
   image: { type: "image", props: { src: "", alt: "" }, style: {} },
+  icon: { type: "icon", props: { name: "check", decorative: true, label: "" }, style: { fontSize: { value: 24, unit: "px" }, color: "inherit" } },
   box: { type: "frame", props: {}, style: { padding: { value: 16, unit: "px" } } },
   stack: { type: "stack", props: {}, style: { gap: { value: 12, unit: "px" } }, layout: "stack" },
   grid: { type: "grid", props: {}, style: { gap: { value: 12, unit: "px" } }, layout: "grid" },
@@ -71,6 +73,7 @@ export const ADD_MENU: Array<{ kind: AddKind; label: string }> = [
   { kind: "button", label: "Button" },
   { kind: "link", label: "Link" },
   { kind: "image", label: "Image" },
+  { kind: "icon", label: "Icon" },
   { kind: "card", label: "Card" },
   { kind: "callout", label: "Callout" },
   { kind: "stack", label: "Stack" },

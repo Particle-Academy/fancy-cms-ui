@@ -18,6 +18,8 @@ import {
 import { hasNodeMap, type Action, type Node, type NodeId, type PageDoc, type StyleProps } from "./types";
 import type { PageOp } from "./ops";
 import { own, setOwn } from "./own";
+import { validIconProps } from "./icons";
+import { decorationError } from "./decorative";
 
 export interface ReduceOptions {
   /** Called when an op can't apply. Default: silent. */
@@ -72,16 +74,18 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
     opts.onInvalid?.(op, reason);
     return doc;
   };
+  const checkedNodes = (nodes: PageDoc["nodes"]): PageDoc => {
+    const error = decorationError(nodes);
+    return error ? invalid(error) : { ...doc, nodes, seq: doc.seq + 1 };
+  };
 
   switch (op.t) {
     case "insert_node": {
       if (own(doc.nodes, op.node.id)) return invalid("node id already exists");
       if (op.node.parent !== null && !own(doc.nodes, op.node.parent)) return invalid("parent not found");
-      return {
-        ...doc,
-        nodes: { ...doc.nodes, [op.node.id]: op.node },
-        seq: doc.seq + 1,
-      };
+      if (op.node.type === "icon" && !validIconProps(op.node.props)) return invalid("invalid icon props");
+      if (op.node.parent !== null && own(doc.nodes, op.node.parent)?.type === "icon") return invalid("icons cannot have children");
+      return checkedNodes({ ...doc.nodes, [op.node.id]: op.node });
     }
 
     case "remove_node": {
@@ -106,19 +110,16 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       if (op.parent !== null && descendantIds(doc, op.id).includes(op.parent)) {
         return invalid("move would create a cycle");
       }
-      return {
-        ...doc,
-        nodes: { ...doc.nodes, [op.id]: { ...node, parent: op.parent, order: op.order } },
-        seq: doc.seq + 1,
-      };
+      if (op.parent !== null && own(doc.nodes, op.parent)?.type === "icon") return invalid("icons cannot have children");
+      return checkedNodes({ ...doc.nodes, [op.id]: { ...node, parent: op.parent, order: op.order } });
     }
 
     case "set_node_props": {
       const node = own(doc.nodes, op.id);
       if (!node) return invalid("node not found");
-      return patchNode(doc, op.id, {
-        props: { ...node.props, ...op.patch } as unknown as Node["props"],
-      });
+      const props = { ...node.props, ...op.patch } as Node["props"];
+      if (node.type === "icon" && !validIconProps(props)) return invalid("invalid icon props");
+      return checkedNodes({ ...doc.nodes, [op.id]: { ...node, props } });
     }
 
     case "set_layout": {
@@ -171,7 +172,7 @@ export function reduce(doc: PageDoc, op: PageOp, opts: ReduceOptions = {}): Page
       if (op.action === null) actions = list.filter((_, i) => i !== op.index);
       else if (op.index >= list.length) actions = [...list, op.action];
       else actions = list.map((a, i) => (i === op.index ? op.action! : a));
-      return patchNode(doc, op.id, { actions });
+      return checkedNodes({ ...doc.nodes, [op.id]: { ...node, actions } });
     }
 
     case "set_meta":
@@ -248,6 +249,14 @@ export function invert(doc: PageDoc, op: PageOp): PageOp[] {
     case "set_node_props": {
       const node = own(doc.nodes, op.id);
       if (!node) return [];
+      if (["frame", "shape"].includes(node.type) && Object.prototype.hasOwnProperty.call(op.patch, "decorative") && !Object.prototype.hasOwnProperty.call(node.props, "decorative")) {
+        return [{ t: "remove_node", id: op.id }, ...[op.id, ...descendantIds(doc, op.id)].map((id): PageOp => ({ t: "insert_node", node: own(doc.nodes, id)! }))];
+      }
+      // Shallow patches cannot delete a previously absent optional label.
+      // Icons are leaves, so a remove/restore is an exact, wire-safe inverse.
+      if (node.type === "icon" && Object.keys(op.patch).some((key) => !Object.prototype.hasOwnProperty.call(node.props, key))) {
+        return [{ t: "remove_node", id: op.id }, { t: "insert_node", node }];
+      }
       const prev: Record<string, unknown> = {};
       for (const k of Object.keys(op.patch)) prev[k] = node.props[k];
       return [{ t: "set_node_props", id: op.id, patch: prev }];

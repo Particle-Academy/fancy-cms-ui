@@ -1,0 +1,12 @@
+{
+  "id": "unsafe-decoration", "seq": 0,
+  "meta": { "title": "Unsafe decoration stays visible", "slug": "/unsafe", "scrollMode": "smooth" },
+  "theme": {}, "breakpoints": ["base", "md", "lg"],
+  "nodes": {
+    "art": { "id": "art", "type": "frame", "parent": null, "order": "a0", "props": { "decorative": true }, "style": { "base": {} } },
+    "shape": { "id": "shape", "type": "shape", "parent": "art", "order": "a0", "props": { "decorative": true }, "style": { "base": {} } },
+    "cta": { "id": "cta", "type": "button", "parent": "shape", "order": "a0", "props": { "label": "Never hide this CTA", "href": "/signup" }, "style": { "base": {} } },
+    "link": { "id": "link", "type": "link", "parent": null, "order": "a1", "props": { "content": "Pricing", "href": "/pricing", "decorative": true }, "style": { "base": {} } },
+    "binding": { "id": "binding", "type": "frame", "parent": null, "order": "a2", "props": { "decorative": { "$bind": "hidden" } }, "style": { "base": {} } }
+  }
+}

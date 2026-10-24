@@ -14,6 +14,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Full Fancy Lucide 0.511.0 catalogue (1,803 names/aliases, 1,594 glyphs) and bounded
+  `searchIcons(query,cursor)` for agent tools. Glyphs are separate opt-ins:
+  `./icons/<name>` static modules, `./icons` async preloading and `./icons/all`.
+  Renderer/editor `icons` maps keep the full SVG set out of core and allow
+  synchronous, byte-identical SSR/hydration with selected glyphs. No new runtime
+  dependency; react-fancy stays optional. Ships source version/content SHA256,
+  Lucide ISC licence/NOTICE and offline generator/drift checks for both twins.
+
+- Native `icon` leaf nodes with a closed catalogue, responsive token colour and
+  font-size sizing, explicit decorative semantics and escaped accessible labels.
+  Both editor inspectors expose catalogue choices and labelled controls; Add
+  inserts a safe decorative icon through the existing operation spine.
+- One generated SVG catalogue shared with fancy-cms and checked for drift;
+  all-glyph HTML/CSS parity and valid/hostile operation parity, including wire
+  undo when a meaningful edit first introduces an optional label.
+
+### Changed
+
+- Icon markup follows the Fancy Icon wrapper conventions, while rendering the
+  shared static SVG data directly. It does not import react-fancy at runtime or
+  use lazy icon lookup. The existing react-fancy peer stays optional; no new
+  runtime dependency or entry-point migration is required.
+
+### Security
+
+- Literal decorative flags on frame/shape hide only passive artwork. Both
+  reducers refuse meaningful subtree inserts/moves, action edits and unsafe prop merges;
+  the renderer leaves malformed stored content visible. Validation is iterative
+  and fresh per render, including CmsPage, CmsRegion and RenderNode. Wire undo
+  restores the entire subtree when the optional flag was originally absent.
+- **BREAKING for documents using `decorative` as unrelated metadata:** reserve
+  this prop for frame/shape/icon and rename it on other node types. Documents
+  without it need no change; react-fancy remains an optional peer.
+
+- Both insertion and merged icon-prop edits refuse unknown names, SVG/path
+  payloads, bindings, extra attributes and invalid accessibility combinations.
+  Rejected edits leave the document and sequence unchanged. Icons are leaves;
+  malformed direct rendering emits no glyph or meaningful-image role.
+
 ## [0.10.0] - 2026-10-23
 
 ### Added

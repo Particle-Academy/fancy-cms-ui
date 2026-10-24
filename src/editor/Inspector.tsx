@@ -2,6 +2,7 @@ import { useId, type ChangeEvent, type CSSProperties, type ReactElement } from "
 import type { PageDoc, StyleProps } from "../document/types";
 import type { PageOp } from "../document/ops";
 import type { InspectorDrafts, DraftField } from "./InspectorDrafts";
+import { IconFields } from "./IconFields";
 
 export interface InspectorProps {
   doc: PageDoc;
@@ -86,6 +87,8 @@ export function Inspector({ doc, selection, apply, drafts }: InspectorProps): Re
     <div style={{ overflow: "auto", padding: 16, fontFamily: "system-ui, sans-serif", height: "100%", boxSizing: "border-box" }}>
       <div style={{ fontSize: 13, fontWeight: 600, color: "var(--fcms-fg)" }}>{node.type}</div>
       <div style={{ fontSize: 11, color: "var(--fcms-muted)", marginBottom: 8 }}>{node.id}</div>
+
+      {node.type === "icon" ? <IconFields props={node.props} onChange={(patch) => apply({ t: "set_node_props", id: nodeId, patch })} /> : null}
 
       {node.type === "text" ? (
         <>

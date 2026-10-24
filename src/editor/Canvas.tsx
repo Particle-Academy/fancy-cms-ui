@@ -8,6 +8,7 @@ import {
   type ReactElement,
 } from "react";
 import type { PageDoc } from "../document/types";
+import type { IconSet } from "../document/icons";
 import type { PageOp } from "../document/ops";
 import type { DataContext, ElementRegistry } from "../react/registry";
 import { CmsPage } from "../react/CmsPage";
@@ -21,6 +22,7 @@ export interface CanvasProps {
   registry?: ElementRegistry;
   /** Data context for `{ $bind }` props + repeaters previewed on the canvas. */
   data?: DataContext;
+  icons?: IconSet;
 }
 
 interface Box {
@@ -35,7 +37,7 @@ interface Box {
  * select; drag the box to move (px constraints). Phase 1 cut: free-parent
  * move + resize handles, stack/grid reordering, and snapping come next.
  */
-export function Canvas({ doc, selection, onSelect, apply, registry, data }: CanvasProps): ReactElement {
+export function Canvas({ doc, selection, onSelect, apply, registry, data, icons }: CanvasProps): ReactElement {
   const ref = useRef<HTMLDivElement>(null);
   const [box, setBox] = useState<Box | null>(null);
   const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
@@ -116,7 +118,7 @@ export function Canvas({ doc, selection, onSelect, apply, registry, data }: Canv
 
   return (
     <div ref={ref} onClick={handleClick} style={surface}>
-      <CmsPage doc={doc} registry={registry} data={data} />
+      <CmsPage doc={doc} registry={registry} data={data} icons={icons} />
       <div
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

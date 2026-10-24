@@ -17,6 +17,8 @@
 
 // ── The spine (framework-agnostic) ──────────────────────────────────────────
 export * from "./document/types";
+export { iconNames, searchIcons, type IconProps, type IconPrimitive, type IconSet, type IconSearch } from "./document/icons";
+export { decorationError } from "./document/decorative";
 export { bindingSources, isLiveBinding } from "./document/bindings";
 export type { BindingSource, LiveBinding } from "./document/bindings";
 export * from "./document/ops";

@@ -1,0 +1,12 @@
+{
+  "id": "decorative", "seq": 0,
+  "meta": { "title": "Safe decorative frames", "slug": "/art", "scrollMode": "smooth" },
+  "theme": {}, "breakpoints": ["base", "md", "lg"],
+  "nodes": {
+    "art": { "id": "art", "type": "frame", "parent": null, "order": "a0", "props": { "decorative": true }, "style": { "base": {} } },
+    "shape": { "id": "shape", "type": "shape", "parent": "art", "order": "a0", "props": {}, "style": { "base": { "background": "#e7f2ee", "radius": { "value": 64, "unit": "px" } } } },
+    "nested": { "id": "nested", "type": "frame", "parent": "shape", "order": "a0", "props": { "decorative": false }, "style": { "base": {} } },
+    "visible": { "id": "visible", "type": "shape", "parent": null, "order": "a1", "props": { "decorative": false }, "style": { "base": {} } },
+    "copy": { "id": "copy", "type": "text", "parent": null, "order": "a2", "props": { "content": "Meaningful copy outside the artwork." }, "style": { "base": {} } }
+  }
+}
