@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-23
+
 ### Added
 
 - `Editor` accepts controlled `value`, native-operation `onOp` and `disabled`
@@ -21,16 +23,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the next host value changes the controlled document. Incoming values preserve
   the selected handle and never echo through either callback. Local snapshot
   Undo/Redo is disabled in controlled mode to protect other writers' work.
+  - Inspector fields keep a local draft, so typing survives server latency,
+    including while `disabled` pauses structural edits and submissions. Drafts
+    commit after 250 ms idle or on blur, one acknowledgement at a time, and
+    wait for IME composition to finish.
+  - When another writer changes the field being drafted, a save is rejected or
+    never acknowledged, or the node is removed, the draft is kept and the
+    inspector offers **Use server value** / **Keep draft**. Text is never
+    silently lost or overwritten.
+  - The host contract (compare-and-set, serialization, pending, unmount) is in
+    the README. Nothing changes for an uncontrolled `Editor`.
 
 ### Fixed
 
 - An uncontrolled `Editor` mounted under React StrictMode no longer emits an
   initial `onChange` before any edit.
-- Controlled inspector fields retain typing under server latency, including
-  while `disabled` pauses structural edits and submissions. Drafts commit after
-  250 ms idle or blur, serialize acknowledgements, and finish IME composition.
-  Incoming same-field changes, rejected/unacknowledged saves and removed nodes
-  retain the draft with explicit conflict choices instead of losing text.
 
 ### Security
 
