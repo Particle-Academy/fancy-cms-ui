@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - An uncontrolled `Editor` mounted under React StrictMode no longer emits an
   initial `onChange` before any edit.
+- Controlled inspector fields retain typing under server latency, including
+  while `disabled` pauses structural edits and submissions. Drafts commit after
+  250 ms idle or blur, serialize acknowledgements, and finish IME composition.
+  Incoming same-field changes, rejected/unacknowledged saves and removed nodes
+  retain the draft with explicit conflict choices instead of losing text.
 
 ### Security
 

@@ -21,8 +21,8 @@ function typeInto(element: HTMLTextAreaElement, value: string) {
 describe("controlled Editor", () => {
   let container: HTMLDivElement;
   let root: Root;
-  beforeEach(() => { container = document.createElement("div"); document.body.appendChild(container); root = createRoot(container); });
-  afterEach(async () => { await act(async () => root.unmount()); container.remove(); });
+  beforeEach(() => { vi.useFakeTimers(); container = document.createElement("div"); document.body.appendChild(container); root = createRoot(container); });
+  afterEach(async () => { await act(async () => root.unmount()); container.remove(); vi.useRealTimers(); });
 
   async function select() {
     await act(async () => container.querySelector('[data-cms="text"]')!.dispatchEvent(new MouseEvent("click", { bubbles: true })));
@@ -42,9 +42,13 @@ describe("controlled Editor", () => {
     const onChange = vi.fn(); const onOp = vi.fn(); const value = doc("Server");
     await act(async () => root.render(<Editor value={value} onChange={onChange} onOp={onOp} />));
     await select(); await act(async () => typeInto(container.querySelector("textarea")!, "Human proposal"));
+    expect(container.querySelector("textarea")!.value).toBe("Human proposal");
+    expect(container.querySelector('[data-cms="text"]')!.textContent).toBe("Server");
+    expect(onOp).not.toHaveBeenCalled();
+    await act(async () => vi.advanceTimersByTime(300));
     expect(onOp).toHaveBeenCalledExactlyOnceWith({ t: "set_node_props", id: "text", patch: { content: "Human proposal" } });
     expect(onChange).toHaveBeenCalledOnce(); expect(onChange.mock.calls[0]![0].nodes.text.props.content).toBe("Human proposal");
-    expect(container.querySelector("textarea")!.value).toBe("Server");
+    expect(container.querySelector("textarea")!.value).toBe("Human proposal");
     expect(value.nodes.text!.props.content).toBe("Server");
     const accepted = reduce(value, onOp.mock.calls[0]![0]);
     await act(async () => root.render(<Editor value={accepted} onChange={onChange} onOp={onOp} />));
@@ -56,6 +60,7 @@ describe("controlled Editor", () => {
     const onOp = vi.fn();
     await act(async () => root.render(<Editor value={doc("Server")} onOp={onOp} />));
     await select(); await act(async () => typeInto(container.querySelector("textarea")!, "Human"));
+    await act(async () => vi.advanceTimersByTime(300));
     expect(onOp).toHaveBeenCalledOnce();
     const history = [...container.querySelectorAll("button")].filter((button) => ["Undo", "Redo"].includes(button.textContent ?? ""));
     expect(history).toHaveLength(2); expect(history.every((button) => button.disabled)).toBe(true);

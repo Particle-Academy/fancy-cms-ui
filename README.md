@@ -74,11 +74,13 @@ optional `@particle-academy/react-fancy` peer).
 
 ### A server-owned document
 
-Use `value` when a server or another writer owns the document. Local edits
-propose a native `PageOp` through `onOp` and a reduced document through
-`onChange`; neither is adopted until the host supplies the next `value`.
-Incoming values update the editor without calling either callback, preserving
-the selected node handle.
+Use `value` when a server or another writer owns the document. The canvas shows
+accepted host state. Inspector fields keep local drafts so typing continues
+without reverting while a save is pending. A field proposes a native `PageOp`
+through `onOp` and a reduced document through `onChange` after 250 ms without
+typing, or on blur. IME composition finishes before submission. Choose one
+callback to submit writes; the other can observe proposals. Incoming values do
+not echo themselves through these callbacks and preserve the selected handle.
 
 ```tsx
 import { Editor, type PageDoc, type PageOp } from "@particle-academy/fancy-cms-ui";
@@ -92,15 +94,29 @@ function SharedAuthor({ doc, pending, submit }: {
 }
 ```
 
-The host validates and authorizes operations, pins them to its current revision,
-and supplies accepted server state. Keep `pending` true while an operation is
-being accepted. `disabled` blocks document edits; node selection remains
-available. An operation-only host can omit `onChange`.
+The host validates and authorizes each operation, pins it to the current server
+revision, and supplies accepted state through `value`. Keep `pending` true while
+a write is being accepted, and clear it after publishing the accepted or
+rejected server state. `disabled` blocks structural edits and draft submission;
+controlled inspector fields remain editable. Additional typing stays buffered
+until the prior field value is acknowledged. Inspector proposals are serialized
+even if the host omits `disabled`; the host must still serialize and revision-pin
+all writes. An operation-only host can omit `onChange`.
+
+Incoming state updates other fields immediately. If it changes a drafted field,
+the draft stays visible with a conflict. Choose **Use server value** to discard
+it or **Keep draft** to submit it against the current state. The editor never
+silently retries a conflict. Clearing `pending` without accepting the field,
+or receiving no acknowledgement for 10 seconds, also retains the draft and
+surfaces a decision. Node removal retains copyable draft text without recreating
+the node. Keep this editor mounted while drafts or writes are outstanding;
+navigation/unmount is owned by the host.
 
 Controlled editors disable local snapshot Undo/Redo, since restoring an old
 snapshot could overwrite another writer. The `defaultValue` mode retains local
 history and reports document changes through `onChange`. Choose one ownership
-mode for an editor's lifetime.
+mode for an editor's lifetime. In uncontrolled mode, `disabled` blocks property
+edits as well.
 
 ### Styling
 

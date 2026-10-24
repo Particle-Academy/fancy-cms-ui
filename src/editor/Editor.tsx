@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactElement } from "react";
 import type { PageDoc } from "../document/types";
 import type { PageOp } from "../document/ops";
 import { reduce } from "../document/reduce";
@@ -8,6 +8,7 @@ import { useLatestRef } from "./useLatestRef";
 import { Canvas } from "./Canvas";
 import { LayersPanel } from "./LayersPanel";
 import { Inspector } from "./Inspector";
+import { InspectorDrafts } from "./InspectorDrafts";
 import { ADD_MENU, buildInsertOp, type AddKind } from "./insert";
 import { emptyDoc } from "../document/types";
 
@@ -20,9 +21,9 @@ export interface EditorProps {
    */
   defaultValue?: PageDoc;
   onChange?: (doc: PageDoc) => void;
-  /** One valid native operation per local edit. A server host may use this without onChange. */
+  /** Native proposals: controlled inspector fields debounce/blur; one proposal awaits acknowledgement. */
   onOp?: (op: PageOp) => void;
-  /** Block edits while an authoritative host is accepting an operation. Selection remains available. */
+  /** Block structural edits and draft submission while pending; controlled inspector typing remains available. */
   disabled?: boolean;
   /**
    * Custom element registry — mirrors {@link CmsPageProps.registry} so the edit
@@ -59,6 +60,8 @@ export function Editor({ value, defaultValue, onChange, onOp, disabled = false, 
   const localDoc = useLatestRef(local.state.doc);
   const lastNotified = useRef(local.state.doc);
   const onOpRef = useLatestRef(onOp);
+  const [drafts] = useState(() => new InspectorDrafts(value ?? initial));
+  useSyncExternalStore(drafts.subscribe, drafts.snapshot, drafts.snapshot);
 
   // Notify depends ONLY on the doc — the latest onChange lives in a ref, so an
   // inline-closure consumer (whose handler identity changes every render) can't
@@ -70,21 +73,26 @@ export function Editor({ value, defaultValue, onChange, onOp, disabled = false, 
     onChangeRef.current?.(local.state.doc);
   }, [controlled, local.state.doc, onChangeRef]);
 
+  const apply = (op: PageOp): boolean => {
+    if (disabled) return false;
+    const source = value ?? localDoc.current;
+    const next = reduce(source, op);
+    if (next === source) return false;
+    if (!controlled) {
+      localDoc.current = next;
+      local.apply(op);
+    }
+    onOpRef.current?.(op);
+    if (controlled) onChangeRef.current?.(next);
+    return true;
+  };
+  useEffect(() => { if (controlled) drafts.configure(value, disabled, apply); });
+  useEffect(() => () => drafts.dispose(), [drafts]);
+  const structuralDisabled = disabled || (controlled && drafts.busy);
   const ed: EditorApi = {
     ...local,
     state: { ...local.state, doc: value ?? local.state.doc },
-    apply: (op) => {
-      if (disabled) return;
-      const source = value ?? localDoc.current;
-      const next = reduce(source, op);
-      if (next === source) return;
-      if (!controlled) {
-        localDoc.current = next;
-        local.apply(op);
-      }
-      onOpRef.current?.(op);
-      if (controlled) onChangeRef.current?.(next);
-    },
+    apply: (op) => { if (!structuralDisabled) apply(op); },
     // Snapshot history belongs to the local document. Replaying it into a
     // server-owned value could overwrite another writer's accepted work.
     undo: () => { if (!controlled && !disabled) local.undo(); },
@@ -107,9 +115,9 @@ export function Editor({ value, defaultValue, onChange, onOp, disabled = false, 
   };
 
   return (
-    <div className="fancy-cms-editor" style={shell} aria-disabled={disabled || undefined}>
+    <div className="fancy-cms-editor" style={shell} aria-busy={structuralDisabled || undefined}>
       <style>{CHROME_CSS}</style>
-      <fieldset disabled={disabled} aria-label="Page editing controls" style={{ display: "contents", border: 0, padding: 0, margin: 0 }}>
+      <fieldset disabled={structuralDisabled} aria-label="Page structure controls" style={{ display: "contents", border: 0, padding: 0, margin: 0 }}>
         <div style={{ borderRight: "1px solid var(--fcms-border)", display: "flex", flexDirection: "column", minHeight: 0 }}>
           <Toolbar ed={ed} />
           <LayersPanel
@@ -119,11 +127,21 @@ export function Editor({ value, defaultValue, onChange, onOp, disabled = false, 
             onMove={(id, parent, order) => ed.apply({ t: "move_node", id, parent, order })}
           />
         </div>
-        <Canvas doc={ed.state.doc} selection={ed.state.selection} onSelect={ed.select} apply={ed.apply} registry={registry} data={data} />
-        <div style={{ borderLeft: "1px solid var(--fcms-border)", minHeight: 0 }}>
-          <Inspector doc={ed.state.doc} selection={ed.state.selection} apply={ed.apply} />
-        </div>
       </fieldset>
+      <Canvas doc={ed.state.doc} selection={ed.state.selection} onSelect={ed.select} apply={ed.apply} registry={registry} data={data} />
+      <div style={{ borderLeft: "1px solid var(--fcms-border)", minHeight: 0, overflow: "auto" }}>
+        {controlled && drafts.conflicts.map((conflict) => (
+          <div key={conflict.key} role="alert" data-cms-draft-conflict={conflict.key} style={{ padding: 12, fontFamily: "system-ui,sans-serif", fontSize: 13 }}>
+            <p>{conflict.label}: {conflict.message}</p>
+            <pre data-cms-retained-draft="" style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{drafts.value(conflict.key, "")}</pre>
+            <button type="button" disabled={disabled} onClick={() => drafts.resolve(conflict.key, false)}>Use server value</button>{" "}
+            <button type="button" disabled={disabled || conflict.missing} onClick={() => drafts.resolve(conflict.key, true)}>Keep draft</button>
+          </div>
+        ))}
+        <fieldset disabled={!controlled && disabled} aria-label="Page property controls" style={{ border: 0, padding: 0, margin: 0, minWidth: 0, height: "100%" }}>
+          <Inspector doc={ed.state.doc} selection={ed.state.selection} apply={ed.apply} drafts={controlled ? drafts : undefined} />
+        </fieldset>
+      </div>
     </div>
   );
 }

@@ -1,11 +1,13 @@
-import { useId, type CSSProperties, type ReactElement } from "react";
+import { useId, type ChangeEvent, type CSSProperties, type ReactElement } from "react";
 import type { PageDoc, StyleProps } from "../document/types";
 import type { PageOp } from "../document/ops";
+import type { InspectorDrafts, DraftField } from "./InspectorDrafts";
 
 export interface InspectorProps {
   doc: PageDoc;
   selection: string | null;
   apply: (op: PageOp) => void;
+  drafts?: InspectorDrafts;
 }
 
 const label: CSSProperties = {
@@ -40,7 +42,7 @@ const input: CSSProperties = {
  * handle the Human+ contract asks for so an agent addresses a field by name
  * instead of guessing at the DOM.
  */
-export function Inspector({ doc, selection, apply }: InspectorProps): ReactElement {
+export function Inspector({ doc, selection, apply, drafts }: InspectorProps): ReactElement {
   // Before the early return — every hook must run on every render. fancy-flow
   // shipped a blank-editor crash by getting this wrong in the same shape of
   // component.
@@ -56,11 +58,29 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
     );
   }
 
-  const s = node.style.base;
-  const setStyle = (patch: Partial<StyleProps>) =>
-    apply({ t: "set_style", id: node.id, breakpoint: "base", patch });
-  const setProp = (key: string, value: unknown) =>
-    apply({ t: "set_node_props", id: node.id, patch: { [key]: value } });
+  const nodeId = node.id;
+  const bind = (name: string, read: (item: PageDoc["nodes"][string]) => string, op: (raw: string) => PageOp, numeric = false) => {
+    const key = JSON.stringify([nodeId, name]);
+    const field: DraftField = {
+      key, label: `${nodeId} / ${name}`, op,
+      read: (next) => { const item = next.nodes[nodeId]; return item ? read(item) : undefined; },
+      canonical: numeric ? (raw) => String(Number(raw) || 0) : (raw) => raw,
+    };
+    const accepted = read(node);
+    return {
+      value: drafts ? drafts.value(key, accepted) : accepted,
+      onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        if (drafts) drafts.change(field, event.target.value); else apply(op(event.target.value));
+      },
+      onFocus: () => drafts?.focus(key),
+      onBlur: () => drafts?.blur(key),
+      onCompositionStart: () => drafts?.composition(key, true),
+      onCompositionEnd: () => drafts?.composition(key, false),
+    };
+  };
+  const prop = (key: string) => bind(key, (item) => typeof item.props[key] === "string" ? item.props[key] as string : "", (raw) => ({ t: "set_node_props", id: nodeId, patch: { [key]: raw } }));
+  const style = (key: "background" | "color") => bind(key, (item) => item.style.base[key] ?? "", (raw) => ({ t: "set_style", id: nodeId, breakpoint: "base", patch: { [key]: raw } }));
+  const length = (key: "fontSize" | "padding") => bind(key, (item) => item.style.base[key]?.value?.toString() ?? "", (raw) => ({ t: "set_style", id: nodeId, breakpoint: "base", patch: { [key]: { value: Number(raw) || 0, unit: "px" } } as Partial<StyleProps> }), true);
 
   return (
     <div style={{ overflow: "auto", padding: 16, fontFamily: "system-ui, sans-serif", height: "100%", boxSizing: "border-box" }}>
@@ -74,8 +94,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
             id={fieldId("content")}
             data-cms-field="content"
             style={{ ...input, minHeight: 64, resize: "vertical" }}
-            value={typeof node.props.content === "string" ? node.props.content : ""}
-            onChange={(e) => setProp("content", e.target.value)}
+            {...prop("content")}
           />
         </>
       ) : null}
@@ -87,8 +106,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
             id={fieldId("src")}
             data-cms-field="src"
             style={input}
-            value={typeof node.props.src === "string" ? node.props.src : ""}
-            onChange={(e) => setProp("src", e.target.value)}
+            {...prop("src")}
           />
         </>
       ) : null}
@@ -99,8 +117,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
         data-cms-field="background"
         style={input}
         placeholder="#ffffff | gradient | url(…)"
-        value={s.background ?? ""}
-        onChange={(e) => setStyle({ background: e.target.value })}
+        {...style("background")}
       />
 
       <label style={label} htmlFor={fieldId("color")}>Text color</label>
@@ -109,8 +126,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
         data-cms-field="color"
         style={input}
         placeholder="#0f172a"
-        value={s.color ?? ""}
-        onChange={(e) => setStyle({ color: e.target.value })}
+        {...style("color")}
       />
 
       <label style={label} htmlFor={fieldId("fontSize")}>Font size (px)</label>
@@ -119,8 +135,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
         data-cms-field="fontSize"
         type="number"
         style={input}
-        value={s.fontSize?.value ?? ""}
-        onChange={(e) => setStyle({ fontSize: { value: Number(e.target.value) || 0, unit: "px" } })}
+        {...length("fontSize")}
       />
 
       <label style={label} htmlFor={fieldId("padding")}>Padding (px)</label>
@@ -129,8 +144,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
         data-cms-field="padding"
         type="number"
         style={input}
-        value={s.padding?.value ?? ""}
-        onChange={(e) => setStyle({ padding: { value: Number(e.target.value) || 0, unit: "px" } })}
+        {...length("padding")}
       />
 
       <label style={label} htmlFor={fieldId("opacity")}>Opacity</label>
@@ -142,8 +156,7 @@ export function Inspector({ doc, selection, apply }: InspectorProps): ReactEleme
         min="0"
         max="1"
         style={input}
-        value={s.opacity ?? ""}
-        onChange={(e) => setStyle({ opacity: Number(e.target.value) })}
+        {...bind("opacity", (item) => item.style.base.opacity?.toString() ?? "", (raw) => ({ t: "set_style", id: nodeId, breakpoint: "base", patch: { opacity: Number(raw) } }), true)}
       />
     </div>
   );
