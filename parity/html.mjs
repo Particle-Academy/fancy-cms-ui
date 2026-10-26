@@ -24,6 +24,9 @@ import { iconNames, emptyDoc } from "../dist/index.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const phpBin = resolve(here, "../../fancy-cms/bin/render-html.php");
+const assetPath = resolve(here, "image-assets.json");
+const assets = JSON.parse(readFileSync(assetPath, "utf8"));
+const imageResolver = handle => assets[handle] ?? null;
 const files = readdirSync(here).filter((f) => /^canonical.*\.json$/.test(f)).sort();
 const scratch = mkdtempSync(resolve(tmpdir(), "fancy-cms-icons-html-"));
 const fullPath = resolve(scratch, "all-names.json");
@@ -38,11 +41,11 @@ const cases = [...files.map(file => ({ file, docPath: resolve(here, file) })), {
 let failed = 0;
 for (const { file, docPath } of cases) {
   const doc = JSON.parse(readFileSync(docPath, "utf8"));
-  const jsHtml = renderToStaticMarkup(createElement(CmsPage, { doc, icons, includeStyles: false }));
+  const jsHtml = renderToStaticMarkup(createElement(CmsPage, { doc, icons, imageResolver, includeStyles: false }));
   let phpHtml;
   try {
     // No shell: a fixture's filename must never be read as shell text.
-    phpHtml = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, docPath], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
+    phpHtml = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, docPath, assetPath], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
   } catch (e) {
     failed++;
     console.log(`HTML PARITY FAIL  ${file}: the PHP renderer could not run (${e.message.split("\n")[0]})`);

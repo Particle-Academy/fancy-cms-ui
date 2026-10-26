@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { isBinding, type Bound, type Json, type Node, type PageDoc } from "../document/types";
 import { validIconProps, type IconSet } from "../document/icons";
 import { NativeIcon } from "./NativeIcon";
+import { resolveImageAsset, type ImageAssetResolver } from "../render/images";
 
 /** The page data context bindings resolve against (e.g. server props, repeater `item`). */
 export type DataContext = Record<string, unknown>;
@@ -15,6 +16,7 @@ export interface ElementContext {
   data?: DataContext;
   /** Closed glyph data preloaded by the host, shared with SSR. */
   icons?: IconSet;
+  imageResolver?: ImageAssetResolver;
   /** Resolve a (possibly bound) value to its raw resolved value. */
   resolve: (v: Bound<Json> | undefined) => unknown;
   /** Resolve a (possibly bound) value to a display string. */
@@ -153,12 +155,18 @@ export const defaultRegistry: ElementRegistry = {
     </pre>
   ),
   button: ({ node, text }) => text(node.props.label) || text(node.props.content) || "Button",
-  image: ({ node, text }) => {
+  image: ({ node, text, imageResolver }) => {
     const fit = text(node.props.fit);
+    const resolved = Object.prototype.hasOwnProperty.call(node.props, "asset");
+    const image = resolved ? resolveImageAsset(node.props.asset, imageResolver) : null;
     return (
       <img
-        src={text(node.props.src) || undefined}
+        src={resolved ? image?.src : text(node.props.src) || undefined}
         alt={text(node.props.alt)}
+        width={image?.width}
+        height={image?.height}
+        srcSet={image?.srcSet}
+        sizes={image?.sizes}
         loading={text(node.props.loading) === "eager" ? "eager" : "lazy"}
         data-cms-fit={IMAGE_FITS.has(fit) && fit !== "cover" ? fit : undefined}
       />

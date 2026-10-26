@@ -1,0 +1,7 @@
+{
+  "brief/hero":{"src":"https://cdn.example.test/hero.jpg","width":1536,"height":1024,"variants":[{"src":"/asset-960.jpg","width":960,"height":640},{"src":"/asset-480.jpg","width":480,"height":320}],"sizes":"(max-width: 640px) 100vw, 640px"},
+  "brief/hero-copy":{"src":"/different-fallback.jpg","width":1536,"height":1024,"variants":[{"src":"/asset-480.jpg","width":480,"height":320},{"src":"/asset-960.jpg","width":960,"height":640}],"sizes":"(max-width: 640px) 100vw, 640px"},
+  "brief/wide":{"src":"/wide.jpg","width":1536,"height":1024,"variants":[{"src":"/asset-480.jpg","width":480,"height":320},{"src":"/asset-960.jpg","width":960,"height":640}],"sizes":"100vw"},
+  "single":{"src":"https://images.example.test/single.jpg?v=1&kind=photo","width":640,"height":480},
+  "bad":{"src":"/bad.jpg","width":10,"height":10,"variants":[{"src":"/bad-a.jpg","width":10,"height":10},{"src":"/bad-b.jpg","width":10,"height":10}],"sizes":"100vw"}
+}

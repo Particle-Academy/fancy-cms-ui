@@ -7,6 +7,7 @@
 export { RenderNode, type RenderNodeProps } from "./RenderNode";
 export { CmsPage, type CmsPageProps } from "./CmsPage";
 export { CmsRegion, type CmsRegionProps } from "./CmsRegion";
+export type { ImageAssetResolver, ImageAsset, ImageVariant } from "../render/images";
 export {
   defaultRegistry,
   getPath,

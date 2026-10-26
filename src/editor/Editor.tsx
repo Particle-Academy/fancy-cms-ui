@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactElement } from "react";
 import type { PageDoc } from "../document/types";
 import type { IconSet } from "../document/icons";
+import type { ImageAssetResolver } from "../render/images";
 import type { PageOp } from "../document/ops";
 import { reduce } from "../document/reduce";
 import type { DataContext, ElementRegistry } from "../react/registry";
@@ -36,6 +37,7 @@ export interface EditorProps {
   data?: DataContext;
   /** Pass the same preloaded glyph map as the published renderer. */
   icons?: IconSet;
+  imageResolver?: ImageAssetResolver;
 }
 
 /**
@@ -53,7 +55,7 @@ export interface EditorProps {
  * plan; it is recorded here because it is the kind of note that gets acted on
  * long after it stopped being true.
  */
-export function Editor({ value, defaultValue, onChange, onOp, disabled = false, registry, data, icons }: EditorProps): ReactElement {
+export function Editor({ value, defaultValue, onChange, onOp, disabled = false, registry, data, icons, imageResolver }: EditorProps): ReactElement {
   // Render an empty page rather than throwing on a missing document. Reading
   // `.sections` off undefined crashed the entire editor, which is a hostile way
   // to tell a host "you haven't passed a doc yet" (#3).
@@ -131,7 +133,7 @@ export function Editor({ value, defaultValue, onChange, onOp, disabled = false, 
           />
         </div>
       </fieldset>
-      <Canvas doc={ed.state.doc} selection={ed.state.selection} onSelect={ed.select} apply={ed.apply} registry={registry} data={data} icons={icons} />
+      <Canvas doc={ed.state.doc} selection={ed.state.selection} onSelect={ed.select} apply={ed.apply} registry={registry} data={data} icons={icons} imageResolver={imageResolver} />
       <div style={{ borderLeft: "1px solid var(--fcms-border)", minHeight: 0, overflow: "auto" }}>
         {controlled && drafts.conflicts.map((conflict) => (
           <div key={conflict.key} role="alert" data-cms-draft-conflict={conflict.key} style={{ padding: 12, fontFamily: "system-ui,sans-serif", fontSize: 13 }}>

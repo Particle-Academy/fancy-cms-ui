@@ -14,6 +14,7 @@ import {
 import { ContextMenu } from "@particle-academy/react-fancy";
 import type { Json, LayoutMode, NodeId, PageDoc, StyleProps } from "../document/types";
 import type { PageOp } from "../document/ops";
+import type { ImageAssetResolver } from "../render/images";
 import { childrenOf, lastRootId } from "../document/reduce";
 import { fractionalKey as keyBetween } from "@particle-academy/fancy-doc-commons";
 import { ADD_DEFAULTS, ADD_MENU, CONTAINER_TYPES, buildInsertOp, type AddKind } from "./insert";
@@ -40,6 +41,7 @@ export interface EditablePageProps {
   icons?: import("../document/icons").IconSet;
   doc: PageDoc;
   registry?: ElementRegistry;
+  imageResolver?: ImageAssetResolver;
   /** Data context for `{ $bind }` props + repeaters (server props, etc.). */
   data?: DataContext;
   /** Slot for the fancy-motion timeline dock (rendered at the bottom in EditMode). */
@@ -85,6 +87,7 @@ export function EditablePage({
   registry = defaultRegistry,
   data,
   icons,
+  imageResolver,
   timelineDock,
   transforms,
   onNodeTransform,
@@ -419,7 +422,7 @@ export function EditablePage({
       onDragLeave={editing ? () => setDropHint(null) : undefined}
       onDrop={editing ? onPageDrop : undefined}
     >
-      <CmsPage doc={ed.state.doc} registry={registry} data={data} icons={icons} />
+      <CmsPage doc={ed.state.doc} registry={registry} data={data} icons={icons} imageResolver={imageResolver} />
     </div>
   );
   const pageShell = pinned ? (

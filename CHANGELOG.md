@@ -14,6 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Host-resolved responsive image assets via literal `props.asset` and the
+  `imageResolver` prop, shared by page/region/node renderers and editor previews.
+  Trusted intrinsic dimensions and declared variants/sizes match PHP byte for
+  byte, including eager preload hints. Unknown or invalid assets stay inert
+  without authored-URL fallback; legacy images without `asset` remain compatible.
+- The inspector edits an asset handle through ordinary page operations. Public
+  asset metadata types and a standalone CDN-manifest example are included;
+  no new dependencies or application-specific storage are required.
+
 ## [0.11.0] - 2026-10-24
 
 ### Added

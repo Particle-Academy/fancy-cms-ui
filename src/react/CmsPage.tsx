@@ -4,6 +4,7 @@ import type { IconSet } from "../document/icons";
 import { rootIds } from "../document/reduce";
 import { migrateDoc, type LegacyPageDoc } from "../document/migrate";
 import { emitDocCss } from "../render/css";
+import type { ImageAssetResolver } from "../render/images";
 import { renderNodes } from "./RenderNode";
 import { defaultRegistry, type DataContext, type ElementRegistry } from "./registry";
 
@@ -14,6 +15,8 @@ export interface CmsPageProps {
   data?: DataContext;
   /** Preloaded glyph subset. Import ./icons/<name>, or await ./icons loadIcons. */
   icons?: IconSet;
+  /** Host-owned immutable image metadata; documents only name asset handles. */
+  imageResolver?: ImageAssetResolver;
   /** Inject the compiled stylesheet. Set false when the host emits CSS itself. */
   includeStyles?: boolean;
 }
@@ -24,6 +27,7 @@ export function CmsPage({
   registry = defaultRegistry,
   data,
   icons,
+  imageResolver,
   includeStyles = true,
 }: CmsPageProps): ReactElement {
   // Renders a pre-`sections[]` document correctly rather than in whatever order
@@ -35,7 +39,7 @@ export function CmsPage({
   return (
     <Fragment>
       {includeStyles ? <style data-cms-styles="">{emitDocCss(doc)}</style> : null}
-      {renderNodes({ doc, ids: rootIds(doc), registry, data, icons })}
+      {renderNodes({ doc, ids: rootIds(doc), registry, data, icons, imageResolver })}
     </Fragment>
   );
 }

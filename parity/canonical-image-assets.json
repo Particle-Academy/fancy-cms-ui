@@ -1,0 +1,13 @@
+{
+  "id":"image-assets","seq":0,"meta":{"title":"Host assets","slug":"/images","scrollMode":"smooth"},"theme":{},"breakpoints":["base","md","lg"],
+  "nodes":{
+    "hero":{"id":"hero","type":"image","parent":null,"order":"a","props":{"asset":"brief/hero","src":"https://untrusted.invalid/ignore.jpg","width":1,"height":1,"srcSet":"https://untrusted.invalid/ignore.jpg 1w","alt":"Scene <one> & two","loading":"eager","fit":"contain"},"style":{"base":{}}},
+    "copy":{"id":"copy","type":"image","parent":null,"order":"b","props":{"asset":"brief/hero-copy","alt":"Copy","loading":"eager"},"style":{"base":{}}},
+    "wide":{"id":"wide","type":"image","parent":null,"order":"c","props":{"asset":"brief/wide","alt":"Wide","loading":"eager","fit":"fill"},"style":{"base":{}}},
+    "single":{"id":"single","type":"image","parent":null,"order":"d","props":{"asset":"single","alt":"Single","loading":"eager","fit":"scale-down"},"style":{"base":{}}},
+    "unknown":{"id":"unknown","type":"image","parent":null,"order":"e","props":{"asset":"unknown","src":"https://untrusted.invalid/ignore.jpg","alt":"Missing","loading":"eager"},"style":{"base":{}}},
+    "invalid":{"id":"invalid","type":"image","parent":null,"order":"f","props":{"asset":"bad","alt":"Invalid metadata"},"style":{"base":{}}},
+    "bound":{"id":"bound","type":"image","parent":null,"order":"g","props":{"asset":{"$bind":"not-a-literal"},"alt":"Inert binding"},"style":{"base":{}}},
+    "legacy":{"id":"legacy","type":"image","parent":null,"order":"h","props":{"src":"/legacy.jpg","alt":"Existing source","loading":"eager"},"style":{"base":{}}}
+  }
+}

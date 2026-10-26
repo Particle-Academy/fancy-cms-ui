@@ -60,6 +60,7 @@ export function Inspector({ doc, selection, apply, drafts }: InspectorProps): Re
   }
 
   const nodeId = node.id;
+  const imageSource = Object.prototype.hasOwnProperty.call(node.props, "asset") ? "asset" : "src";
   const bind = (name: string, read: (item: PageDoc["nodes"][string]) => string, op: (raw: string) => PageOp, numeric = false) => {
     const key = JSON.stringify([nodeId, name]);
     const field: DraftField = {
@@ -104,12 +105,12 @@ export function Inspector({ doc, selection, apply, drafts }: InspectorProps): Re
 
       {node.type === "image" ? (
         <>
-          <label style={label} htmlFor={fieldId("src")}>Source</label>
+          <label style={label} htmlFor={fieldId(imageSource)}>{imageSource === "asset" ? "Image asset" : "Source"}</label>
           <input
-            id={fieldId("src")}
-            data-cms-field="src"
+            id={fieldId(imageSource)}
+            data-cms-field={imageSource}
             style={input}
-            {...prop("src")}
+            {...prop(imageSource)}
           />
         </>
       ) : null}

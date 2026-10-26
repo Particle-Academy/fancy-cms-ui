@@ -1,5 +1,54 @@
 # @particle-academy/fancy-cms-ui
 
+## Host-resolved responsive images
+
+An image node can name `props.asset: "campaign/hero"`. The host supplies a
+synchronous `imageResolver`; the document does not supply image URLs,
+dimensions, variants or `sizes` for that node. Missing handles/resolvers or
+invalid metadata render an inert image with its alt/loading/fit preserved.
+An asset node never falls back to `props.src`, including an empty asset handle.
+
+```tsx
+import { CmsPage, type ImageAsset, type ImageAssetResolver } from "@particle-academy/fancy-cms-ui/react";
+
+// An ordinary shop, not tied to flabs, its storage layout or any database.
+const assets: Record<string, ImageAsset> = {
+  "campaign/hero": {
+    src: "https://images.shop.example/campaign-1536.jpg", width: 1536, height: 1024,
+    variants: [
+      { src: "https://images.shop.example/campaign-480.jpg", width: 480, height: 320 },
+      { src: "https://images.shop.example/campaign-960.jpg", width: 960, height: 640 },
+    ],
+    sizes: "(max-width: 640px) 100vw, 640px",
+  },
+};
+const imageResolver: ImageAssetResolver = handle => assets[handle] ?? null;
+<CmsPage doc={doc} imageResolver={imageResolver} />;
+// Image props: { asset: "campaign/hero", alt: "Products on a workbench", fit: "cover", loading: "eager" }
+```
+
+Pass the same immutable metadata to SSR/hydration, `CmsRegion`, `RenderNode`,
+`Editor`, `Canvas` and `EditablePage`. The two inspectors keep asset handles in
+the operation spine. Keep the resolver a closed manifest lookup, with no network
+or URL passthrough. It receives only a literal handle, never a binding object.
+
+Width/height are intrinsic positive integers (up to1,000,000). Up to16 declared
+variants have distinct widths and URLs; they are copied/sorted into width-based
+`srcSet`. Nonempty host `sizes` is required with variants. Sources are root-relative
+or HTTP(S), without protocol-relative URLs, backslashes, controls, spaces or raw
+commas (percent-encode them). A single source emits width/height without inventing
+srcset/sizes. Invalid metadata refuses the whole asset. Eager responsive preload
+hints match React19, including deduplication by variants AND sizes.
+
+Existing image nodes with no `asset` retain their legacy `src` behavior; authored
+width/srcSet/sizes props do not become trusted metadata. A host requiring closed
+assets must validate stored/candidate documents and allow only its catalogue's
+handles. The host owns authorization, file serving, integrity and CSP; approved
+CDN URLs work without a flabs dependency. No assets are generated or fetched by
+the package.
+
+## Native icons
+
 Native `icon` leaves use a closed catalogue exposed by `iconNames()`. Set
 literal props `{ name: "receipt-text", decorative: true }`, or set
 `decorative: false` with a nonblank `label` (up to1024 UTF-8 bytes). Size the

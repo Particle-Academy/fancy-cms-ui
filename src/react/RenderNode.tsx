@@ -4,6 +4,7 @@ import { childrenOf } from "../document/reduce";
 import { own } from "../document/own";
 import { decorationError } from "../document/decorative";
 import type { IconSet } from "../document/icons";
+import type { ImageAssetResolver } from "../render/images";
 import { anchorFor, defaultRegistry, elementFor, resolveValue, type DataContext, type ElementRegistry } from "./registry";
 
 export interface RenderNodeProps {
@@ -14,6 +15,8 @@ export interface RenderNodeProps {
   data?: DataContext;
   /** Preload the same selected glyphs for SSR and hydration. */
   icons?: IconSet;
+  /** Closed host asset lookup, identical for SSR, hydration and editor preview. */
+  imageResolver?: ImageAssetResolver;
 }
 
 /**
@@ -37,7 +40,7 @@ export function renderNodes({ ids, ...props }: Omit<RenderNodeProps, "id"> & { i
   return ids.map((id) => <ValidatedNode key={id} {...props} id={id} decorativeSafe={decorativeSafe} />);
 }
 
-function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, decorativeSafe }: RenderNodeProps & { decorativeSafe: boolean }): ReactElement | null {
+function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, imageResolver, decorativeSafe }: RenderNodeProps & { decorativeSafe: boolean }): ReactElement | null {
   const stored = own(doc.nodes, id);
   if (!stored) return null;
   const node = withNodeDefaults(stored);
@@ -50,7 +53,7 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, decor
       <div data-cms={node.id} className={node.className}>
         {template
           ? items.map((item, index) => (
-              <ValidatedNode key={index} doc={doc} id={template.id} registry={registry} data={{ ...data, item, index }} icons={icons} decorativeSafe={decorativeSafe} />
+              <ValidatedNode key={index} doc={doc} id={template.id} registry={registry} data={{ ...data, item, index }} icons={icons} imageResolver={imageResolver} decorativeSafe={decorativeSafe} />
             ))
           : null}
       </div>
@@ -58,7 +61,7 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, decor
   }
 
   const kids = childrenOf(doc, id).map((child) => (
-    <ValidatedNode key={child.id} doc={doc} id={child.id} registry={registry} data={data} icons={icons} decorativeSafe={decorativeSafe} />
+    <ValidatedNode key={child.id} doc={doc} id={child.id} registry={registry} data={data} icons={icons} imageResolver={imageResolver} decorativeSafe={decorativeSafe} />
   ));
 
   const resolve = (v: Bound<Json> | undefined) => resolveValue(v, data);
@@ -68,7 +71,7 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, decor
   };
 
   const renderer = registry[node.type];
-  const inner = renderer ? renderer({ node, doc, children: kids, data, icons, resolve, text }) : node.island ? null : kids;
+  const inner = renderer ? renderer({ node, doc, children: kids, data, icons, imageResolver, resolve, text }) : node.island ? null : kids;
 
   // The [data-cms] element is the semantic element itself (h1-h6, p, a, ul,
   // section, nav ...), so the node's emitted CSS styles the real element.

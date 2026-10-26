@@ -40,6 +40,20 @@ function docWithText(): { doc: PageDoc; id: string } {
  * an element by name rather than guessing at the DOM, and nothing here had one.
  */
 describe("Inspector fields", () => {
+  it("edits the asset handle for a resolved image, preserving the operation spine", () => {
+    const doc = emptyDoc("asset-inspector");
+    doc.nodes.image = {id:"image",type:"image",parent:null,order:"a",props:{asset:"brief/hero",src:"/ignored.jpg",alt:"Scene"},style:{base:{}}};
+    const apply = vi.fn();
+    const {host} = mount(<Inspector doc={doc} selection="image" apply={apply}/>);
+    const control = host.querySelector<HTMLInputElement>('[data-cms-field="asset"]');
+    expect(control?.value).toBe("brief/hero");
+    expect(host.querySelector('[data-cms-field="src"]')).toBeNull();
+    act(() => {
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(control, "brief/support");
+      control!.dispatchEvent(new Event("input", {bubbles:true}));
+    });
+    expect(apply).toHaveBeenCalledWith({t:"set_node_props",id:"image",patch:{asset:"brief/support"}});
+  });
   const labelled = (host: HTMLElement, text: string) => {
     const label = [...host.querySelectorAll("label")].find((l) => l.textContent === text);
     if (!label?.htmlFor) return null;

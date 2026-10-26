@@ -1,6 +1,7 @@
 import { Fragment, type ReactElement } from "react";
 import type { PageDoc } from "../document/types";
 import type { IconSet } from "../document/icons";
+import type { ImageAssetResolver } from "../render/images";
 import { emitDocCss } from "../render/css";
 import { RenderNode } from "./RenderNode";
 import { defaultRegistry, type ElementRegistry } from "./registry";
@@ -11,6 +12,7 @@ export interface CmsRegionProps {
   root: string;
   registry?: ElementRegistry;
   icons?: IconSet;
+  imageResolver?: ImageAssetResolver;
   includeStyles?: boolean;
 }
 
@@ -24,12 +26,13 @@ export function CmsRegion({
   root,
   registry = defaultRegistry,
   icons,
+  imageResolver,
   includeStyles = true,
 }: CmsRegionProps): ReactElement {
   return (
     <Fragment>
       {includeStyles ? <style data-cms-styles="">{emitDocCss(doc)}</style> : null}
-      <RenderNode doc={doc} id={root} registry={registry} icons={icons} />
+      <RenderNode doc={doc} id={root} registry={registry} icons={icons} imageResolver={imageResolver} />
     </Fragment>
   );
 }
