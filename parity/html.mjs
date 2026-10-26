@@ -52,6 +52,12 @@ for (const { file, docPath } of cases) {
     continue;
   }
 
+  if (/canonical-csp-icons|all 1803 Lucide/.test(file) && (/\sstyle\s*=/i.test(jsHtml) || /\sstyle\s*=/i.test(phpHtml))) {
+    failed++;
+    console.log(`HTML PARITY FAIL  ${file}: native icons emitted an inline style attribute.`);
+    continue;
+  }
+
   if (jsHtml === phpHtml) {
     console.log(`HTML PARITY PASS  ${file}: byte-identical markup (${jsHtml.length} bytes).`);
     continue;

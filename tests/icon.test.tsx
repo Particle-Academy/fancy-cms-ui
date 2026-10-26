@@ -24,7 +24,7 @@ describe("bounded native icons", () => {
   });
   it("matches the public Fancy Icon wrapper without requiring it at runtime", () => {
     const rendered = NativeIcon({ props: icon().props, icons: allIcons })!;
-    const expected = renderToStaticMarkup(<Icon style={rendered.props.style}>{rendered.props.children}</Icon>);
+    const expected = renderToStaticMarkup(<Icon>{rendered.props.children}</Icon>);
     expect(renderToStaticMarkup(rendered)).toBe(expected);
   });
   it("exposes only an escaped meaningful label and hides decorative labels", () => {

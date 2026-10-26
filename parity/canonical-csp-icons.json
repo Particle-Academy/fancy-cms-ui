@@ -1,0 +1,11 @@
+{
+  "id": "csp-icons",
+  "seq": 0,
+  "meta": { "title": "CSP icon boxes", "slug": "/csp-icons", "scrollMode": "smooth" },
+  "theme": {},
+  "breakpoints": ["base", "md", "lg"],
+  "nodes": {
+    "small": { "id": "small", "type": "icon", "parent": null, "order": "a", "props": { "name": "check", "decorative": true }, "style": { "base": { "fontSize": { "value": 12, "unit": "px" } }, "md": { "fontSize": { "value": 20, "unit": "px" } }, "lg": { "fontSize": { "value": 24, "unit": "px" } } } },
+    "large": { "id": "large", "type": "icon", "parent": null, "order": "b", "props": { "name": "receipt-text", "decorative": false, "label": "Receipt" }, "style": { "base": { "fontSize": { "value": 24, "unit": "px" } }, "md": { "fontSize": { "value": 32, "unit": "px" } }, "lg": { "fontSize": { "value": 40, "unit": "px" } } } }
+  }
+}
