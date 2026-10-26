@@ -1,6 +1,6 @@
 {
     "name": "@particle-academy/fancy-cms-ui",
-    "version": "0.12.1",
+    "version": "0.13.0",
     "description": "Editor + isomorphic renderer for fancy-cms — the Stages document model, PageOp op-spine, the JS style→CSS emitter (one half of the dual-emitter pair with the PHP particle-academy/fancy-cms), and the React renderer. Built on the Fancy UI suite.",
     "repository": {
         "type": "git",
@@ -35,16 +35,34 @@
             }
         },
         "./icons": {
-            "import": { "types": "./icons/index.d.ts", "default": "./icons/index.js" },
-            "require": { "types": "./icons/index.d.cts", "default": "./icons/index.cjs" }
+            "import": {
+                "types": "./icons/index.d.ts",
+                "default": "./icons/index.js"
+            },
+            "require": {
+                "types": "./icons/index.d.cts",
+                "default": "./icons/index.cjs"
+            }
         },
         "./icons/all": {
-            "import": { "types": "./icons/all.d.ts", "default": "./icons/all.js" },
-            "require": { "types": "./icons/all.d.cts", "default": "./icons/all.cjs" }
+            "import": {
+                "types": "./icons/all.d.ts",
+                "default": "./icons/all.js"
+            },
+            "require": {
+                "types": "./icons/all.d.cts",
+                "default": "./icons/all.cjs"
+            }
         },
         "./icons/*": {
-            "import": { "types": "./icons/glyph.d.ts", "default": "./icons/*.js" },
-            "require": { "types": "./icons/glyph.d.cts", "default": "./icons/*.cjs" }
+            "import": {
+                "types": "./icons/glyph.d.ts",
+                "default": "./icons/*.js"
+            },
+            "require": {
+                "types": "./icons/glyph.d.cts",
+                "default": "./icons/*.cjs"
+            }
         },
         "./editor": {
             "import": {

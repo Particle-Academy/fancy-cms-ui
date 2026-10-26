@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-26
+
+**Nothing to do unless you opt in:** documents that keep string font tokens render byte-identically. To use a web font, pass a `fontResolver` that maps the reference to same-origin WOFF2 URLs you publish yourself; the renderer never fetches fonts or contacts Google.
+
 ### Added
 - Structured `theme.font.<role>` references with a synchronous host `fontResolver`,
   manifest-derived families, same-origin WOFF2 `@font-face` output and explicit
