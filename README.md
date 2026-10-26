@@ -259,6 +259,9 @@ produce byte-identical output — verified by the parity harness.
 
 ## Principles
 
+Fonts: see [host-resolved fonts](agent-guide/fonts.md) for structured font
+references, same-origin resolution and the opt-in Inter 4.1 bundle.
+
 - **Guest, not host** — adopted per-surface (route / region / slot).
 - **Human+ is opt-in** — core works single-user with no websockets or agents.
 - **Zero third-party runtime deps.**

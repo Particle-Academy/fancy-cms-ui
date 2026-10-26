@@ -19,6 +19,7 @@ import {
   type StyleProps,
 } from "../document/types";
 import { own } from "../document/own";
+import {prepareDocFonts,type FontRenderOptions} from "./fonts";
 
 /**
  * A string as the contents of a double-quoted CSS string. `\` and `"` are
@@ -267,9 +268,12 @@ function visibilityDecls(node: Node, style: Partial<StyleProps>, isBase: boolean
  * `name` labels the theme and is not a token. Keys are reduced to `[a-z0-9-]`;
  * values must be strings or numbers and pass {@link safeCssValue}.
  */
-function themeDecls(theme: unknown): Record<string, string> {
+function themeDecls(theme: unknown, fonts: ReadonlyMap<string,string>): Record<string, string> {
   const d: Record<string, string> = {};
   const walk = (value: unknown, path: string[]): void => {
+    if (path.length === 2 && path[0] === "font" && fonts.has(path[1]!)) {
+      value = `"${fonts.get(path[1]!)}"`;
+    }
     if (typeof value === "string" || (typeof value === "number" && Number.isFinite(value))) {
       const key = path.map((p) => p.toLowerCase().replace(/[^a-z0-9-]/g, "")).filter(Boolean).join("-");
       if (key) put(d, `--cms-${key}`, String(value));
@@ -328,13 +332,14 @@ function serializeRule(selector: string, decls: Record<string, string>, indent: 
 }
 
 /** Emit the full stylesheet for a document. Deterministic. */
-export function emitDocCss(doc: PageDoc): string {
+export function emitDocCss(doc: PageDoc, options: FontRenderOptions = {}): string {
   if (!hasNodeMap(doc)) return "";
 
   const breakpointPx = DEFAULT_BREAKPOINTS;
-  const blocks: string[] = [];
+  const fonts=prepareDocFonts(doc,options);
+  const blocks: string[] = [...fonts.blocks];
 
-  const themeRule = serializeRule(":root", themeDecls((doc as { theme?: unknown }).theme), "");
+  const themeRule = serializeRule(":root", themeDecls((doc as { theme?: unknown }).theme,fonts.aliases), "");
   if (themeRule) blocks.push(themeRule);
 
   for (const id of Object.keys(doc.nodes).sort()) {

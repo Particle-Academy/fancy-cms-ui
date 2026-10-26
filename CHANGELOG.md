@@ -14,6 +14,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Structured `theme.font.<role>` references with a synchronous host `fontResolver`,
+  manifest-derived families, same-origin WOFF2 `@font-face` output and explicit
+  `FontResolutionException` reasons for missing or invalid fonts. Live output
+  defaults to swap; trusted capture callers can select block. Page, region,
+  node and editor surfaces validate fonts even when styles are supplied by the
+  host. Legacy string tokens retain their exact output; PHP/JS parity covers
+  both accepted and refused font metadata.
+- Opt-in, unmodified Inter 4.1 variable normal/italic assets at
+  `./fonts/inter/*`, including OFL licence, NOTICE and archive/file SHA256
+  manifest. No automatic stylesheet, route, font request or new runtime dependency.
+
 ## [0.12.1] - 2026-10-26
 
 ### Fixed

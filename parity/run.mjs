@@ -17,18 +17,25 @@
  */
 import { readFileSync, readdirSync } from "node:fs";
 import { execFileSync } from "node:child_process";
+import {createHash} from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import { emitDocCss } from "../dist/index.js";
+import {fontParity} from "./fonts.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const phpBin = resolve(here, "../../fancy-cms/bin/emit-css.php");
 const files = readdirSync(here).filter((f) => /^canonical.*\.json$/.test(f)).sort();
+// Frozen before structured fonts were introduced. Both twins changing together
+// must not silently alter an existing string-font document's stylesheet.
+const legacy=JSON.parse(readFileSync(resolve(here,"legacy-css-sha256.json"),"utf8"));
+for(const file of Object.keys(legacy))if(!files.includes(file))throw new Error(`Missing legacy fixture: ${file}`);
 
 let failed = 0;
 for (const file of files) {
   const docPath = resolve(here, file);
   const jsCss = emitDocCss(JSON.parse(readFileSync(docPath, "utf8")));
+  if(legacy[file]&&createHash("sha256").update(jsCss).digest("hex")!==legacy[file])throw new Error(`Legacy CSS bytes changed: ${file}`);
   // No shell: a fixture's filename must never be read as shell text.
   const phpCss = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, docPath], { encoding: "utf8" });
 
@@ -54,4 +61,5 @@ for (const file of files) {
 }
 
 console.log(`\n${files.length - failed} of ${files.length} canonical documents in parity.`);
+fontParity(phpBin);
 process.exit(failed ? 1 : 0);

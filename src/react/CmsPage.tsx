@@ -5,10 +5,11 @@ import { rootIds } from "../document/reduce";
 import { migrateDoc, type LegacyPageDoc } from "../document/migrate";
 import { emitDocCss } from "../render/css";
 import type { ImageAssetResolver } from "../render/images";
+import {prepareDocFonts,type FontRenderOptions} from "../render/fonts";
 import { renderNodes } from "./RenderNode";
 import { defaultRegistry, type DataContext, type ElementRegistry } from "./registry";
 
-export interface CmsPageProps {
+export interface CmsPageProps extends FontRenderOptions {
   doc: LegacyPageDoc | PageDoc;
   registry?: ElementRegistry;
   /** Data context that `{ $bind: "…" }` props + repeaters resolve against. */
@@ -28,6 +29,8 @@ export function CmsPage({
   data,
   icons,
   imageResolver,
+  fontResolver,
+  fontDisplay,
   includeStyles = true,
 }: CmsPageProps): ReactElement {
   // Renders a pre-`sections[]` document correctly rather than in whatever order
@@ -35,10 +38,12 @@ export function CmsPage({
   // an already-migrated document comes back by reference, so the memo costs a
   // migrated host nothing.
   const doc = useMemo(() => migrateDoc(input), [input]);
+  // Even a host supplying its own stylesheet must resolve structured fonts.
+  const css=includeStyles ? emitDocCss(doc,{fontResolver,fontDisplay}) : (prepareDocFonts(doc,{fontResolver,fontDisplay}), "");
 
   return (
     <Fragment>
-      {includeStyles ? <style data-cms-styles="">{emitDocCss(doc)}</style> : null}
+      {includeStyles ? <style data-cms-styles="">{css}</style> : null}
       {renderNodes({ doc, ids: rootIds(doc), registry, data, icons, imageResolver })}
     </Fragment>
   );

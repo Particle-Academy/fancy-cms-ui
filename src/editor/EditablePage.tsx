@@ -15,6 +15,7 @@ import { ContextMenu } from "@particle-academy/react-fancy";
 import type { Json, LayoutMode, NodeId, PageDoc, StyleProps } from "../document/types";
 import type { PageOp } from "../document/ops";
 import type { ImageAssetResolver } from "../render/images";
+import type {FontRenderOptions} from "../render/fonts";
 import { childrenOf, lastRootId } from "../document/reduce";
 import { fractionalKey as keyBetween } from "@particle-academy/fancy-doc-commons";
 import { ADD_DEFAULTS, ADD_MENU, CONTAINER_TYPES, buildInsertOp, type AddKind } from "./insert";
@@ -37,7 +38,7 @@ export interface NodeTransform {
   h?: number;
 }
 
-export interface EditablePageProps {
+export interface EditablePageProps extends FontRenderOptions {
   icons?: import("../document/icons").IconSet;
   doc: PageDoc;
   registry?: ElementRegistry;
@@ -88,6 +89,8 @@ export function EditablePage({
   data,
   icons,
   imageResolver,
+  fontResolver,
+  fontDisplay,
   timelineDock,
   transforms,
   onNodeTransform,
@@ -422,7 +425,7 @@ export function EditablePage({
       onDragLeave={editing ? () => setDropHint(null) : undefined}
       onDrop={editing ? onPageDrop : undefined}
     >
-      <CmsPage doc={ed.state.doc} registry={registry} data={data} icons={icons} imageResolver={imageResolver} />
+      <CmsPage doc={ed.state.doc} registry={registry} data={data} icons={icons} imageResolver={imageResolver} fontResolver={fontResolver} fontDisplay={fontDisplay} />
     </div>
   );
   const pageShell = pinned ? (

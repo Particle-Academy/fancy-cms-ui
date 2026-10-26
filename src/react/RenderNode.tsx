@@ -5,9 +5,10 @@ import { own } from "../document/own";
 import { decorationError } from "../document/decorative";
 import type { IconSet } from "../document/icons";
 import type { ImageAssetResolver } from "../render/images";
+import {prepareDocFonts,type FontRenderOptions} from "../render/fonts";
 import { anchorFor, defaultRegistry, elementFor, resolveValue, type DataContext, type ElementRegistry } from "./registry";
 
-export interface RenderNodeProps {
+export interface RenderNodeProps extends FontRenderOptions {
   doc: PageDoc;
   id: string;
   registry?: ElementRegistry;
@@ -31,11 +32,13 @@ export interface RenderNodeProps {
  */
 export function RenderNode(props: RenderNodeProps): ReactElement | null {
   if (!hasNodeMap(props.doc) || !own(props.doc.nodes, props.id)) return null;
+  prepareDocFonts(props.doc,props);
   return <ValidatedNode {...props} decorativeSafe={decorationError(props.doc.nodes) === null} />;
 }
 
 /** @internal One fresh validation per page render, shared across every root. */
 export function renderNodes({ ids, ...props }: Omit<RenderNodeProps, "id"> & { ids: readonly string[] }): ReactElement[] {
+  if (!hasNodeMap(props.doc)) return [];
   const decorativeSafe = decorationError(props.doc.nodes) === null;
   return ids.map((id) => <ValidatedNode key={id} {...props} id={id} decorativeSafe={decorativeSafe} />);
 }
