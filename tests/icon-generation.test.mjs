@@ -15,5 +15,8 @@ describe('closed catalogue provenance and drift', () => {
     // Simulate the installed provider moving while the checked-in bytes stay old.
     const movedSource = await createArtifacts({ lucideVersion: '0.512.0' });
     await expect(verifyArtifacts(movedSource)).rejects.toThrow('Icon artifact drift');
-  }, 30000);
+    // Four full verifications of 1,803 glyphs across both packages. 30s passed on
+    // Linux CI and timed out on Windows (30.02s measured), so the verdict depended
+    // on machine speed. The budget states the real cost instead of shrinking the check.
+  }, 120_000);
 });
