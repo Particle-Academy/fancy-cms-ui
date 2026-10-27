@@ -262,6 +262,12 @@ produce byte-identical output — verified by the parity harness.
 Fonts: see [host-resolved fonts](agent-guide/fonts.md) for structured font
 references, same-origin resolution and the opt-in Inter 4.1 bundle.
 
+Building and publishing pages: see the [webmaster guide](agent-guide/webmaster.md)
+for what the editor inspectors can and cannot edit, client-side image and font
+resolvers, strict-CSP rendering, accessibility and responsive checks, and
+pre-publish verification. The server side is covered by the matching guide in
+`particle-academy/fancy-cms`.
+
 - **Guest, not host** — adopted per-surface (route / region / slot).
 - **Human+ is opt-in** — core works single-user with no websockets or agents.
 - **Zero third-party runtime deps.**

@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-10-26
+
+**Nothing to do:** documentation only.
+
+### Added
+- A webmaster guide, `agent-guide/webmaster.md`, shipped in the tarball: the
+  authoring-side reference for building and publishing pages. It covers what
+  the editor inspectors can and cannot edit, the Add-menu placeholders to
+  replace, client-side image and font resolvers, strict-CSP rendering with
+  `includeStyles={false}`, accessibility and responsive checks, pre-publish
+  verification and current limitations. It pairs with the host guide in
+  `particle-academy/fancy-cms`.
+
 ## [0.13.0] - 2026-10-26
 
 **Nothing to do unless you opt in:** documents that keep string font tokens render byte-identically. To use a web font, pass a `fontResolver` that maps the reference to same-origin WOFF2 URLs you publish yourself; the renderer never fetches fonts or contacts Google.
