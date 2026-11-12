@@ -3,9 +3,8 @@
  */
 import { useInsertionEffect, type ReactElement } from "react";
 import type { PageDoc } from "../document/types";
-import { emitDocCss } from "../render/css";
 import type { FontRenderOptions } from "../render/fonts";
-import { styleKey } from "../render/style-tag";
+import { cmsStyleText, styleKey } from "../render/style-tag";
 
 /** One style element per document key, shared by every mounted page that renders it. */
 const owned = new Map<string, { el: HTMLStyleElement; css: string; users: number }>();
@@ -58,7 +57,11 @@ export function useCmsHeadStyles(key: string, css: string): void {
  *
  *   <Head>{cmsHeadStyle(page.doc)}</Head>
  *   <CmsPage doc={page.doc} includeStyles={false} />
+ *
+ * Its text is {@link cmsStyleText}, so it renders the same bytes as
+ * `cmsStyleTag(doc)`. A head API that wants the text alone takes
+ * `cmsStyleText(doc)` directly.
  */
 export function cmsHeadStyle(doc: PageDoc, options: FontRenderOptions = {}): ReactElement {
-  return <style data-cms-styles={styleKey(doc)}>{emitDocCss(doc, options)}</style>;
+  return <style data-cms-styles={styleKey(doc)}>{cmsStyleText(doc, options)}</style>;
 }

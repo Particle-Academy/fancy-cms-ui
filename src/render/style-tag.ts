@@ -13,7 +13,13 @@
  *
  *   - server: `cmsStyleTag(doc)` is the `<style>` element as HTML, for a head
  *     template; `PageRenderer::styleTag($doc, $css)` writes the same bytes.
- *     Under Inertia, put `cmsHeadStyle(doc)` (./react) in `<Head>`.
+ *     Under Inertia, put `cmsHeadStyle(doc)` (./react) in `<Head>`. For any
+ *     other head API, `cmsStyleText(doc)` is the element's text alone.
+ *
+ * Only these document-shaped functions are public. The builder that turns an
+ * arbitrary CSS string into a `<style>` element, {@link styleTagHtml}, is
+ * module-internal: a host never needs to hand it CSS that did not come from
+ * the emitter, so the package does not offer to.
  *   - browser: `CmsPage` keeps one `<style data-cms-styles="<doc id>">` per
  *     document in `document.head`, reusing an identical one the server put there.
  */
@@ -39,35 +45,46 @@ function escapeAttr(v: string): string {
  * element and no `<!--` survives. The escape means `<` in a string, an
  * identifier, an unquoted `url()` or a comment, so the CSS still says what it
  * said there. Any other `<` (a media range such as `width < 600px`) is left
- * alone: it cannot end the element. Linear; mirrored by `PageRenderer::styleText`.
+ * alone: it cannot end the element. Mirrored by `PageRenderer::styleText`.
+ *
+ * Written as one global replace of a bare `<` (the decision about the next
+ * character is in the callback) rather than a loop or a lookahead: that is the
+ * shape static analysis recognises as an HTML metacharacter escape (CodeQL's
+ * `MetacharEscapeSanitizer` needs the pattern's root to match `<` itself), and
+ * it is linear, since a one-character pattern cannot backtrack.
  */
 export function styleText(css: string): string {
-  let out = "";
-  let from = 0;
-  for (let i = css.indexOf("<"); i !== -1; i = css.indexOf("<", i + 1)) {
-    const next = css.charCodeAt(i + 1);
-    if (next === 47 /* / */ || next === 33 /* ! */) {
-      out += css.slice(from, i) + "\\3C ";
-      from = i + 1;
-    }
-  }
-  return from === 0 ? css : out + css.slice(from);
+  return css.replace(/</g, (lt: string, at: number) => {
+    const next = css.charCodeAt(at + 1);
+    return next === 47 /* / */ || next === 33 /* ! */ ? "\\3C " : lt;
+  });
 }
 
 /**
- * A style element as HTML, for a document's precompiled CSS. Byte-identical to
- * `PageRenderer::styleTag`. Safe for any `css`: it goes through {@link styleText},
- * so a caller's CSS cannot close the element.
+ * A style element as HTML. Byte-identical to `PageRenderer::styleTag`, which
+ * the shared fixtures hold it to. MODULE-INTERNAL: not exported from the
+ * package index or any subpath, so no host can hand it arbitrary CSS. It goes
+ * through {@link styleText} all the same.
  */
 export function styleTagHtml(key: string, css: string): string {
   return `<style data-cms-styles="${escapeAttr(key)}">${styleText(css)}</style>`;
 }
 
 /**
+ * The text of the document's `<style>` element: the emitted CSS made safe as
+ * raw element text by {@link styleText}. For a host that renders the element
+ * with its own head API, for example Inertia's `<Head><style>`. Empty for an
+ * empty document.
+ */
+export function cmsStyleText(doc: PageDoc, options: FontRenderOptions = {}): string {
+  return styleText(emitDocCss(doc, options));
+}
+
+/**
  * The document's `<style>` element as HTML, for the host's `<head>`. Empty for
  * an empty document. The emitter already rejects or hex-escapes every `<` an
  * author or agent wrote (`cssString`, `safeCssValue`, the font validators), and
- * {@link styleTagHtml} neutralises `</` and `<!` again, so the CSS cannot close
+ * {@link styleText} neutralises `</` and `<!` again, so the CSS cannot close
  * the element even if one of those gates regresses.
  */
 export function cmsStyleTag(doc: PageDoc, options: FontRenderOptions = {}): string {

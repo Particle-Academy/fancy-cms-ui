@@ -230,7 +230,9 @@ deterministic CSS emitter and kept in `document.head` as a
 page's own markup (a `<style>` inside the host's `<div>` is invalid HTML). A
 server-rendering host puts the same element in its head: `<Head>{cmsHeadStyle(doc)}</Head>`
 under Inertia (with `includeStyles={false}`), `cmsStyleTag(doc)` in any other
-head template, or `PageRenderer::styleTag($doc, $css)` from PHP; the browser
+head template, `cmsStyleText(doc)` (the element's text alone, safe as raw
+`<style>` text) for a head API that writes the element itself, or
+`PageRenderer::styleTag($doc, $css)` from PHP; the browser
 reuses it rather than adding a second. Editor chrome is self-contained inline
 styles. `EditablePage`'s context menu comes from `@particle-academy/react-fancy`,
 whose Tailwind classes your app's Tailwind build compiles as usual.

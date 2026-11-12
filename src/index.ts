@@ -57,8 +57,10 @@ export {
   type InputValue,
   type InputValues,
 } from "./render/inputs";
-// The stylesheet's place is the host's <head> (lab finding K20).
-export { cmsStyleTag, styleTagHtml, styleKey } from "./render/style-tag";
+// The stylesheet's place is the host's <head> (lab finding K20). Only the
+// document-shaped functions are public: the raw-CSS `styleTagHtml` builder is
+// module-internal (tests/public-exports.test.ts holds this).
+export { cmsStyleTag, cmsStyleText, styleKey } from "./render/style-tag";
 
 // ── The React renderer (shared by the editor and published islands) ─────────
 export * from "./react";

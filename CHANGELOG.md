@@ -62,8 +62,10 @@ now also as `PageRenderer::styleTag($doc, $css)`.
   inputs each query reads. `loadData` receives these queries. fancy-cms never
   interprets a scope: the host applies it against the viewer. Shared spec
   `tests/fixtures/data-queries.json`, identical to `DataRequests::queries()`.
-- `cmsStyleTag(doc)`, `styleTagHtml(key, css)` and `cmsHeadStyle(doc)` (`./react`)
-  for the host's head; `useCmsHeadStyles(key, css)` is the browser half.
+- `cmsStyleTag(doc)` (the `<style>` element as HTML), `cmsStyleText(doc)` (its
+  text alone, for a host's own head API such as Inertia's `<Head><style>`) and
+  `cmsHeadStyle(doc)` (`./react`) for the host's head; `useCmsHeadStyles(key, css)`
+  is the browser half. All three head functions take the document, never raw CSS.
 - **Infographic node kit**: `chart` (column, bar, line, pie, funnel), `kpi`
   (value, label, delta, trend; number / currency / percent), `table` (typed
   columns, sort, totals row) and `leaderboard` (ranked rows, ties share a
@@ -148,12 +150,21 @@ now also as `PageRenderer::styleTag($doc, $css)`.
 
 ### Security
 
-- **`styleTagHtml(key, css)` can no longer be closed early by its `css`**
-  (CodeQL `js/html-constructed-from-input`). It is exported, so a host can pass
-  CSS that did not come from the emitter, and it wrote that CSS raw into
-  `<style>…</style>`: a `</style><script>` in it ended the element. Every `<`
-  that starts `</` or `<!` is now written as the CSS escape `\3C ` (new export
-  `styleText`), so no `</style` in any case and no `<!--` reaches the HTML,
+- **No public function builds a `<style>` element from caller-supplied CSS**
+  (CodeQL `js/html-constructed-from-input`, alert 3). `styleTagHtml(key, css)`,
+  which earlier 0.14.0 work exported, is module-internal and was never
+  published; `tests/public-exports.test.ts` fails if `.`, `./react` or
+  `./editor` exports it (or the bare `styleText`). The head functions take a
+  document: `cmsStyleTag(doc)`, `cmsStyleText(doc)` and `cmsHeadStyle(doc)`,
+  which now renders `cmsStyleText`, so it writes the same bytes as `cmsStyleTag`.
+  The CSS-text sanitiser is a single global replace of `<`, the shape CodeQL
+  recognises as an HTML metacharacter escape, with the same output as before.
+  Nothing to do as a consumer: nothing here was in a release.
+- **The `<style>` element can no longer be closed early by its CSS.** It was
+  written raw into `<style>…</style>`: a `</style><script>` in it ended the
+  element. Every `<`
+  that starts `</` or `<!` is now written as the CSS escape `\3C `
+  (`styleText`, internal), so no `</style` in any case and no `<!--` reaches the HTML,
   and the CSS still means the same thing in a string, identifier, `url()` or
   comment. CSS from `emitDocCss` is unchanged byte for byte: the emitter already
   hex-escapes `<` in ids and drops any free-form value containing one.

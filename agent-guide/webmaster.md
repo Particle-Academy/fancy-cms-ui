@@ -204,16 +204,19 @@ const imageResolver: ImageAssetResolver = (handle) => catalogue[handle] ?? null;
 - **`CmsPage`/`CmsRegion` keep `<style data-cms-styles="<doc id>">` in
   `document.head` (never in the page markup), with no `nonce` prop.** A
   server-rendering host puts the same element in its head with `cmsStyleTag(doc)`
-  or, under Inertia, `<Head>{cmsHeadStyle(doc)}</Head>`. For a strict `style-src`, render with `includeStyles={false}` and
-  deliver the same CSS yourself, in a nonce'd `<style>` or a same-origin file.
-  The host chooses which:
+  or, under Inertia, `<Head>{cmsHeadStyle(doc)}</Head>`. A head API of any other
+  kind takes `cmsStyleText(doc)`: the element's text alone, already safe as raw
+  `<style>` text. The package has no function that wraps arbitrary CSS in a
+  `<style>`; the head functions take the document. For a strict `style-src`,
+  render with `includeStyles={false}` and deliver the same CSS yourself, in a
+  nonce'd `<style>` or a same-origin file. The host chooses which:
 
 ```tsx
-import { emitDocCss } from "@particle-academy/fancy-cms-ui";
+import { cmsStyleText } from "@particle-academy/fancy-cms-ui";
 import { CmsPage } from "@particle-academy/fancy-cms-ui/react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-const css = emitDocCss(doc, { fontResolver, fontDisplay: "swap" });
+const css = cmsStyleText(doc, { fontResolver, fontDisplay: "swap" });
 const body = renderToStaticMarkup(
   <CmsPage doc={doc} includeStyles={false} imageResolver={imageResolver} icons={icons} fontResolver={fontResolver} fontDisplay="swap" />,
 );
