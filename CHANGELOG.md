@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-11-12
+
 **BREAKING only if your documents already use a node type named `chart`,
 `kpi`, `table` or `leaderboard`** for something of your own: those names are
 now built-in node types. Rename yours (a namespaced island such as `kit:Chart`
@@ -62,21 +64,6 @@ now also as `PageRenderer::styleTag($doc, $css)`.
   `tests/fixtures/data-queries.json`, identical to `DataRequests::queries()`.
 - `cmsStyleTag(doc)`, `styleTagHtml(key, css)` and `cmsHeadStyle(doc)` (`./react`)
   for the host's head; `useCmsHeadStyles(key, css)` is the browser half.
-
-### Fixed
-
-- **A page with a chart scrolled sideways on a phone.** The chart's visually
-  hidden data table took `width: 100%` from the chart table rule, which came
-  after the screen-reader rule at the same (`:where`) specificity, so from its
-  absolute position it spanned the viewport (measured on the lab's
-  `report-dashboard-kit-v1` at 375 px: page width 394). It is 1px wide again.
-  Unreleased phase-1 code; same fix in `particle-academy/fancy-cms`.
-
-### Changed
-
-- `INPUT_NAME_PATTERN` is `^[a-z][a-z0-9-]{0,47}$`, the grammar Charlotte checks
-  `$input` references against, so every reference it accepts names a valid input.
-
 - **Infographic node kit**: `chart` (column, bar, line, pie, funnel), `kpi`
   (value, label, delta, trend; number / currency / percent), `table` (typed
   columns, sort, totals row) and `leaderboard` (ranked rows, ties share a
@@ -127,9 +114,17 @@ now also as `PageRenderer::styleTag($doc, $css)`.
   `lab-certificate` job that every publishing job needs: a tag is published only
   when the fancy-labs lab has certified that exact version and commit. Consumers
   do nothing; this changes how releases are cut, not what the package does.
+- `INPUT_NAME_PATTERN` is `^[a-z][a-z0-9-]{0,47}$`, the grammar Charlotte checks
+  `$input` references against, so every reference it accepts names a valid input.
 
 ### Fixed
 
+- **A page with a chart scrolled sideways on a phone.** The chart's visually
+  hidden data table took `width: 100%` from the chart table rule, which came
+  after the screen-reader rule at the same (`:where`) specificity, so from its
+  absolute position it spanned the viewport (measured on the lab's
+  `report-dashboard-kit-v1` at 375 px: page width 394). It is 1px wide again.
+  Unreleased phase-1 code; same fix in `particle-academy/fancy-cms`.
 - A binding path no longer reads through the prototype chain or an array's
   `length` (`{ $bind: "x.constructor" }` resolved to a function, and
   `list.length` to a number, where the PHP renderer read nothing). Paths now
