@@ -152,6 +152,15 @@ now also as `PageRenderer::styleTag($doc, $css)`.
   digits: 5.6 s and 6.7 s). Both are loops now; output is unchanged. A finite
   number has at most about 330 digits, so a rendered page was never slow, but
   the helpers no longer depend on that bound.
+- **Font `unicodeRange` parts are trimmed with a loop** (new internal
+  `trimCssWhitespace`), not `/^[ \t\r\n\f]+|[ \t\r\n\f]+$/g`, whose unanchored
+  tail is quadratic in a whitespace run (1M characters: 546 s). Same output;
+  the input comes from the host's font resolver and is capped at 8192
+  characters, so the exposure was small. PHP already used `trim()`.
+- The href trim's PHP twin, `JsValue::trim` in `particle-academy/fancy-cms`,
+  was a quadratic regex and is now a loop; this side uses the native
+  `String.prototype.trim`, which was always linear. A new test pins the two to
+  the same 25 code points.
 
 ## [0.13.1] - 2026-10-26
 

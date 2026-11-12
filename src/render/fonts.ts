@@ -67,6 +67,24 @@ function normalizeReference(value: unknown): Readonly<ResolvedFontReference> {
   return Object.freeze({family,source,weights:Object.freeze(ws.sort((a,b)=>a-b)),styles:Object.freeze(ss.sort())});
 }
 
+const CSS_WHITESPACE = new Set([0x20, 0x09, 0x0d, 0x0a, 0x0c]);
+
+/**
+ * `value` without leading or trailing CSS whitespace (space, tab, CR, LF, FF),
+ * as PHP's `trim($part, " \t\r\n\f")` in FontAssets. A loop, not the
+ * `^[…]+|[…]+$` regex this used to be: the unanchored `[…]+$` retries from every
+ * character of a whitespace run, which is quadratic in its length.
+ *
+ * @internal exported for the linear-time test only.
+ */
+export function trimCssWhitespace(value: string): string {
+  let start = 0;
+  let end = value.length;
+  while (start < end && CSS_WHITESPACE.has(value.charCodeAt(start))) start++;
+  while (end > start && CSS_WHITESPACE.has(value.charCodeAt(end - 1))) end--;
+  return value.slice(start, end);
+}
+
 /** Canonical CSS unicode ranges, with scalar and range bounds checked numerically. */
 function unicodeRange(value: unknown): string | undefined {
   if (value === undefined) return undefined;
@@ -74,7 +92,7 @@ function unicodeRange(value: unknown): string | undefined {
   const ranges=value.split(",");
   if (ranges.length > 256) return fail("invalid-asset");
   return ranges.map(part=>{
-    const range=part.replace(/^[ \t\r\n\f]+|[ \t\r\n\f]+$/g,"").toUpperCase();
+    const range=trimCssWhitespace(part).toUpperCase();
     if (!/^U\+(?:[0-9A-F]{1,6}(?:-[0-9A-F]{1,6})?|[0-9A-F]{0,5}\?{1,6})$/.test(range)) return fail("invalid-asset");
     const [left,right]=range.slice(2).split("-");
     if (left!.length > 6) return fail("invalid-asset");
