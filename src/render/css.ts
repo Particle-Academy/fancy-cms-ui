@@ -57,6 +57,11 @@ export const BASE_CSS = [
   "/* fancy-cms base */",
   ":where([data-cms]) {\n  box-sizing: border-box;\n}",
   ":where(h1, h2, h3, h4, h5, h6, p, ul, ol)[data-cms] {\n  margin: 0;\n}",
+  // S11: an unbroken token (a URL, an email, hostile input) must not widen the
+  // page. `anywhere`, not `break-word`: only `anywhere` lowers min-content, which
+  // grid tracks and a flex item's automatic minimum are sized from. Text that
+  // fits is laid out exactly as before. Buttons keep their labels whole.
+  ":where(h1, h2, h3, h4, h5, h6, p, ul, ol, a:not([data-cms-button]), span, [data-cms-callout])[data-cms] {\n  overflow-wrap: anywhere;\n}",
   ":where(ul, ol)[data-cms] {\n  padding-left: 1.25em;\n}",
   ":where(a[data-cms]) {\n  color: inherit;\n}",
   ":where([data-react-fancy-icon]) {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  flex-shrink: 0;\n  width: 1em;\n  height: 1em;\n  vertical-align: middle;\n}",
@@ -154,6 +159,7 @@ const OVERFLOW = new Set(["visible", "hidden", "auto"]);
 const TEXT_TRANSFORM = new Set(["none", "uppercase", "lowercase", "capitalize"]);
 const BACKGROUND_SIZE = new Set(["cover", "contain", "auto"]);
 const TEXT_ALIGN = new Set(["left", "center", "right", "justify"]);
+const OVERFLOW_WRAP = new Set(["normal", "break-word", "anywhere"]);
 const DIRECTIONS = new Set(["row", "column"]);
 
 /** An allowlisted keyword, or null. Keys are looked up as own properties only. */
@@ -210,6 +216,8 @@ function styleDecls(style: Partial<StyleProps>): Record<string, string> {
   putLen(d, ["letter-spacing"], style.letterSpacing);
   const textTransform = inSet(TEXT_TRANSFORM, style.textTransform);
   if (textTransform) d["text-transform"] = textTransform;
+  const overflowWrap = inSet(OVERFLOW_WRAP, style.overflowWrap);
+  if (overflowWrap) d["overflow-wrap"] = overflowWrap;
   put(d, "border", typeof style.border === "string" ? style.border : undefined);
   put(d, "box-shadow", typeof style.boxShadow === "string" ? style.boxShadow : undefined);
   put(d, "transform", typeof style.transform === "string" ? style.transform : undefined);

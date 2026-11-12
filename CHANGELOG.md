@@ -125,6 +125,20 @@ now also as `PageRenderer::styleTag($doc, $css)`.
   absolute position it spanned the viewport (measured on the lab's
   `report-dashboard-kit-v1` at 375 px: page width 394). It is 1px wide again.
   Unreleased phase-1 code; same fix in `particle-academy/fancy-cms`.
+- **A long unbroken token scrolled the page sideways on a phone** (lab finding
+  S11: hostile-facts measured 380 px wide at 375 px). The base stylesheet gives
+  text-bearing nodes (headings, text, lists, links, callouts) `overflow-wrap:
+  anywhere`. `anywhere`, not `break-word`, because only `anywhere` lowers a
+  node's min-content width, which grid tracks and a flex item's automatic
+  minimum are sized from; with `break-word` a URL in a grid cell still widened
+  the page. Text that fits lays out exactly as before. Buttons keep their labels
+  whole. A new `StyleProps.overflowWrap` (`normal` | `break-word` | `anywhere`)
+  lets a document opt a node out or choose differently per breakpoint; any other
+  value emits nothing. Every page's stylesheet gains this one rule, so the
+  frozen CSS hashes in `parity/legacy-css-sha256.json` were re-pinned (each old
+  document's CSS without the rule still hashes to its old value). Byte-identical
+  to `particle-academy/fancy-cms` (shared `tests/fixtures/text-wrap.json`).
+  Consumers do nothing.
 - A binding path no longer reads through the prototype chain or an array's
   `length` (`{ $bind: "x.constructor" }` resolved to a function, and
   `list.length` to a number, where the PHP renderer read nothing). Paths now

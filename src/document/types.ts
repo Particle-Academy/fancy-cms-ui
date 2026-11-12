@@ -103,6 +103,12 @@ export interface StyleProps {
   textAlign?: "left" | "center" | "right" | "justify";
   letterSpacing?: Length;
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
+  /**
+   * Where a long unbroken token may break. Text nodes default to `anywhere`
+   * (from the base stylesheet), so a URL cannot widen the page; `normal` opts
+   * a node out, `break-word` breaks without lowering its min-content width.
+   */
+  overflowWrap?: "normal" | "break-word" | "anywhere";
   // border / shadow / effects (static)
   border?: string;
   boxShadow?: string;

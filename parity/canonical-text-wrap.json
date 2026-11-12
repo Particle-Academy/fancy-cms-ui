@@ -1,0 +1,32 @@
+{
+  "id": "canonical-text-wrap",
+  "seq": 1,
+  "meta": { "title": "Long tokens (S11)", "slug": "/parity-text-wrap", "scrollMode": "smooth" },
+  "theme": { "name": "default" },
+  "breakpoints": ["base", "md", "lg"],
+  "nodes": {
+    "s": {
+      "id": "s", "type": "section", "parent": null, "order": "a0",
+      "props": {}, "style": { "base": { "paddingX": { "value": 20, "unit": "px" } } }
+    },
+    "g": {
+      "id": "g", "type": "grid", "parent": "s", "order": "a0", "layout": "grid",
+      "props": {}, "style": { "base": { "columns": 1 }, "md": { "columns": 2 } }
+    },
+    "t": {
+      "id": "t", "type": "text", "parent": "g", "order": "a0",
+      "props": { "content": "<script>window.__pwned=1</script>Buttons since 1999" },
+      "style": { "base": { "fontSize": { "value": 18, "unit": "px" } } }
+    },
+    "keep": {
+      "id": "keep", "type": "heading", "parent": "g", "order": "a1",
+      "props": { "content": "Kept whole", "level": 2 },
+      "style": { "base": { "overflowWrap": "normal" }, "md": { "overflowWrap": "break-word" }, "lg": { "overflowWrap": "anywhere" } }
+    },
+    "bad": {
+      "id": "bad", "type": "text", "parent": "g", "order": "a2",
+      "props": { "content": "refused values" },
+      "style": { "base": { "overflowWrap": "break-all" }, "md": { "overflowWrap": "normal;} body{display:none" }, "lg": { "overflowWrap": 7 } }
+    }
+  }
+}
