@@ -257,6 +257,50 @@ which is what makes undo, revisions, collaboration, and agent edits all flow
 through one spine. The CSS emitter is **deterministic** so the PHP emitter can
 produce byte-identical output — verified by the parity harness.
 
+## Infographics and islands
+
+Four built-in node types draw from the host's data context. The page carries
+the shape and binds the numbers; the host passes `data`:
+
+```tsx
+const doc = { ...page, nodes: { ...page.nodes,
+  rev: { id: "rev", type: "kpi", parent: "s1", order: "a", style: { base: {} },
+         props: { label: "Revenue", value: { $bind: "metrics.revenue" }, delta: { $bind: "metrics.change" }, format: "currency" } },
+  signups: { id: "signups", type: "chart", parent: "s1", order: "b", style: { base: {} },
+         props: { kind: "line", title: "Signups", categories: { $bind: "signups.months" }, series: { $bind: "signups.series" } } },
+} };
+<CmsPage doc={doc} data={{ metrics: { revenue: 12345.6, change: 0.12 }, signups: { months: ["Jan", "Feb"], series: [{ name: "Free", data: [120, 150] }] } }} />
+```
+
+- `chart`: column, bar, line, pie, funnel. The server renders an accessible
+  data table; the canvas (`@particle-academy/fancy-echarts`, an optional peer:
+  install it if you place charts) loads when the chart nears the viewport.
+- `kpi`: value, label, delta and trend, formatted as number, currency or percent.
+- `table`: typed columns, `sort`, and a `totals` row.
+- `leaderboard`: ranked rows; ties share a rank.
+
+Missing or malformed data renders an empty state. `dataRequests(doc)` lists
+every bound path a page reads, with the shape each prop expects.
+
+**Your own islands** go in the same registry, each with a JSON Schema for its
+props, so an agent can discover and place them:
+
+```tsx
+import { defaultIslands, defineIsland, registerIslands, islandCatalogue } from "@particle-academy/fancy-cms-ui/react";
+
+const islands = registerIslands(defaultIslands, {
+  "kit:Tabs": defineIsland({ description: "Tabbed panels", props: tabsSchema, example: { tabs: [] }, component: KitTabs }),
+  "kit:Map": defineIsland({ description: "A map", props: mapSchema, load: () => import("./KitMap") }),
+});
+<CmsPage doc={doc} data={data} islands={islands} />;
+// Hand the same catalogue to the server, where cms_describe returns it:
+writeFileSync("islands.json", JSON.stringify(islandCatalogue(islands)));
+```
+
+`component` renders on the server and hydrates; `load` is fetched in the
+browser only, with an optional `fallback` for the server render. An island
+that fails to load or throws is contained; the page keeps rendering.
+
 ## Principles
 
 Fonts: see [host-resolved fonts](agent-guide/fonts.md) for structured font

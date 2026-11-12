@@ -3,6 +3,9 @@ import { isBinding, type Bound, type Json, type Node, type PageDoc } from "../do
 import { validIconProps, type IconSet } from "../document/icons";
 import { NativeIcon } from "./NativeIcon";
 import { resolveImageAsset, type ImageAssetResolver } from "../render/images";
+import type { IslandRegistry } from "./islands";
+import { renderChart, renderKpi, renderLeaderboard, renderTable } from "./infographics";
+import { chartKind, chartSize, tableLabel } from "../render/infographics";
 
 /** The page data context bindings resolve against (e.g. server props, repeater `item`). */
 export type DataContext = Record<string, unknown>;
@@ -17,6 +20,8 @@ export interface ElementContext {
   /** Closed glyph data preloaded by the host, shared with SSR. */
   icons?: IconSet;
   imageResolver?: ImageAssetResolver;
+  /** The island registry the page renders with (built-ins plus the host's). */
+  islands?: IslandRegistry;
   /** Resolve a (possibly bound) value to its raw resolved value. */
   resolve: (v: Bound<Json> | undefined) => unknown;
   /** Resolve a (possibly bound) value to a display string. */
@@ -31,9 +36,21 @@ export type ElementRenderer = (ctx: ElementContext) => ReactNode;
 
 export type ElementRegistry = Record<string, ElementRenderer>;
 
-/** Read a dotted path (`a.b.c`) out of the data context. */
+const hasOwnKey = Object.prototype.hasOwnProperty;
+const INDEX = /^(0|[1-9][0-9]*)$/;
+
+/**
+ * Read a dotted path (`a.b.c`) out of the data context. Only what the context
+ * actually holds: own properties of objects and index positions of arrays —
+ * never `constructor`, `__proto__` or an array's `length`, which a path from a
+ * document must not reach and which the PHP renderer cannot see either.
+ */
 export function getPath(data: DataContext | undefined, path: string): unknown {
-  return path.split(".").reduce<unknown>((o, k) => (o == null ? undefined : (o as Record<string, unknown>)[k]), data);
+  return path.split(".").reduce<unknown>((o, k) => {
+    if (o === null || typeof o !== "object") return undefined;
+    if (Array.isArray(o)) return INDEX.test(k) ? o[Number(k)] : undefined;
+    return hasOwnKey.call(o, k) ? (o as Record<string, unknown>)[k] : undefined;
+  }, data);
 }
 
 /** Resolve a value: a `{ $bind }` reads from the data context; anything else is literal. */
@@ -120,6 +137,19 @@ export function elementFor(node: Node, text: (v: Bound<Json> | undefined) => str
       const variant = text(node.props.variant);
       return { tag: "div", attrs: { "data-cms-callout": CALLOUT_VARIANTS.has(variant) ? variant : "info" } };
     }
+    // The infographic kit (render/infographics.ts). Kind and size are literal
+    // document shape; a table is a focusable, labelled region because it may
+    // scroll sideways on a narrow screen.
+    case "chart": {
+      const props = { kind: text(node.props.kind), size: text(node.props.size) };
+      return { tag: "figure", attrs: { "data-cms-chart": chartKind(props), "data-cms-chart-size": chartSize(props) } };
+    }
+    case "kpi":
+      return { tag: "div", attrs: { "data-cms-kpi": "" } };
+    case "table":
+      return { tag: "div", attrs: { "data-cms-table": "", role: "region", tabIndex: "0", "aria-label": tableLabel({ caption: text(node.props.caption) }) } };
+    case "leaderboard":
+      return { tag: "div", attrs: { "data-cms-leaderboard": "" } };
     default:
       return { tag: CONTAINERS.has(node.type) && LANDMARKS.has(as) ? as : "div" };
   }
@@ -155,6 +185,10 @@ export const defaultRegistry: ElementRegistry = {
     </pre>
   ),
   button: ({ node, text }) => text(node.props.label) || text(node.props.content) || "Button",
+  chart: renderChart,
+  kpi: renderKpi,
+  table: renderTable,
+  leaderboard: renderLeaderboard,
   image: ({ node, text, imageResolver }) => {
     const fit = text(node.props.fit);
     const resolved = Object.prototype.hasOwnProperty.call(node.props, "asset");

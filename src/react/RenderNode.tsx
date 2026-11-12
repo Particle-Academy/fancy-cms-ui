@@ -7,6 +7,7 @@ import type { IconSet } from "../document/icons";
 import type { ImageAssetResolver } from "../render/images";
 import {prepareDocFonts,type FontRenderOptions} from "../render/fonts";
 import { anchorFor, defaultRegistry, elementFor, resolveValue, type DataContext, type ElementRegistry } from "./registry";
+import { isIslandNode, pageIslands, renderIsland, type IslandRegistry } from "./islands";
 
 export interface RenderNodeProps extends FontRenderOptions {
   doc: PageDoc;
@@ -18,6 +19,8 @@ export interface RenderNodeProps extends FontRenderOptions {
   icons?: IconSet;
   /** Closed host asset lookup, identical for SSR, hydration and editor preview. */
   imageResolver?: ImageAssetResolver;
+  /** Island registry: the built-ins plus the host's (`registerIslands`). Default: the built-ins. */
+  islands?: IslandRegistry;
 }
 
 /**
@@ -33,17 +36,18 @@ export interface RenderNodeProps extends FontRenderOptions {
 export function RenderNode(props: RenderNodeProps): ReactElement | null {
   if (!hasNodeMap(props.doc) || !own(props.doc.nodes, props.id)) return null;
   prepareDocFonts(props.doc,props);
-  return <ValidatedNode {...props} decorativeSafe={decorationError(props.doc.nodes) === null} />;
+  return <ValidatedNode {...props} islands={pageIslands(props.islands)} decorativeSafe={decorationError(props.doc.nodes) === null} />;
 }
 
 /** @internal One fresh validation per page render, shared across every root. */
 export function renderNodes({ ids, ...props }: Omit<RenderNodeProps, "id"> & { ids: readonly string[] }): ReactElement[] {
   if (!hasNodeMap(props.doc)) return [];
   const decorativeSafe = decorationError(props.doc.nodes) === null;
-  return ids.map((id) => <ValidatedNode key={id} {...props} id={id} decorativeSafe={decorativeSafe} />);
+  const islands = pageIslands(props.islands);
+  return ids.map((id) => <ValidatedNode key={id} {...props} islands={islands} id={id} decorativeSafe={decorativeSafe} />);
 }
 
-function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, imageResolver, decorativeSafe }: RenderNodeProps & { decorativeSafe: boolean }): ReactElement | null {
+function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, imageResolver, islands, decorativeSafe }: RenderNodeProps & { decorativeSafe: boolean }): ReactElement | null {
   const stored = own(doc.nodes, id);
   if (!stored) return null;
   const node = withNodeDefaults(stored);
@@ -56,7 +60,7 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, image
       <div data-cms={node.id} className={node.className}>
         {template
           ? items.map((item, index) => (
-              <ValidatedNode key={index} doc={doc} id={template.id} registry={registry} data={{ ...data, item, index }} icons={icons} imageResolver={imageResolver} decorativeSafe={decorativeSafe} />
+              <ValidatedNode key={index} doc={doc} id={template.id} registry={registry} data={{ ...data, item, index }} icons={icons} imageResolver={imageResolver} islands={islands} decorativeSafe={decorativeSafe} />
             ))
           : null}
       </div>
@@ -64,7 +68,7 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, image
   }
 
   const kids = childrenOf(doc, id).map((child) => (
-    <ValidatedNode key={child.id} doc={doc} id={child.id} registry={registry} data={data} icons={icons} imageResolver={imageResolver} decorativeSafe={decorativeSafe} />
+    <ValidatedNode key={child.id} doc={doc} id={child.id} registry={registry} data={data} icons={icons} imageResolver={imageResolver} islands={islands} decorativeSafe={decorativeSafe} />
   ));
 
   const resolve = (v: Bound<Json> | undefined) => resolveValue(v, data);
@@ -73,8 +77,13 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, image
     return r === undefined || r === null ? "" : String(r);
   };
 
-  const renderer = registry[node.type];
-  const inner = renderer ? renderer({ node, doc, children: kids, data, icons, imageResolver, resolve, text }) : node.island ? null : kids;
+  // An element renderer wins; then a registered island's component or loader;
+  // then an island with neither is the empty placeholder a host hydrates.
+  const renderer = own(registry, node.type);
+  const island = islands ? own(islands, node.type) : undefined;
+  const isIsland = isIslandNode(node, islands);
+  const ctx = { node, doc, children: kids, data, icons, imageResolver, islands, resolve, text };
+  const inner = renderer ? renderer(ctx) : island && (island.component || island.load) ? renderIsland(island, ctx) : isIsland ? null : kids;
 
   // The [data-cms] element is the semantic element itself (h1-h6, p, a, ul,
   // section, nav ...), so the node's emitted CSS styles the real element.
@@ -84,7 +93,7 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, image
     tag,
     {
       "data-cms": node.id,
-      "data-cms-island": node.island ? node.type : undefined,
+      "data-cms-island": isIsland ? node.type : undefined,
       className: node.className,
       ...(anchor ? { id: anchor } : {}),
       ...attrs,

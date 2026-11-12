@@ -28,6 +28,11 @@ export * from "./document/migrate";
 // imports of `keyBetween` from this package keep working.
 export { fractionalKey as keyBetween, fractionalKey } from "@particle-academy/fancy-doc-commons";
 export { emitDocCss } from "./render/css";
+// The infographic kit, the island catalogue, and the data-request seam.
+export { INFOGRAPHIC_TYPES, isInfographicType, EMPTY_TEXT, type InfographicType } from "./render/infographics";
+export { formatNumber, formatSpec, signedNumber, toNumber, type NumberFormatKind, type NumberFormatSpec } from "./render/number-format";
+export { BUILTIN_ISLAND_CATALOGUE, ISLAND_TYPE_PATTERN, islandCatalogue, type IslandCatalogueJson, type IslandDescriptor, type IslandHydration, type JsonSchema } from "./islands/catalogue";
+export { dataRequests, expectedShape, type DataRequest } from "./document/data";
 
 // ── The React renderer (shared by the editor and published islands) ─────────
 export * from "./react";

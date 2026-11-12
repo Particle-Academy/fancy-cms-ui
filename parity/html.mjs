@@ -71,6 +71,38 @@ for (const { file, docPath } of cases) {
   console.log(`  PHP: ${JSON.stringify(phpHtml.slice(Math.max(0, i - 60), i + 80))}`);
 }
 
+// The infographic spec WITH its data contexts: the canonical documents above
+// render against no data, so bound values would only ever exercise the empty
+// state. Each fixture case goes through both engines with its own data.
+const spec = JSON.parse(readFileSync(resolve(here, "../tests/fixtures/infographics.json"), "utf8"));
+const caseDoc = resolve(scratch, "case-doc.json");
+const caseData = resolve(scratch, "case-data.json");
+let dataFailed = 0;
+for (const c of spec.cases) {
+  const doc = { ...emptyDoc("infographic-case"), nodes: Object.fromEntries(c.nodes.map((n) => [n.id, n])) };
+  writeFileSync(caseDoc, JSON.stringify(doc));
+  writeFileSync(caseData, JSON.stringify(c.data));
+  const jsHtml = renderToStaticMarkup(createElement(CmsPage, { doc, data: c.data, includeStyles: false }));
+  let phpHtml;
+  try {
+    phpHtml = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, caseDoc, assetPath, caseData], { encoding: "utf8" });
+  } catch (e) {
+    dataFailed++;
+    console.log(`HTML PARITY FAIL  infographic "${c.name}": the PHP renderer could not run (${e.message.split("\n")[0]})`);
+    continue;
+  }
+  if (jsHtml === phpHtml && jsHtml === c.html) continue;
+  dataFailed++;
+  console.log(`HTML PARITY FAIL  infographic "${c.name}"`);
+  console.log(`  JS:   ${JSON.stringify(jsHtml)}`);
+  console.log(`  PHP:  ${JSON.stringify(phpHtml)}`);
+  console.log(`  SPEC: ${JSON.stringify(c.html)}`);
+}
+console.log(`${spec.cases.length - dataFailed} of ${spec.cases.length} infographic cases in HTML parity with their data.`);
+failed += dataFailed;
+unlinkSync(caseDoc);
+unlinkSync(caseData);
+
 unlinkSync(fullPath);
 rmdirSync(scratch);
 console.log(`\n${cases.length - failed} of ${cases.length} canonical documents in HTML parity.`);

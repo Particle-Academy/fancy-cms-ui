@@ -11,6 +11,20 @@ export type { ImageAssetResolver, ImageAsset, ImageVariant } from "../render/ima
 export {FontResolutionException} from "../render/fonts";
 export type {FontRef,FontReference,ResolvedFontReference,FontAsset,FontFaceAsset,FontAssetResolver,FontRenderOptions,FontResolutionReason,FontSource,FontStyle} from "../render/fonts";
 export {
+  defaultIslands,
+  defineIsland,
+  registerIslands,
+  NATIVE_NODE_TYPES,
+  type IslandComponent,
+  type IslandComponentProps,
+  type IslandDefinition,
+  type IslandInput,
+  type IslandLoader,
+  type IslandModule,
+  type IslandRegistry,
+} from "./islands";
+export { islandCatalogue, type IslandCatalogueJson, type IslandDescriptor, type IslandHydration, type JsonSchema } from "../islands/catalogue";
+export {
   defaultRegistry,
   getPath,
   resolveValue,

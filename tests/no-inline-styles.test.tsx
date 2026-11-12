@@ -8,14 +8,18 @@ import icons from "../icons/all.js";
 
 describe("CSP native renderer contract", () => {
   it("renders every native node type without generated inline styles", () => {
-    const types = ["section", "stack", "grid", "frame", "shape", "card", "text", "heading", "richtext", "link", "list", "divider", "callout", "code", "button", "image", "repeater", "icon"];
+    const types = ["section", "stack", "grid", "frame", "shape", "card", "text", "heading", "richtext", "link", "list", "divider", "callout", "code", "button", "image", "repeater", "icon", "chart", "kpi", "table", "leaderboard"];
     expect([...Object.keys(defaultRegistry), "repeater"].sort()).toEqual([...types].sort());
     const doc: PageDoc = emptyDoc("csp-native-types");
     for (const type of types) {
       const props: Node["props"] = type === "icon" ? { name: "receipt-text", decorative: true }
         : type === "richtext" ? { html: "<strong>Authored text without inline CSS</strong>" }
           : type === "image" ? { alt: "Empty image placeholder" }
-            : ["list", "repeater"].includes(type) ? { items: ["One", "Two"] } : { content: `Sample ${type}` };
+            : ["list", "repeater"].includes(type) ? { items: ["One", "Two"] }
+              : type === "chart" ? { title: "Sample chart", categories: ["A"], series: [1] }
+                : type === "kpi" ? { label: "Sample kpi", value: 1, delta: 0.1 }
+                  : type === "table" ? { columns: [{ key: "a" }], rows: [{ a: 1 }], totals: true }
+                    : type === "leaderboard" ? { rows: [{ name: "A", value: 1 }] } : { content: `Sample ${type}` };
       doc.nodes[type] = { id: type, type, parent: null, order: type, props, style: { base: { fontSize: { value: 24, unit: "px" }, color: "#125678" } } };
     }
     const html = renderToStaticMarkup(<CmsPage doc={doc} icons={icons} />);

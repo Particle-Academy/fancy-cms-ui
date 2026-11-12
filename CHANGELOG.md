@@ -14,12 +14,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**BREAKING only if your documents already use a node type named `chart`,
+`kpi`, `table` or `leaderboard`** for something of your own: those names are
+now built-in node types. Rename yours (a namespaced island such as `kit:Chart`
+is the intended shape) and nothing else changes. Everyone else: nothing to do;
+every new prop below is opt-in.
+
+### Added
+
+- **Infographic node kit**: `chart` (column, bar, line, pie, funnel), `kpi`
+  (value, label, delta, trend; number / currency / percent), `table` (typed
+  columns, sort, totals row) and `leaderboard` (ranked rows, ties share a
+  rank). The page carries the shape and `{ $bind }`s the numbers from the
+  host's data context, through the same resolver as every other prop, so a
+  repeater scope or a live `$source` works unchanged. Missing or malformed data
+  renders an empty state (`emptyText`), never an error. Server HTML is
+  byte-identical to `particle-academy/fancy-cms`; both suites render the shared
+  spec in `tests/fixtures/infographics.json`, and `parity/html.mjs` now also
+  runs every case with its data through both engines.
+- **The chart is a lazy island.** The server renders an accessible data table;
+  in the browser the chart canvas (`@particle-academy/fancy-echarts`) loads as
+  a separate chunk when a chart with data scrolls near the viewport, and the
+  table stays for assistive technology and print. A page with no chart, or a
+  chart with no data, never requests it. A failed load or a canvas that throws
+  leaves the table and the rest of the page standing.
+- **Island registry and catalogue.** `defineIsland` / `registerIslands` register
+  a host's component node types (`kit:Tabs`, …), each with a JSON Schema for
+  its props, an example, and `component` (server-rendered, hydrated) or `load`
+  (browser-only, lazy, with a `fallback`). `CmsPage`, `CmsRegion` and
+  `RenderNode` take `islands`; a registered type renders as an island without
+  the document setting `island: true`. `islandCatalogue(islands)` serialises
+  the catalogue for the server (`IslandCatalogue::merge()` in fancy-cms, which
+  `cms_describe` returns). The infographic kit is the built-in entries, in
+  `src/islands/catalogue.json`, shipped byte-identical in fancy-cms.
+- **`dataRequests(doc)`**: every bound path a page reads, with the literal JSON
+  Schema the catalogue declares for that prop. The seam where a host learns
+  what data to supply, and where page inputs and a host data catalogue attach
+  in later phases.
+- Number formatting that both renderers share (`formatNumber`, `formatSpec`,
+  `signedNumber`, `toNumber`): rounds half away from zero on decimal digits,
+  not binary floats, and does not depend on the runtime's ICU.
+- An infographic stylesheet block (light, dark via `.dark` /
+  `[data-theme="dark"]`, and print), emitted only by documents that place an
+  infographic node. Theme tokens: `--cms-color-positive`,
+  `--cms-color-negative`, `--cms-color-primary` (each with `-dark`), and
+  `--cms-chart-1` to `--cms-chart-6`.
+- `CmsRegion` takes `data`, so bindings inside a region resolve.
+- `@particle-academy/fancy-echarts` `>=6.3.0 <7.0.0` as an **optional** peer.
+  Install it only if your pages place charts.
+
 ### Changed
 
+- The CommonJS build is now code-split like the ESM build, so the chart
+  island's `require` of fancy-echarts sits in a lazily imported chunk. Chunk
+  file names under `dist/` changed; import paths did not.
 - **Releases need a lab-run certificate.** `publish.yml` gains a read-only
   `lab-certificate` job that every publishing job needs: a tag is published only
   when the fancy-labs lab has certified that exact version and commit. Consumers
   do nothing; this changes how releases are cut, not what the package does.
+
+### Fixed
+
+- A binding path no longer reads through the prototype chain or an array's
+  `length` (`{ $bind: "x.constructor" }` resolved to a function, and
+  `list.length` to a number, where the PHP renderer read nothing). Paths now
+  see only own properties and array indexes, as the PHP renderer always did.
+- A node type that matches an `Object.prototype` name no longer picks up a
+  "renderer" from the prototype.
 
 ## [0.13.1] - 2026-10-26
 

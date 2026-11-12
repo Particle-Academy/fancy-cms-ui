@@ -8,6 +8,7 @@ import type { ImageAssetResolver } from "../render/images";
 import {prepareDocFonts,type FontRenderOptions} from "../render/fonts";
 import { renderNodes } from "./RenderNode";
 import { defaultRegistry, type DataContext, type ElementRegistry } from "./registry";
+import type { IslandRegistry } from "./islands";
 
 export interface CmsPageProps extends FontRenderOptions {
   doc: LegacyPageDoc | PageDoc;
@@ -18,6 +19,8 @@ export interface CmsPageProps extends FontRenderOptions {
   icons?: IconSet;
   /** Host-owned immutable image metadata; documents only name asset handles. */
   imageResolver?: ImageAssetResolver;
+  /** Island registry: the built-ins plus the host's (`registerIslands`). Default: the built-ins. */
+  islands?: IslandRegistry;
   /** Inject the compiled stylesheet. Set false when the host emits CSS itself. */
   includeStyles?: boolean;
 }
@@ -29,6 +32,7 @@ export function CmsPage({
   data,
   icons,
   imageResolver,
+  islands,
   fontResolver,
   fontDisplay,
   includeStyles = true,
@@ -44,7 +48,7 @@ export function CmsPage({
   return (
     <Fragment>
       {includeStyles ? <style data-cms-styles="">{css}</style> : null}
-      {renderNodes({ doc, ids: rootIds(doc), registry, data, icons, imageResolver })}
+      {renderNodes({ doc, ids: rootIds(doc), registry, data, icons, imageResolver, islands })}
     </Fragment>
   );
 }

@@ -111,10 +111,14 @@
         "inertia"
     ],
     "peerDependencies": {
+        "@particle-academy/fancy-echarts": ">=6.3.0 <7.0.0",
         "@particle-academy/react-fancy": ">=3",
         "react": "^19.0.0"
     },
     "peerDependenciesMeta": {
+        "@particle-academy/fancy-echarts": {
+            "optional": true
+        },
         "@particle-academy/react-fancy": {
             "optional": true
         }

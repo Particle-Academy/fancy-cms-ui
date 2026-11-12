@@ -5,15 +5,20 @@ import type { ImageAssetResolver } from "../render/images";
 import { emitDocCss } from "../render/css";
 import { renderNodes } from "./RenderNode";
 import {prepareDocFonts,type FontRenderOptions} from "../render/fonts";
-import { defaultRegistry, type ElementRegistry } from "./registry";
+import { defaultRegistry, type DataContext, type ElementRegistry } from "./registry";
+import type { IslandRegistry } from "./islands";
 
 export interface CmsRegionProps extends FontRenderOptions {
   doc: PageDoc;
   /** Root node id of the region to render (a section, or any node). */
   root: string;
   registry?: ElementRegistry;
+  /** Data context that `{ $bind }` props resolve against, as on CmsPage. */
+  data?: DataContext;
   icons?: IconSet;
   imageResolver?: ImageAssetResolver;
+  /** Island registry: the built-ins plus the host's (`registerIslands`). Default: the built-ins. */
+  islands?: IslandRegistry;
   includeStyles?: boolean;
 }
 
@@ -28,6 +33,8 @@ export function CmsRegion({
   registry = defaultRegistry,
   icons,
   imageResolver,
+  islands,
+  data,
   fontResolver,
   fontDisplay,
   includeStyles = true,
@@ -36,7 +43,7 @@ export function CmsRegion({
   return (
     <Fragment>
       {includeStyles ? <style data-cms-styles="">{css}</style> : null}
-      {renderNodes({doc,ids:[root],registry,icons,imageResolver})}
+      {renderNodes({doc,ids:[root],registry,data,icons,imageResolver,islands})}
     </Fragment>
   );
 }

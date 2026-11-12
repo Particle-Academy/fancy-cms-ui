@@ -7,3 +7,5 @@ fonts/**/OFL.txt -text
 fonts/**/manifest.json text eol=lf
 fonts/**/NOTICE text eol=lf
 src/document/icon-names.ts text eol=lf
+src/islands/*.json text eol=lf
+tests/fixtures/infographics.json text eol=lf

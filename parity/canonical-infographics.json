@@ -1,0 +1,159 @@
+{
+  "id": "canonical-infographics",
+  "seq": 0,
+  "meta": {
+    "title": "Infographics",
+    "slug": "/",
+    "scrollMode": "smooth"
+  },
+  "theme": {
+    "name": "default",
+    "color": {
+      "primary": "#0b5cad",
+      "positive": "#166534"
+    }
+  },
+  "breakpoints": [
+    "base",
+    "md",
+    "lg"
+  ],
+  "nodes": {
+    "kpi": {
+      "id": "kpi",
+      "type": "kpi",
+      "parent": null,
+      "order": "a0",
+      "props": {
+        "label": "Revenue",
+        "value": {
+          "$bind": "m.revenue"
+        },
+        "delta": {
+          "$bind": "m.change"
+        },
+        "format": "currency"
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "table": {
+      "id": "table",
+      "type": "table",
+      "parent": null,
+      "order": "a8",
+      "props": {
+        "caption": "Q3 by region",
+        "columns": [
+          {
+            "key": "region",
+            "label": "Region"
+          },
+          {
+            "key": "sales",
+            "label": "Sales",
+            "format": "currency",
+            "total": "sum"
+          },
+          {
+            "key": "growth",
+            "label": "Growth",
+            "format": "percent",
+            "total": "avg"
+          }
+        ],
+        "rows": {
+          "$bind": "t.rows"
+        },
+        "sort": {
+          "key": "sales",
+          "dir": "desc"
+        },
+        "totals": true
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "leaderboard": {
+      "id": "leaderboard",
+      "type": "leaderboard",
+      "parent": null,
+      "order": "a15",
+      "props": {
+        "rows": {
+          "$bind": "contest"
+        },
+        "valueKey": "score",
+        "limit": 3
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "chart": {
+      "id": "chart",
+      "type": "chart",
+      "parent": null,
+      "order": "a19",
+      "props": {
+        "kind": "column",
+        "title": "Monthly signups",
+        "categories": {
+          "$bind": "c.months"
+        },
+        "series": {
+          "$bind": "c.series"
+        }
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      }
+    }
+  }
+}

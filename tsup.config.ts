@@ -10,6 +10,14 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   platform: "neutral",
-  external: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@particle-academy/react-fancy"],
+  // fancy-echarts is reached only through the chart island's dynamic import, so
+  // it stays a separate chunk in the host's bundle (src/islands/chart.tsx).
+  external: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@particle-academy/react-fancy", "@particle-academy/fancy-echarts"],
   treeshake: true,
+  // Split the CJS build too. Without it esbuild inlines the chart island into
+  // each CJS entry and hoists `require("@particle-academy/fancy-echarts")` to
+  // the top, so a CommonJS host without that optional peer could not even load
+  // the renderer. With it, the require sits in a chunk that is only reached
+  // through the island's dynamic import, as in the ESM build.
+  splitting: true,
 });

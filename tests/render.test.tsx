@@ -33,7 +33,7 @@ function build(): PageDoc {
   });
   doc = reduce(doc, {
     t: "insert_node",
-    node: mkNode("chart1", "s1", "c", { type: "chart", island: true }),
+    node: mkNode("widget1", "s1", "c", { type: "host-widget", island: true }),
   });
   return doc;
 }
@@ -51,9 +51,9 @@ describe("CmsPage", () => {
 
   it("renders an island as an empty, hydratable placeholder", () => {
     const html = renderToStaticMarkup(<CmsPage doc={build()} includeStyles={false} />);
-    expect(html).toContain('data-cms-island="chart"');
+    expect(html).toContain('data-cms-island="host-widget"');
     // the island wrapper carries no inner content (host hydrates it)
-    expect(html).toContain('<div data-cms="chart1" data-cms-island="chart"></div>');
+    expect(html).toContain('<div data-cms="widget1" data-cms-island="host-widget"></div>');
   });
 });
 
