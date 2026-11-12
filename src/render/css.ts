@@ -21,6 +21,7 @@ import {
 import { own } from "../document/own";
 import {prepareDocFonts,type FontRenderOptions} from "./fonts";
 import { INFOGRAPHIC_CSS, isInfographicType } from "./infographics";
+import { INPUT_CSS } from "./inputs";
 
 /**
  * A string as the contents of a double-quoted CSS string. `\` and `"` are
@@ -383,5 +384,7 @@ export function emitDocCss(doc: PageDoc, options: FontRenderOptions = {}): strin
   if (blocks.length === 0 && Object.keys(doc.nodes).length === 0) return "";
   // The infographic block only for pages that place one, so the rest pay nothing.
   const infographics = Object.values(doc.nodes).some((n) => typeof n === "object" && n !== null && isInfographicType((n as Node).type));
-  return [BASE_CSS, ...(infographics ? [INFOGRAPHIC_CSS] : []), ...blocks].join("\n\n") + "\n";
+  // The same for page inputs.
+  const inputs = Object.values(doc.nodes).some((n) => typeof n === "object" && n !== null && (n as Node).type === "input");
+  return [BASE_CSS, ...(infographics ? [INFOGRAPHIC_CSS] : []), ...(inputs ? [INPUT_CSS] : []), ...blocks].join("\n\n") + "\n";
 }

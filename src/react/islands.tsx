@@ -96,14 +96,19 @@ export function registerIslands(base: IslandRegistry, add: IslandRegistry): Isla
 const builtin = BUILTIN_ISLAND_CATALOGUE.types;
 
 /**
- * The built-in entries: the infographic kit. `chart` loads its canvas
- * (fancy-echarts, an optional peer) on demand; the other three are static.
+ * The built-in entries: the infographic kit and page inputs. `chart` loads its
+ * canvas (fancy-echarts, an optional peer) on demand, `input` its react-fancy
+ * controls (also an optional peer); the other three are static.
  */
 export const defaultIslands: IslandRegistry = {
   chart: { ...builtin.chart!, load: () => import("../islands/chart") },
   kpi: { ...builtin.kpi! },
   table: { ...builtin.table! },
   leaderboard: { ...builtin.leaderboard! },
+  // Page inputs: native controls on the server, react-fancy's in the browser
+  // (src/islands/inputs.tsx). Its module takes the input's model and change
+  // callback rather than island props; react/inputs.tsx is its only caller.
+  input: { ...builtin.input!, load: (() => import("../islands/inputs")) as unknown as IslandLoader },
 };
 
 /** The registry a page renders with: the built-ins, overridden or extended by the host's. */
@@ -127,11 +132,14 @@ export function resolvedProps(ctx: Pick<ElementContext, "node" | "resolve">): Re
 
 // ── loading ─────────────────────────────────────────────────────────────────
 
-const modules = new Map<IslandLoader, Promise<IslandComponent>>();
-const reported = new WeakSet<IslandLoader>();
+/** A dynamic import whose default export is a component (an island's, or the input controls'). */
+type ModuleLoader<P> = () => Promise<{ default: ComponentType<P> }>;
 
-function loadOnce(load: IslandLoader): Promise<IslandComponent> {
-  let pending = modules.get(load);
+const modules = new Map<unknown, Promise<unknown>>();
+const reported = new WeakSet<object>();
+
+function loadOnce<P>(load: ModuleLoader<P>): Promise<ComponentType<P>> {
+  let pending = modules.get(load) as Promise<ComponentType<P>> | undefined;
   if (!pending) {
     pending = load().then((m) => m.default);
     modules.set(load, pending);
@@ -145,8 +153,8 @@ function loadOnce(load: IslandLoader): Promise<IslandComponent> {
  * the server and on the first client render, so hydration matches). With a
  * `ref`, loading waits until that element is within 200px of the viewport.
  */
-export function useIsland(load: IslandLoader | undefined, enabled: boolean, ref?: RefObject<Element | null>): IslandComponent | null {
-  const [loaded, setLoaded] = useState<{ component: IslandComponent } | null>(null);
+export function useIsland<P = IslandComponentProps>(load: ModuleLoader<P> | undefined, enabled: boolean, ref?: RefObject<Element | null>): ComponentType<P> | null {
+  const [loaded, setLoaded] = useState<{ component: ComponentType<P> } | null>(null);
   useEffect(() => {
     if (!enabled || !load) return;
     let live = true;

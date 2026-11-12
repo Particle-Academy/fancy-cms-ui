@@ -32,7 +32,33 @@ export { emitDocCss } from "./render/css";
 export { INFOGRAPHIC_TYPES, isInfographicType, EMPTY_TEXT, type InfographicType } from "./render/infographics";
 export { formatNumber, formatSpec, signedNumber, toNumber, type NumberFormatKind, type NumberFormatSpec } from "./render/number-format";
 export { BUILTIN_ISLAND_CATALOGUE, ISLAND_TYPE_PATTERN, islandCatalogue, type IslandCatalogueJson, type IslandDescriptor, type IslandHydration, type JsonSchema } from "./islands/catalogue";
-export { dataRequests, expectedShape, type DataRequest } from "./document/data";
+export { dataQueries, dataRequests, expectedShape, type DataQuery, type DataQueryOptions, type DataRequest } from "./document/data";
+// Page inputs (phase 2): declarations, normalised values, and their query-string form.
+export {
+  INPUT_KINDS,
+  INPUT_NAME_PATTERN,
+  INPUT_EMPTY_TEXT,
+  PERIOD_PRESETS,
+  INPUT_CSS,
+  inputKind,
+  inputModel,
+  inputOptions,
+  inputValues,
+  inputsFromQuery,
+  inputsToQuery,
+  isIsoDate,
+  normalizeInput,
+  pageInputs,
+  type DateRange,
+  type InputDeclaration,
+  type InputKind,
+  type InputModel,
+  type InputOption,
+  type InputValue,
+  type InputValues,
+} from "./render/inputs";
+// The stylesheet's place is the host's <head> (lab finding K20).
+export { cmsStyleTag, styleTagHtml, styleKey } from "./render/style-tag";
 
 // ── The React renderer (shared by the editor and published islands) ─────────
 export * from "./react";

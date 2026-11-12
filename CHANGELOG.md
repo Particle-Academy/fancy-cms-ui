@@ -18,9 +18,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `kpi`, `table` or `leaderboard`** for something of your own: those names are
 now built-in node types. Rename yours (a namespaced island such as `kit:Chart`
 is the intended shape) and nothing else changes. Everyone else: nothing to do;
-every new prop below is opt-in.
+every new prop below is opt-in. The same holds for `input`.
+
+**BREAKING for server-rendered hosts: `CmsPage` and `CmsRegion` no longer put
+a `<style>` in the page's markup** (it sat inside the host's `<div>`, which is
+invalid HTML: lab finding K20). In the browser they keep the stylesheet in
+`document.head` as before, so a client-only host does nothing. **A host that
+server-renders must put the CSS in its `<head>`, or the first paint is
+unstyled until hydration:** under Inertia, `<Head>{cmsHeadStyle(doc)}</Head>`
+with `includeStyles={false}`; elsewhere, `cmsStyleTag(doc)` in the head
+template. A PHP host already does this with `PageRenderer::render()['css']`,
+now also as `PageRenderer::styleTag($doc, $css)`.
 
 ### Added
+
+- **Page inputs** (phase 2 of report dashboards): an `input` node with `kind`
+  `period` (presets 7d, 30d, 90d, 12m unless it declares options), `daterange`
+  (`{ from, to }` ISO dates), `person` (one person or team), `select` and
+  `multiselect`. Each declares a `name`, a `default`, and literal options or
+  options `$bind`-ed to a host list. Values are normalised identically in PHP
+  and React: anything not an option, an impossible date or a reversed range
+  falls back to the default. Server and first paint render native labelled
+  controls, byte-identical to `particle-academy/fancy-cms` (shared spec
+  `tests/fixtures/inputs.json`, 18 cases, also run through both engines by
+  `parity/html.mjs`); in the browser the input island loads react-fancy's
+  `Select`, `CheckboxGroup` and `DatePicker` as a separate chunk on the same
+  element ids. In the island catalogue as `input`, so an agent can place it.
+- `CmsPage` / `CmsRegion` take `inputs` (controlled), `defaultInputs`,
+  `onInputsChange(values, name)` and `loadData(values, { signal, queries })`:
+  a change re-requests the data context, the page keeps its data until the
+  answer arrives, only the latest answer is drawn, and a failure keeps the
+  current data with a warning.
+- `pageInputs`, `inputValues`, `inputsFromQuery` and `inputsToQuery`: the
+  values a URL asks for and back (`name=v`, `name[]=v`, `name[from]`/`name[to]`,
+  RFC 3986 encoding, defaults left out), identical to `PageInputs` in PHP.
+- **Charlotte's binding keys, carried natively.** `dataRequests()` returns a
+  binding's `$params` and `$scope`; `dataQueries(doc, { inputs, data })`
+  returns one request per distinct `(stream, alias, params, scope)`, keyed by
+  the path's first segment (`<stream>` or `<stream>#<alias>`), with every
+  `{ "$input": name }` filled from the page's current input values and the
+  inputs each query reads. `loadData` receives these queries. fancy-cms never
+  interprets a scope: the host applies it against the viewer. Shared spec
+  `tests/fixtures/data-queries.json`, identical to `DataRequests::queries()`.
+- `cmsStyleTag(doc)`, `styleTagHtml(key, css)` and `cmsHeadStyle(doc)` (`./react`)
+  for the host's head; `useCmsHeadStyles(key, css)` is the browser half.
+
+### Changed
+
+- `INPUT_NAME_PATTERN` is `^[a-z][a-z0-9-]{0,47}$`, the grammar Charlotte checks
+  `$input` references against, so every reference it accepts names a valid input.
 
 - **Infographic node kit**: `chart` (column, bar, line, pie, funnel), `kpi`
   (value, label, delta, trend; number / currency / percent), `table` (typed

@@ -100,6 +100,35 @@ for (const c of spec.cases) {
 }
 console.log(`${spec.cases.length - dataFailed} of ${spec.cases.length} infographic cases in HTML parity with their data.`);
 failed += dataFailed;
+
+// Page inputs, each case with its data AND its input values (render-html.php's 4th argument).
+const inputSpec = JSON.parse(readFileSync(resolve(here, "../tests/fixtures/inputs.json"), "utf8"));
+const caseInputs = resolve(scratch, "case-inputs.json");
+let inputFailed = 0;
+for (const c of inputSpec.cases) {
+  const doc = { ...emptyDoc("input-case"), nodes: Object.fromEntries(c.nodes.map((n) => [n.id, n])) };
+  writeFileSync(caseDoc, JSON.stringify(doc));
+  writeFileSync(caseData, JSON.stringify(c.data));
+  writeFileSync(caseInputs, JSON.stringify(c.inputs));
+  const jsHtml = renderToStaticMarkup(createElement(CmsPage, { doc, data: c.data, inputs: c.inputs, includeStyles: false }));
+  let phpHtml;
+  try {
+    phpHtml = execFileSync(process.env.FANCY_CMS_PHP || "php", [phpBin, caseDoc, assetPath, caseData, caseInputs], { encoding: "utf8" });
+  } catch (e) {
+    inputFailed++;
+    console.log(`HTML PARITY FAIL  input "${c.name}": the PHP renderer could not run (${e.message.split("\n")[0]})`);
+    continue;
+  }
+  if (jsHtml === phpHtml && jsHtml === c.html) continue;
+  inputFailed++;
+  console.log(`HTML PARITY FAIL  input "${c.name}"`);
+  console.log(`  JS:   ${JSON.stringify(jsHtml)}`);
+  console.log(`  PHP:  ${JSON.stringify(phpHtml)}`);
+  console.log(`  SPEC: ${JSON.stringify(c.html)}`);
+}
+console.log(`${inputSpec.cases.length - inputFailed} of ${inputSpec.cases.length} input cases in HTML parity with their data and values.`);
+failed += inputFailed;
+unlinkSync(caseInputs);
 unlinkSync(caseDoc);
 unlinkSync(caseData);
 

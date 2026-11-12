@@ -1,14 +1,17 @@
-import { Fragment, type ReactElement } from "react";
+import type { ReactElement } from "react";
 import type { PageDoc } from "../document/types";
 import type { IconSet } from "../document/icons";
 import type { ImageAssetResolver } from "../render/images";
 import { emitDocCss } from "../render/css";
+import { styleKey } from "../render/style-tag";
 import { renderNodes } from "./RenderNode";
 import {prepareDocFonts,type FontRenderOptions} from "../render/fonts";
 import { defaultRegistry, type DataContext, type ElementRegistry } from "./registry";
 import type { IslandRegistry } from "./islands";
+import { useCmsHeadStyles } from "./headStyles";
+import { InputsProvider, usePageInputs, type PageInputProps } from "./inputs";
 
-export interface CmsRegionProps extends FontRenderOptions {
+export interface CmsRegionProps extends FontRenderOptions, PageInputProps {
   doc: PageDoc;
   /** Root node id of the region to render (a section, or any node). */
   root: string;
@@ -19,6 +22,7 @@ export interface CmsRegionProps extends FontRenderOptions {
   imageResolver?: ImageAssetResolver;
   /** Island registry: the built-ins plus the host's (`registerIslands`). Default: the built-ins. */
   islands?: IslandRegistry;
+  /** Keep the stylesheet in `document.head`, as on CmsPage. */
   includeStyles?: boolean;
 }
 
@@ -38,12 +42,13 @@ export function CmsRegion({
   fontResolver,
   fontDisplay,
   includeStyles = true,
+  inputs,
+  defaultInputs,
+  onInputsChange,
+  loadData,
 }: CmsRegionProps): ReactElement {
   const css=includeStyles ? emitDocCss(doc,{fontResolver,fontDisplay}) : (prepareDocFonts(doc,{fontResolver,fontDisplay}), "");
-  return (
-    <Fragment>
-      {includeStyles ? <style data-cms-styles="">{css}</style> : null}
-      {renderNodes({doc,ids:[root],registry,data,icons,imageResolver,islands})}
-    </Fragment>
-  );
+  useCmsHeadStyles(styleKey(doc), css);
+  const page = usePageInputs(doc, data, { inputs, defaultInputs, onInputsChange, loadData });
+  return <InputsProvider state={page.state}>{renderNodes({doc,ids:[root],registry,data:page.data,icons,imageResolver,islands})}</InputsProvider>;
 }

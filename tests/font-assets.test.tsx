@@ -4,6 +4,7 @@ import {emitDocCss,BASE_CSS} from "../src/render/css";
 import {emptyDoc,type PageDoc,type Json} from "../src/document/types";
 import {CmsPage} from "../src/react/CmsPage";
 import {CmsRegion} from "../src/react/CmsRegion";
+import {cmsHeadStyle} from "../src/react/headStyles";
 import {RenderNode} from "../src/react/RenderNode";
 import {Editor} from "../src/editor/Editor";
 import {Canvas} from "../src/editor/Canvas";
@@ -87,7 +88,10 @@ describe("host-resolved same-origin font assets",()=>{
     const doc=page(),resolve=vi.fn(()=>asset()),extra={fontResolver:resolve,fontDisplay:"block" as const};
     const render=(props:FontRenderOptions)=>renderToStaticMarkup(surface.startsWith("page")?<CmsPage doc={doc} includeStyles={surface!=="page-no-css"} {...props}/>:surface.startsWith("region")?<CmsRegion doc={doc} root="hero" includeStyles={surface!=="region-no-css"} {...props}/>:surface==="node"?<RenderNode doc={doc} id="hero" {...props}/>:surface==="editor"?<Editor value={doc} {...props}/>:surface==="canvas"?<Canvas doc={doc} selection={null} onSelect={()=>{}} apply={()=>{}} {...props}/>:<EditablePage doc={doc} {...props}/>);
     const html=render(extra);expect(resolve).toHaveBeenCalledTimes(1);
-    if(!surface.endsWith("no-css")&&surface!=="node")expect(html).toContain("font-display: block;");
+    // The page's stylesheet is the head's (K20): the surfaces' markup carries none,
+    // and the head element a host renders for the same document gets the policy.
+    expect(html).not.toContain("font-display:");
+    if(surface==="page"||surface==="region")expect(renderToStaticMarkup(cmsHeadStyle(doc,extra))).toContain("font-display: block;");
     refusal(()=>render({...extra,fontResolver:()=>null}),"missing-font");
   });
 });

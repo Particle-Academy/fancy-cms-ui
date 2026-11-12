@@ -4,6 +4,7 @@ import { emptyDoc, type Node, type PageDoc } from "../src/document/types";
 import { reduce } from "../src/document/reduce";
 import { CmsPage } from "../src/react/CmsPage";
 import { CmsRegion } from "../src/react/CmsRegion";
+import { cmsStyleTag } from "../src/render/style-tag";
 
 function mkNode(id: string, parent: string | null, order: string, extra: Partial<Node> = {}): Node {
   return {
@@ -39,14 +40,14 @@ function build(): PageDoc {
 }
 
 describe("CmsPage", () => {
-  it("renders sections, data-cms handles, text, images, and injected styles", () => {
+  it("renders sections, data-cms handles, text and images; the styles are the head's", () => {
     const html = renderToStaticMarkup(<CmsPage doc={build()} />);
     expect(html).toContain('data-cms="s1"');
     expect(html).toContain('data-cms="t1"');
     expect(html).toContain("Hello");
     expect(html).toContain('src="/logo.jpg"');
-    expect(html).toContain("<style");
-    expect(html).toContain('[data-cms="t1"]'); // emitted CSS present
+    expect(html).not.toContain("<style");
+    expect(cmsStyleTag(build())).toContain('[data-cms="t1"]'); // emitted CSS, for the host's head
   });
 
   it("renders an island as an empty, hydratable placeholder", () => {

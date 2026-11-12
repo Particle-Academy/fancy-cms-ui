@@ -201,8 +201,10 @@ const imageResolver: ImageAssetResolver = (handle) => catalogue[handle] ?? null;
 - **The renderer emits no `style` attributes.** All page CSS comes from
   `emitDocCss`, keyed by `[data-cms="<id>"]`. Icon wrapper sizing is in the
   base stylesheet. `tests/no-inline-styles.test.tsx` holds this.
-- **`CmsPage`/`CmsRegion` inject `<style data-cms-styles="">` with no `nonce`
-  prop.** For a strict `style-src`, render with `includeStyles={false}` and
+- **`CmsPage`/`CmsRegion` keep `<style data-cms-styles="<doc id>">` in
+  `document.head` (never in the page markup), with no `nonce` prop.** A
+  server-rendering host puts the same element in its head with `cmsStyleTag(doc)`
+  or, under Inertia, `<Head>{cmsHeadStyle(doc)}</Head>`. For a strict `style-src`, render with `includeStyles={false}` and
   deliver the same CSS yourself, in a nonce'd `<style>` or a same-origin file.
   The host chooses which:
 

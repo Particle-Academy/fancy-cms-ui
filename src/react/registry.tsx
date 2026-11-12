@@ -6,6 +6,8 @@ import { resolveImageAsset, type ImageAssetResolver } from "../render/images";
 import type { IslandRegistry } from "./islands";
 import { renderChart, renderKpi, renderLeaderboard, renderTable } from "./infographics";
 import { chartKind, chartSize, tableLabel } from "../render/infographics";
+import { renderInput } from "./inputs";
+import { inputKind } from "../render/inputs";
 
 /** The page data context bindings resolve against (e.g. server props, repeater `item`). */
 export type DataContext = Record<string, unknown>;
@@ -150,6 +152,9 @@ export function elementFor(node: Node, text: (v: Bound<Json> | undefined) => str
       return { tag: "div", attrs: { "data-cms-table": "", role: "region", tabIndex: "0", "aria-label": tableLabel({ caption: text(node.props.caption) }) } };
     case "leaderboard":
       return { tag: "div", attrs: { "data-cms-leaderboard": "" } };
+    // A page input (render/inputs.ts): the kind is literal document shape.
+    case "input":
+      return { tag: "div", attrs: { "data-cms-input": inputKind({ kind: text(node.props.kind) }) } };
     default:
       return { tag: CONTAINERS.has(node.type) && LANDMARKS.has(as) ? as : "div" };
   }
@@ -189,6 +194,7 @@ export const defaultRegistry: ElementRegistry = {
   kpi: renderKpi,
   table: renderTable,
   leaderboard: renderLeaderboard,
+  input: renderInput,
   image: ({ node, text, imageResolver }) => {
     const fit = text(node.props.fit);
     const resolved = Object.prototype.hasOwnProperty.call(node.props, "asset");

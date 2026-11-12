@@ -9,3 +9,5 @@ fonts/**/NOTICE text eol=lf
 src/document/icon-names.ts text eol=lf
 src/islands/*.json text eol=lf
 tests/fixtures/infographics.json text eol=lf
+tests/fixtures/inputs.json text eol=lf
+tests/fixtures/data-queries.json text eol=lf
