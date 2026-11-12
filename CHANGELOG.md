@@ -132,6 +132,27 @@ now also as `PageRenderer::styleTag($doc, $css)`.
 - A node type that matches an `Object.prototype` name no longer picks up a
   "renderer" from the prototype.
 
+### Security
+
+- **`styleTagHtml(key, css)` can no longer be closed early by its `css`**
+  (CodeQL `js/html-constructed-from-input`). It is exported, so a host can pass
+  CSS that did not come from the emitter, and it wrote that CSS raw into
+  `<style>…</style>`: a `</style><script>` in it ended the element. Every `<`
+  that starts `</` or `<!` is now written as the CSS escape `\3C ` (new export
+  `styleText`), so no `</style` in any case and no `<!--` reaches the HTML,
+  and the CSS still means the same thing in a string, identifier, `url()` or
+  comment. CSS from `emitDocCss` is unchanged byte for byte: the emitter already
+  hex-escapes `<` in ids and drops any free-form value containing one.
+  `PageRenderer::styleTag` in `particle-academy/fancy-cms` writes the same bytes
+  (shared fixture `tests/fixtures/inputs.json`, `styleTagHostile`). Nothing to
+  do as a consumer.
+- **Number formatting is linear on long digit strings** (CodeQL
+  `js/polynomial-redos`). Trimming trailing zeros used `/0+$/`, and thousands
+  grouping a lookahead regex, both quadratic in the number of digits (100k
+  digits: 5.6 s and 6.7 s). Both are loops now; output is unchanged. A finite
+  number has at most about 330 digits, so a rendered page was never slow, but
+  the helpers no longer depend on that bound.
+
 ## [0.13.1] - 2026-10-26
 
 **Nothing to do:** documentation only.

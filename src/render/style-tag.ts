@@ -32,15 +32,43 @@ function escapeAttr(v: string): string {
   return v.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/** A style element as HTML, for a document's precompiled CSS. Byte-identical to `PageRenderer::styleTag`. */
+/**
+ * CSS made safe as the raw text of a `<style>` element. Every `<` that starts
+ * `</` or `<!` becomes the CSS hex escape `\3C ` (the space ends the escape and
+ * is consumed by the CSS tokenizer), so no `</style` in any case can end the
+ * element and no `<!--` survives. The escape means `<` in a string, an
+ * identifier, an unquoted `url()` or a comment, so the CSS still says what it
+ * said there. Any other `<` (a media range such as `width < 600px`) is left
+ * alone: it cannot end the element. Linear; mirrored by `PageRenderer::styleText`.
+ */
+export function styleText(css: string): string {
+  let out = "";
+  let from = 0;
+  for (let i = css.indexOf("<"); i !== -1; i = css.indexOf("<", i + 1)) {
+    const next = css.charCodeAt(i + 1);
+    if (next === 47 /* / */ || next === 33 /* ! */) {
+      out += css.slice(from, i) + "\\3C ";
+      from = i + 1;
+    }
+  }
+  return from === 0 ? css : out + css.slice(from);
+}
+
+/**
+ * A style element as HTML, for a document's precompiled CSS. Byte-identical to
+ * `PageRenderer::styleTag`. Safe for any `css`: it goes through {@link styleText},
+ * so a caller's CSS cannot close the element.
+ */
 export function styleTagHtml(key: string, css: string): string {
-  return `<style data-cms-styles="${escapeAttr(key)}">${css}</style>`;
+  return `<style data-cms-styles="${escapeAttr(key)}">${styleText(css)}</style>`;
 }
 
 /**
  * The document's `<style>` element as HTML, for the host's `<head>`. Empty for
- * an empty document. The emitter escapes everything an author or agent wrote,
- * so the CSS cannot close the element.
+ * an empty document. The emitter already rejects or hex-escapes every `<` an
+ * author or agent wrote (`cssString`, `safeCssValue`, the font validators), and
+ * {@link styleTagHtml} neutralises `</` and `<!` again, so the CSS cannot close
+ * the element even if one of those gates regresses.
  */
 export function cmsStyleTag(doc: PageDoc, options: FontRenderOptions = {}): string {
   const css = emitDocCss(doc, options);

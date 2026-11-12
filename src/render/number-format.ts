@@ -78,6 +78,33 @@ function digitsOf(n: number): Digits {
   return { negative, int: stripLeading(int), frac };
 }
 
+/**
+ * The digits without their trailing zeros. A loop, not `/0+$/`: an unanchored
+ * `0+$` retries from every zero in a long run, which is quadratic in the length
+ * of the run (CodeQL js/polynomial-redos). PHP's twin uses `rtrim`.
+ *
+ * @internal exported for the linear-time test only.
+ */
+export function trimTrailingZeros(digits: string): string {
+  let end = digits.length;
+  while (end > 0 && digits.charCodeAt(end - 1) === 48) end--;
+  return digits.slice(0, end);
+}
+
+/**
+ * Integer digits with a `,` every three from the right. A loop, not
+ * `/\B(?=(\d{3})+(?!\d))/g`: that lookahead rescans to the end of the string
+ * from every position, so it is quadratic in the number of digits.
+ *
+ * @internal exported for the linear-time test only.
+ */
+export function groupThousands(int: string): string {
+  const head = int.length % 3 || 3;
+  const parts = [int.slice(0, head)];
+  for (let i = head; i < int.length; i += 3) parts.push(int.slice(i, i + 3));
+  return parts.join(",");
+}
+
 function stripLeading(int: string): string {
   const s = int.replace(/^0+/, "");
   return s === "" ? "0" : s;
@@ -105,7 +132,7 @@ function round(d: Digits, places: number, fixed: boolean): Digits {
     int = stripLeading(keep.slice(0, keep.length - places));
     frac = keep.slice(keep.length - places);
   }
-  frac = fixed ? frac.padEnd(places, "0") : frac.replace(/0+$/, "");
+  frac = fixed ? frac.padEnd(places, "0") : trimTrailingZeros(frac);
   return { negative: d.negative, int, frac };
 }
 
@@ -127,7 +154,7 @@ function format(n: number, spec: NumberFormatSpec): Formatted {
   const r = round(d, places, fixed);
   const zero = /^0*$/.test(r.int + r.frac);
   const negative = r.negative && !zero;
-  const body = r.int.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + (r.frac ? "." + r.frac : "");
+  const body = groupThousands(r.int) + (r.frac ? "." + r.frac : "");
   const sign = negative ? "-" : "";
   const text =
     spec.format === "percent"

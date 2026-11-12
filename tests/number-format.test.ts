@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatNumber, formatSpec, signedNumber, toNumber } from "../src/render/number-format";
+import { formatNumber, formatSpec, groupThousands, signedNumber, toNumber, trimTrailingZeros } from "../src/render/number-format";
 
 const spec = (source: Record<string, unknown>) => formatSpec(source);
 
@@ -47,5 +47,47 @@ describe("number formatting shared with the PHP renderer", () => {
     expect(toNumber("12.50")).toBe(12.5);
     expect(toNumber("-0.5")).toBe(-0.5);
     for (const bad of ["", " 1", "1e3", "0x10", "1.", ".5", "12\n", true, null, {}, [1], "9".repeat(400)]) expect(toNumber(bad), String(bad)).toBeNull();
+  });
+});
+
+describe("digit-string helpers are linear (CodeQL js/polynomial-redos)", () => {
+  // A finite number's digits are bounded (about 330), but the helpers take any
+  // string, so they are held to linear time on one far longer than that.
+  const N = 100_000;
+
+  it("trims trailing zeros from a 100k-digit run ending in a non-zero quickly, and correctly", () => {
+    const run = "0".repeat(N) + "1";
+    const start = performance.now();
+    expect(trimTrailingZeros(run)).toBe(run);
+    expect(trimTrailingZeros("1" + "0".repeat(N))).toBe("1");
+    expect(trimTrailingZeros("0".repeat(N))).toBe("");
+    expect(performance.now() - start).toBeLessThan(1000);
+  });
+
+  it("matches what /0+$/ gave on ordinary input", () => {
+    for (const s of ["", "0", "1", "10", "100", "105", "0001000", "123450"]) expect(trimTrailingZeros(s), s).toBe(s.replace(/0+$/, ""));
+  });
+
+  it("groups a 100k-digit integer quickly, and correctly", () => {
+    const int = "1" + "0".repeat(N - 1);
+    const start = performance.now();
+    const out = groupThousands(int);
+    expect(performance.now() - start).toBeLessThan(1000);
+    expect(out.length).toBe(N + Math.floor((N - 1) / 3));
+    expect(out.replace(/,/g, "")).toBe(int);
+    expect(out.startsWith("1,000,")).toBe(true);
+  });
+
+  it("groups exactly as the lookahead regex did", () => {
+    for (let len = 1; len <= 12; len++) {
+      const int = "123456789012".slice(0, len);
+      expect(groupThousands(int), int).toBe(int.replace(/\B(?=(\d{3})+(?!\d))/g, ","));
+    }
+  });
+
+  it("still formats the longest digit strings a number can have", () => {
+    expect(formatNumber(1e300, spec({})).replace(/,/g, "")).toBe("1" + "0".repeat(300));
+    expect(formatNumber(5e-324, spec({ decimals: 6 }))).toBe("0.000000");
+    expect(formatNumber(1.5e-300, spec({}))).toBe("0");
   });
 });
