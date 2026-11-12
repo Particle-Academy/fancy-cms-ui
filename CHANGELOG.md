@@ -63,6 +63,15 @@ now also as `PageRenderer::styleTag($doc, $css)`.
 - `cmsStyleTag(doc)`, `styleTagHtml(key, css)` and `cmsHeadStyle(doc)` (`./react`)
   for the host's head; `useCmsHeadStyles(key, css)` is the browser half.
 
+### Fixed
+
+- **A page with a chart scrolled sideways on a phone.** The chart's visually
+  hidden data table took `width: 100%` from the chart table rule, which came
+  after the screen-reader rule at the same (`:where`) specificity, so from its
+  absolute position it spanned the viewport (measured on the lab's
+  `report-dashboard-kit-v1` at 375 px: page width 394). It is 1px wide again.
+  Unreleased phase-1 code; same fix in `particle-academy/fancy-cms`.
+
 ### Changed
 
 - `INPUT_NAME_PATTERN` is `^[a-z][a-z0-9-]{0,47}$`, the grammar Charlotte checks

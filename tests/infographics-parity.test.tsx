@@ -72,6 +72,18 @@ describe("infographic stylesheet", () => {
     expect(plain).not.toContain("fancy-cms infographics");
   });
 
+  it("keeps the chart's screen-reader table 1px wide: its rule follows the chart table's 100% width", () => {
+    // Both rules are :where() (no specificity), so the later one wins. With the
+    // width:100% rule last, the visually hidden table spanned the viewport from
+    // its absolute position and scrolled every phone page sideways (kit site,
+    // report-dashboard-kit-v1, 375 px: scrollWidth 394).
+    const tableWidth = INFOGRAPHIC_CSS.indexOf(":where([data-cms-table] table, figure[data-cms-chart] table)");
+    const srWidth = INFOGRAPHIC_CSS.indexOf(":where(figure[data-cms-chart] table[data-cms-sr])");
+    expect(tableWidth).toBeGreaterThan(-1);
+    expect(srWidth).toBeGreaterThan(tableWidth);
+    expect(INFOGRAPHIC_CSS.slice(srWidth, INFOGRAPHIC_CSS.indexOf("}", srWidth))).toContain("width: 1px;");
+  });
+
   it("uses theme tokens and covers dark mode and print", () => {
     expect(INFOGRAPHIC_CSS).toContain("var(--cms-color-primary");
     expect(INFOGRAPHIC_CSS).toContain(':where(.dark, [data-theme="dark"])');
