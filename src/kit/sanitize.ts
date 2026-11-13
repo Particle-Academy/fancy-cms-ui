@@ -13,6 +13,7 @@ import { safeHref } from "../react/registry";
 export const URL_KEYS = new Set(["src", "href", "poster", "url", "image", "avatar", "pdfUrl", "citeUrl", "brandHref", "hrefPattern", "thumbnail", "logo", "icon_url", "imageUrl", "videoUrl", "audioUrl"]);
 
 const MAX_DEPTH = 24;
+const MARKUP_KEYS = new Set(["html", "unsafe", "dangerouslySetInnerHTML", "scriptUrl", "scriptSrc"]);
 
 /** A URL a page may use: relative, or http(s), mailto or tel. Never `data:` except images, never `javascript:`. */
 export function safeUrl(raw: string, key: string): string | null {
@@ -38,6 +39,9 @@ function clean(value: unknown, key: string, depth: number): unknown {
     const out: Record<string, unknown> = {};
     for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
       if (k === "__proto__" || k === "constructor" || k === "prototype") continue;
+      // Markup never reaches a component, at any depth: no raw HTML field, and
+      // no `format: "html"` switch (a slide's text element, for one, has it).
+      if (MARKUP_KEYS.has(k) || (k === "format" && v === "html")) continue;
       const c = clean(v, k, depth + 1);
       if (c !== undefined) out[k] = c;
     }
