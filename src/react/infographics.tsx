@@ -9,6 +9,8 @@ import { useRef, useState, type ReactElement, type ReactNode } from "react";
 import type { ElementContext } from "./registry";
 import { IslandBoundary, resolvedProps, useIsland } from "./islands";
 import { chartCell, chartModel, kpiModel, leaderboardModel, tableModel } from "../render/infographics";
+// A long token may break anywhere; ordinary values and labels keep their min-content.
+import { hasLongToken } from "../render/wrap";
 
 const empty = (text: string) => <p data-cms-empty="">{text}</p>;
 const align = (a: "start" | "center" | "end") => (a === "start" ? undefined : a);
@@ -18,7 +20,7 @@ export function renderKpi(ctx: ElementContext): ReactNode {
   return (
     <>
       {m.label ? <p data-cms-kpi-label="">{m.label}</p> : null}
-      {m.value === null ? empty(m.empty) : <p data-cms-kpi-value="">{m.value}</p>}
+      {m.value === null ? empty(m.empty) : <p data-cms-kpi-value="" data-cms-wrap={hasLongToken(m.value) ? "anywhere" : undefined}>{m.value}</p>}
       {m.delta ? (
         <p data-cms-kpi-delta="" data-cms-kpi-trend={m.delta.trend} data-cms-kpi-tone={m.delta.tone}>
           <span data-cms-sr="">{m.delta.word}</span>
@@ -78,7 +80,7 @@ export function renderLeaderboard(ctx: ElementContext): ReactNode {
       {m.entries.map((e, i) => (
         <li key={i} data-cms-rank={String(e.rank)}>
           <span data-cms-lb="rank">{String(e.rank)}</span>
-          <span data-cms-lb="label">{e.label}</span>
+          <span data-cms-lb="label" data-cms-wrap={hasLongToken(e.label) ? "anywhere" : undefined}>{e.label}</span>
           <span data-cms-lb="value">{e.value}</span>
         </li>
       ))}

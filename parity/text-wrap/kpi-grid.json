@@ -1,0 +1,362 @@
+{
+  "id": "kpi-grid",
+  "seq": 0,
+  "meta": {
+    "title": "KPI grid",
+    "slug": "/",
+    "scrollMode": "smooth"
+  },
+  "theme": {
+    "name": "default"
+  },
+  "breakpoints": [
+    "base",
+    "md",
+    "lg"
+  ],
+  "nodes": {
+    "page": {
+      "id": "page",
+      "type": "section",
+      "parent": null,
+      "order": "a000",
+      "props": {
+        "as": "main"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 24,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "col": {
+      "id": "col",
+      "type": "stack",
+      "parent": "page",
+      "order": "a001",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1040,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "gap": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "kpis": {
+      "id": "kpis",
+      "type": "grid",
+      "parent": "col",
+      "order": "a002",
+      "props": {},
+      "style": {
+        "base": {
+          "columns": 2,
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "columns": 4
+        }
+      },
+      "layout": "grid"
+    },
+    "k41": {
+      "id": "k41",
+      "type": "kpi",
+      "parent": "kpis",
+      "order": "a003",
+      "props": {
+        "label": "Engagements improved",
+        "value": 0.41,
+        "format": "percent",
+        "decimals": 0,
+        "delta": 0.05
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid #d6dbe1",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "krev": {
+      "id": "krev",
+      "type": "kpi",
+      "parent": "kpis",
+      "order": "a004",
+      "props": {
+        "label": "Revenue",
+        "value": 1200000,
+        "format": "currency",
+        "decimals": 0,
+        "delta": 0.125
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid #d6dbe1",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "k17": {
+      "id": "k17",
+      "type": "kpi",
+      "parent": "kpis",
+      "order": "a005",
+      "props": {
+        "label": "Engagements",
+        "value": 17
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid #d6dbe1",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "kstat": {
+      "id": "kstat",
+      "type": "stack",
+      "parent": "kpis",
+      "order": "a006",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid #d6dbe1",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 4,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "kstatv": {
+      "id": "kstatv",
+      "type": "heading",
+      "parent": "kstat",
+      "order": "a007",
+      "props": {
+        "content": "$1.2M",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 32,
+            "unit": "px"
+          },
+          "fontWeight": 700,
+          "lineHeight": 1.1
+        }
+      }
+    },
+    "kstatl": {
+      "id": "kstatl",
+      "type": "text",
+      "parent": "kstat",
+      "order": "a008",
+      "props": {
+        "content": "Raised in 2025"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "pair": {
+      "id": "pair",
+      "type": "grid",
+      "parent": "col",
+      "order": "a009",
+      "props": {},
+      "style": {
+        "base": {
+          "columns": 2,
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "lb": {
+      "id": "lb",
+      "type": "leaderboard",
+      "parent": "pair",
+      "order": "a010",
+      "props": {
+        "rows": [
+          {
+            "name": "Rotterdam",
+            "value": 1200000
+          },
+          {
+            "name": "Saffron Table",
+            "value": 950000
+          },
+          {
+            "name": "Meridian Ops",
+            "value": 41000
+          }
+        ],
+        "format": "currency",
+        "decimals": 0
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid #d6dbe1",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "k41b": {
+      "id": "k41b",
+      "type": "kpi",
+      "parent": "pair",
+      "order": "a011",
+      "props": {
+        "label": "Churn",
+        "value": 0.041,
+        "format": "percent",
+        "decimals": 1
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid #d6dbe1",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "big": {
+      "id": "big",
+      "type": "grid",
+      "parent": "col",
+      "order": "a012",
+      "props": {},
+      "style": {
+        "base": {
+          "columns": 2,
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "kbig": {
+      "id": "kbig",
+      "type": "kpi",
+      "parent": "big",
+      "order": "a013",
+      "props": {
+        "label": "Signups",
+        "value": 1e+21
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid #d6dbe1",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "kpct": {
+      "id": "kpct",
+      "type": "kpi",
+      "parent": "big",
+      "order": "a014",
+      "props": {
+        "label": "Share",
+        "value": 0.41,
+        "format": "percent",
+        "decimals": 0
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid #d6dbe1",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    }
+  }
+}

@@ -402,7 +402,7 @@ export const INFOGRAPHIC_CSS = `/* fancy-cms infographics */
   font-variant-numeric: tabular-nums;
   font-weight: 700;
   line-height: 1.1;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 :where([data-cms-kpi-delta]) {
@@ -520,13 +520,16 @@ export const INFOGRAPHIC_CSS = `/* fancy-cms infographics */
 
 :where([data-cms-lb="label"]) {
   flex: 1;
-  min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 :where([data-cms-lb="value"]) {
   font-variant-numeric: tabular-nums;
   font-weight: 600;
+}
+
+:where([data-cms-kpi-value], [data-cms-lb="label"])[data-cms-wrap="anywhere"] {
+  overflow-wrap: anywhere;
 }
 
 :where(figure[data-cms-chart] figcaption) {

@@ -18,6 +18,14 @@
  *   - s11-adversarial.json: the hostile tokens in every container where a long
  *     token can widen a page (grid tracks, row stacks, a shrink-to-fit stack,
  *     a wrapping nav, an auto-fit grid) beside ordinary words, prices and stats.
+ *   - kpi-grid.json: KPI nodes ("41%", "$1,200,000", and a "$1.2M" stat
+ *     heading, since a KPI has no compact format) in two narrow columns at
+ *     375px and four from 768px, a leaderboard beside a KPI, and a KPI whose
+ *     value is a 29-code-point long token.
+ *
+ * `--rules=0.14` and `--rules=none` also put back the infographic
+ * stylesheet's 0.14.0 KPI value and leaderboard label rules (`anywhere`, and
+ * `min-width: 0` on the label), which predate S11.
  *
  * Every page is rendered by fancy-cms (PHP, what the lab serves) and asserted
  * byte-identical to this package's renderer and emitter first. Then, at 375,
@@ -55,8 +63,16 @@ const WIDTHS = [375, 768, 1280];
 const SEL = ":where(h1, h2, h3, h4, h5, h6, p, ul, ol, a:not([data-cms-button]), span, [data-cms-callout])";
 const RULES = `${SEL}[data-cms] {\n  overflow-wrap: break-word;\n}\n\n${SEL}[data-cms-wrap="anywhere"] {\n  overflow-wrap: anywhere;\n}`;
 const RULE_0_14 = `${SEL}[data-cms] {\n  overflow-wrap: anywhere;\n}`;
+/** The infographic stylesheet's KPI value and leaderboard label rules: [current, 0.14.0]. */
+const INFOGRAPHIC_0_14 = [
+  ["  line-height: 1.1;\n  overflow-wrap: break-word;\n}", "  line-height: 1.1;\n  overflow-wrap: anywhere;\n}"],
+  ["  flex: 1;\n  overflow-wrap: break-word;\n}", "  flex: 1;\n  min-width: 0;\n  overflow-wrap: anywhere;\n}"],
+  ['\n\n:where([data-cms-kpi-value], [data-cms-lb="label"])[data-cms-wrap="anywhere"] {\n  overflow-wrap: anywhere;\n}', ""],
+];
 /** The adversarial page's hostile tokens: the only words allowed to break anywhere. */
 const HOSTILE = /pwned|example\.com\/a\/|AAAAAAAAAA/;
+/** The KPI grid's deliberate long token (1e21 grouped, 29 code points): marked, so it may break anywhere. */
+const KPI_TOKEN = /^1,000,000,000,000,000,000,000$/;
 
 // fancy-labs SiteRenderController's host stylesheet (lab runs).
 const FLABS_HOST = "html,body{margin:0;padding:0}body{font-family:var(--cms-font-body,system-ui,sans-serif);color:var(--cms-color-ink,#0f172a);background:var(--cms-color-surface,#fff)}";
@@ -82,7 +98,14 @@ function render(name, docs) {
     html += phpHtml;
     css += `${phpCss}\n`;
   });
-  if (before) css = css.split(RULES).join(mode === "0.14" ? RULE_0_14 : "");
+  if (before) {
+    css = css.split(RULES).join(mode === "0.14" ? RULE_0_14 : "");
+    // The infographic kit shipped with `anywhere` before S11, so both modes restore it.
+    for (const [now, then] of INFOGRAPHIC_0_14) {
+      if (css.includes("fancy-cms infographics")) assert.ok(css.includes(now), `${name}: infographic rule present`);
+      css = css.split(now).join(then);
+    }
+  }
   return { html, css };
 }
 
@@ -144,7 +167,10 @@ function probe() {
       breaks.push({ word, shown: at.map((i) => `${word.slice(0, i)}/${word.slice(i)}`).join(" | "), node: el.closest("[data-cms]")?.getAttribute("data-cms") ?? null, width: Math.round(width), track: Math.round(room), fits: width <= room });
     }
   }
-  return { scrollWidth: document.documentElement.scrollWidth, overflow: document.documentElement.scrollWidth - vw, breaks };
+  // The innermost nodes past the right edge: where an overflow comes from.
+  const past = [...document.querySelectorAll("[data-cms]")].filter((e) => e.getBoundingClientRect().right > vw + 0.5);
+  const wide = past.filter((e) => !past.some((o) => o !== e && e.contains(o))).map((e) => `${e.getAttribute("data-cms")} (${Math.round(e.getBoundingClientRect().width)}px)`);
+  return { scrollWidth: document.documentElement.scrollWidth, overflow: document.documentElement.scrollWidth - vw, breaks, wide };
 }
 
 const output = resolve(here, `../../../sandbox/text-wrap-browser-${mode}`);
@@ -169,11 +195,12 @@ try {
       await page.evaluate(() => document.fonts.ready);
       if (fixture.name === "hostile-facts") assert.ok(await page.evaluate(() => document.fonts.check('18px "Instrument Sans"')), "Instrument Sans loaded");
       const r = await page.evaluate(probe);
-      const midWord = r.breaks.filter((b) => b.fits && !(fixture.name === "s11-adversarial" && HOSTILE.test(b.word)));
+      const allowed = (b) => (fixture.name === "s11-adversarial" && HOSTILE.test(b.word)) || (fixture.name === "kpi-grid" && KPI_TOKEN.test(b.word));
+      const midWord = r.breaks.filter((b) => b.fits && !allowed(b));
       const tokens = r.breaks.filter((b) => !midWord.includes(b));
       results.push({ fixture: fixture.name, width, overflow: r.overflow, scrollWidth: r.scrollWidth, midWord, tokens });
       console.log(`${fixture.name.padEnd(16)} ${String(width).padStart(4)}  page ${r.scrollWidth}px  overflow ${r.overflow}  mid-word ${midWord.length}${midWord.length ? ` (${midWord.map((b) => b.shown).join(", ")})` : ""}  long tokens broken ${tokens.length}`);
-      if (r.overflow > 0) failures.push(`${fixture.name} @${width}: page is ${r.scrollWidth}px wide`);
+      if (r.overflow > 0) failures.push(`${fixture.name} @${width}: page is ${r.scrollWidth}px wide, past the edge: ${r.wide.join(", ")}`);
       for (const b of midWord) failures.push(`${fixture.name} @${width}: "${b.shown}" (${b.width}px word, ${b.track}px track, node ${b.node})`);
       await page.screenshot({ path: resolve(output, `${fixture.name}-${width}.png`), fullPage: true });
       await page.close();
