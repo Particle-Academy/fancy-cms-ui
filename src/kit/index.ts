@@ -17,7 +17,7 @@
  * and a bundler resolves a lazy import at build time, so a host without the
  * whole kit installed would fail to build. A host with the kit opts in here.
  */
-import { createElement, useEffect, useRef, type ReactElement } from "react";
+import { createElement, useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
 import type { IslandComponent, IslandComponentProps, IslandDefinition, IslandRegistry } from "../react/islands";
 import type { IslandCatalogueJson, IslandDescriptor } from "../islands/catalogue";
 import { sanitizeProps } from "./sanitize";
@@ -92,13 +92,47 @@ function ReadyMark({ type }: { type: string }): ReactElement {
   return createElement("span", { ref, hidden: true, "data-cms-island-mark": "" });
 }
 
+/**
+ * The island's frame. A component wider than the page (a spreadsheet grid, a
+ * fixed-size slide on a phone) must not widen the page, so when its content is
+ * wider than the frame the frame becomes a labelled, focusable scroll region,
+ * as the CMS table is: reachable and scrollable by keyboard. Nothing changes
+ * for a component that fits.
+ */
+function KitFrame({ type, label, children }: { type: string; label: string; children?: ReactNode }): ReactElement {
+  const ref = useRef<HTMLDivElement>(null);
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setWide(el.scrollWidth > el.clientWidth + 1);
+    measure();
+    if (typeof ResizeObserver !== "function") return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    for (const child of Array.from(el.children)) ro.observe(child);
+    return () => ro.disconnect();
+  }, []);
+  return createElement(
+    "div",
+    {
+      ref,
+      "data-kit-island": type,
+      style: { maxWidth: "100%", ...(wide ? { overflowX: "auto" } : {}) },
+      ...(wide ? { role: "region", tabIndex: 0, "aria-label": label, "data-kit-scroll": "" } : {}),
+    },
+    children,
+  );
+}
+
 /** The component an island type renders: its family's adapter, with sanitised props. */
 function kitComponent(type: string, d: IslandDescriptor, Adapter: IslandComponent): IslandComponent {
+  const label = d.description.split(/[.:]/)[0]!.slice(0, 80);
   function KitIsland(p: IslandComponentProps): ReactElement {
     const props = sanitizeProps(p.props, d.props);
     return createElement(
-      "div",
-      { "data-kit-island": type },
+      KitFrame,
+      { type, label },
       createElement(ReadyMark, { type }),
       createElement(Adapter, { props, node: p.node, data: p.data }, p.children),
     );

@@ -26,12 +26,13 @@ function KitChart({ props }: IslandComponentProps): ReactElement {
     switch (props.kind) {
       case "horizontal-bar":
         return <Chart.HorizontalBar data={points(props.data)} height={height} showValues />;
+      // `responsive`: these draw at a fixed 500px unless told to fit their box.
       case "stacked-bar":
-        return <Chart.StackedBar labels={labels} series={series(props.series)} height={height} />;
+        return <Chart.StackedBar labels={labels} series={series(props.series)} height={height} responsive />;
       case "line":
-        return <Chart.Line labels={labels} series={series(props.series)} height={height} />;
+        return <Chart.Line labels={labels} series={series(props.series)} height={height} responsive />;
       case "area":
-        return <Chart.Area labels={labels} series={series(props.series)} height={height} />;
+        return <Chart.Area labels={labels} series={series(props.series)} height={height} responsive />;
       case "pie":
         return <Chart.Pie data={points(props.data)} showLabels />;
       case "donut":

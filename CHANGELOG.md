@@ -50,6 +50,9 @@ Nothing else to do: no existing node renders differently.
 - **`react-fancy:Chart`**: react-fancy's bar, horizontal-bar, stacked-bar,
   line, area, pie, donut and sparkline charts as one island (CC-fancy-0035).
 - Island descriptors may carry `package`, `slot` and `textFallback`.
+- A kit island wider than the page (a spreadsheet grid, a fixed-size slide on
+  a phone) scrolls inside a labelled, focusable region instead of widening the
+  page; a component that fits gets no extra attributes or tab stop.
 
 ### Changed
 - Dev dependencies: the kit's UI packages (first-party), so the generator can
