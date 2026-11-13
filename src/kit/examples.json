@@ -118,14 +118,14 @@
 
   "fancy-sheets:Spreadsheet": {"data": {"activeSheetId": "s1", "sheets": [{"id": "s1", "name": "Budget", "columnWidths": {}, "mergedRegions": [], "columnFilters": {}, "frozenRows": 0, "frozenCols": 0, "cells": {"A1": {"value": "Item"}, "B1": {"value": "Cost"}, "A2": {"value": "Software"}, "B2": {"value": 24}, "A3": {"value": "Coffee"}, "B3": {"value": 18}, "A4": {"value": "Total"}, "B4": {"value": "", "formula": "SUM(B2:B3)"}}}]}},
   "fancy-sheets:Sheet": {"data": {"id": "s1", "name": "Budget", "columnWidths": {}, "mergedRegions": [], "columnFilters": {}, "frozenRows": 0, "frozenCols": 0, "cells": {"A1": {"value": "Item"}, "B1": {"value": "Cost"}, "A2": {"value": "Software"}, "B2": {"value": 24}}}},
-  "fancy-sheets:WorkbookFileView": {"document": {"$bind": "files.workbook"}, "filename": "budget.xlsx"},
+  "fancy-sheets:WorkbookFileView": {"filename": "budget.xlsx", "document": {"sheets": [{"name": "Budget", "cells": {"A1": {"value": "Item"}, "B1": {"value": "Cost"}, "A2": {"value": "Software"}, "B2": {"value": 24}}}]}},
 
   "fancy-slides:SlideViewer": {"deck": {"id": "d1", "title": "Ledgerline", "theme": {"name": "default"}, "slides": [{"id": "s1", "elements": [{"id": "e1", "type": "text", "x": 80, "y": 80, "w": 800, "h": 120, "content": "Ledgerline"}, {"id": "e2", "type": "text", "x": 80, "y": 220, "w": 800, "h": 80, "content": "Invoices, expenses and taxes in one place."}]}, {"id": "s2", "elements": [{"id": "e3", "type": "text", "x": 80, "y": 80, "w": 800, "h": 120, "content": "Solo $9 and Studio $24 a month"}]}]}},
   "fancy-slides:PresenterView": {"deck": {"id": "d1", "title": "Ledgerline", "theme": {"name": "default"}, "slides": [{"id": "s1", "notes": "Open with the April quote.", "elements": [{"id": "e1", "type": "text", "x": 80, "y": 80, "w": 800, "h": 120, "content": "Ledgerline"}]}, {"id": "s2", "elements": [{"id": "e2", "type": "text", "x": 80, "y": 80, "w": 800, "h": 120, "content": "Pricing"}]}]}},
-  "fancy-slides:DeckFileView": {"document": {"$bind": "files.deck"}, "filename": "pitch.pptx"},
+  "fancy-slides:DeckFileView": {"filename": "pitch.pptx", "document": {"id": "pitch", "title": "Pitch", "theme": {"name": "default"}, "slides": [{"id": "s1", "elements": [{"id": "e1", "type": "text", "x": 80, "y": 80, "w": 800, "h": 120, "content": "Ledgerline, the pitch"}]}]}},
 
   "fancy-docs:DocViewer": {"doc": {"title": "Terms", "blocks": [{"type": "heading", "level": 1, "runs": [{"text": "Terms of service"}]}, {"type": "paragraph", "runs": [{"text": "The 30-day trial needs no card."}]}]}},
-  "fancy-docs:DocFileView": {"document": {"$bind": "files.doc"}, "filename": "terms.docx"},
+  "fancy-docs:DocFileView": {"filename": "terms.docx", "document": {"title": "Terms", "blocks": [{"type": "paragraph", "runs": [{"text": "The 30-day trial needs no card."}]}]}},
   "last-word-ui:DocViewer": {"filename": "terms.docx", "doc": {"title": "Terms", "blocks": [{"type": "heading", "level": 1, "runs": [{"text": "Terms of service"}]}, {"type": "paragraph", "runs": [{"text": "The 30-day trial needs no card."}]}]}},
 
   "fancy-whiteboard:Board": {"label": "Planning board", "height": 360, "notes": [{"id": "n1", "kind": "sticky", "x": 40, "y": 40, "width": 160, "height": 120, "text": "Invoices"}, {"id": "n2", "kind": "sticky", "x": 260, "y": 40, "width": 160, "height": 120, "text": "Taxes", "color": "#bbf7d0"}], "shapes": [{"id": "s1", "kind": "shape", "shape": "ellipse", "x": 150, "y": 200, "width": 140, "height": 80, "text": "Launch"}], "connectors": [{"from": {"x": 200, "y": 100}, "to": {"x": 260, "y": 100}}]},
