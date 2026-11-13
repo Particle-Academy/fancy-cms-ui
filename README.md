@@ -307,6 +307,33 @@ writeFileSync("islands.json", JSON.stringify(islandCatalogue(islands)));
 browser only, with an optional `fallback` for the server render. An island
 that fails to load or throws is contained; the page keeps rendering.
 
+### Every kit component (`./kit`)
+
+A host with the whole Fancy kit installed can offer every kit component as an
+island: 181 types named `<package>:<Component>` (`react-fancy:Tabs`,
+`react-fancy:Chart`, `fancy-sheets:Spreadsheet`, `fancy-3d-three:Stage`...).
+
+```tsx
+import { kitIslands } from "@particle-academy/fancy-cms-ui/kit";
+const islands = registerIslands(defaultIslands, kitIslands);
+// PHP: IslandCatalogue::kit() lists the same types (byte-identical catalogue)
+```
+
+The catalogue is generated from the components' real prop types
+(`npm run kit:generate`) and checked for drift by the suite. Props are data
+only, each island renders its text on the server and loads its family's chunk
+after hydration, and a container island (`slot: "children"`) renders its child
+nodes. It is a separate entry, not part of `defaultIslands`, because its lazy
+imports name every kit package: a host without the whole kit would fail to build.
+
+### The `echart` node
+
+Any ECharts chart from an `option`, with `{ "$bind": path }` wherever data
+goes. The option must pass `validateEchartOption`: no functions or code-like
+formatters, no markup, links, images, rich text or extra CSS, and only listed
+keys and series types. The server renders its `title` and `summary`; the canvas
+(fancy-echarts, an optional peer) loads when visible.
+
 ## Principles
 
 Fonts: see [host-resolved fonts](agent-guide/fonts.md) for structured font

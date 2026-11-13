@@ -16,5 +16,13 @@ declare module "@particle-academy/fancy-echarts" {
     onRenderError?: (error: Error) => void;
   }>;
 
+  /** The graphic-elements surface (kit island fancy-echarts:EChartGraphic). */
+  export const EChartGraphic: ComponentType<{
+    elements: Record<string, unknown>[];
+    renderer?: "canvas" | "svg";
+    className?: string;
+    style?: CSSProperties;
+  }>;
+
   export function registerAll(): void;
 }

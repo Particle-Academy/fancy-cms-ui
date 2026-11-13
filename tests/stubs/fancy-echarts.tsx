@@ -19,3 +19,8 @@ export function EChart(props: { option: unknown; renderer?: "canvas" | "svg"; cl
   stub.renders.push({ option: props.option, renderer: props.renderer, className: props.className });
   return <div data-stub-echart="" />;
 }
+
+export function EChartGraphic(props: { elements: unknown[]; renderer?: "canvas" | "svg" }) {
+  stub.renders.push({ option: { graphic: props.elements }, renderer: props.renderer });
+  return <div data-stub-echart-graphic="" />;
+}

@@ -16,6 +16,7 @@
  */
 import builtin from "./catalogue.json";
 import type { Json } from "../document/types";
+import { isTextFallback, type TextFallbackStep } from "../render/text-fallback";
 
 /** A JSON Schema object. Host schemas may `$ref` the shared `#/$defs/*` (Binding, Text, Number, Rows, format, currency, decimals, emptyText). */
 export type JsonSchema = { [key: string]: Json };
@@ -36,6 +37,12 @@ export interface IslandDescriptor {
   props: JsonSchema;
   /** A props object an agent can copy, bindings included. */
   example?: { [key: string]: Json };
+  /** The npm package whose component renders it (kit islands). */
+  package?: string;
+  /** `children`: the island renders its child nodes (a Card, a Modal body); the server renders them too. */
+  slot?: "children";
+  /** Which props are its text, for the server render (render/text-fallback.ts). */
+  textFallback?: TextFallbackStep[];
 }
 
 export interface IslandCatalogueJson {
@@ -66,7 +73,15 @@ export function descriptorJson(type: string, d: IslandDescriptor): IslandDescrip
   if (d.example !== undefined && (typeof d.example !== "object" || d.example === null || Array.isArray(d.example))) {
     throw new Error(`[fancy-cms] island "${type}" example must be a props object.`);
   }
-  return d.example === undefined ? { description: d.description, hydrate: d.hydrate, props: d.props } : { description: d.description, hydrate: d.hydrate, props: d.props, example: d.example };
+  if (d.package !== undefined && (typeof d.package !== "string" || d.package === "")) throw new Error(`[fancy-cms] island "${type}" package must be a package name.`);
+  if (d.slot !== undefined && d.slot !== "children") throw new Error(`[fancy-cms] island "${type}" slot must be "children".`);
+  if (d.textFallback !== undefined && !isTextFallback(d.textFallback as unknown as Json)) throw new Error(`[fancy-cms] island "${type}" textFallback must be a list of {text}, {code} or {list, fields?} steps.`);
+  const out: IslandDescriptor = { description: d.description, hydrate: d.hydrate, props: d.props };
+  if (d.example !== undefined) out.example = d.example;
+  if (d.package !== undefined) out.package = d.package;
+  if (d.slot !== undefined) out.slot = d.slot;
+  if (d.textFallback !== undefined) out.textFallback = d.textFallback;
+  return out;
 }
 
 /**

@@ -9,7 +9,7 @@ import icons from "../icons/all.js";
 
 describe("CSP native renderer contract", () => {
   it("renders every native node type without generated inline styles", () => {
-    const types = ["section", "stack", "grid", "frame", "shape", "card", "text", "heading", "richtext", "link", "list", "divider", "callout", "code", "button", "image", "repeater", "icon", "chart", "kpi", "table", "leaderboard", "input"];
+    const types = ["section", "stack", "grid", "frame", "shape", "card", "text", "heading", "richtext", "link", "list", "divider", "callout", "code", "button", "image", "repeater", "icon", "chart", "echart", "kpi", "table", "leaderboard", "input"];
     expect([...Object.keys(defaultRegistry), "repeater"].sort()).toEqual([...types].sort());
     const doc: PageDoc = emptyDoc("csp-native-types");
     for (const type of types) {

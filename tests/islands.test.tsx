@@ -47,7 +47,7 @@ describe("island registration", () => {
 
   it("registers host islands beside the built-ins and refuses bad names and collisions", () => {
     const islands = registerIslands(defaultIslands, { "kit:Counter": defineIsland({ description: "A counter", props: schema, component: Counter }) });
-    expect(Object.keys(islands)).toEqual(["chart", "kpi", "table", "leaderboard", "input", "kit:Counter"]);
+    expect(Object.keys(islands)).toEqual(["chart", "echart", "kpi", "table", "leaderboard", "input", "kit:Counter"]);
     expect(() => registerIslands(defaultIslands, { chart: defineIsland({ description: "x", props: schema, component: Counter }) })).toThrow(/already registered/);
     expect(() => registerIslands(defaultIslands, { text: defineIsland({ description: "x", props: schema, component: Counter }) })).toThrow(/native node type/);
     for (const bad of ["Kit:X", "kit:", "has space", "__proto__", "a:b:c", ""]) {
@@ -59,7 +59,7 @@ describe("island registration", () => {
     const islands = registerIslands(defaultIslands, { "kit:Counter": defineIsland({ description: "A counter", props: schema, example: { count: 2 }, component: Counter }) });
     const catalogue = islandCatalogue(islands);
     expect(catalogue.$defs).toEqual(BUILTIN_ISLAND_CATALOGUE.$defs);
-    expect(Object.keys(catalogue.types)).toEqual(["chart", "kpi", "table", "leaderboard", "input", "kit:Counter"]);
+    expect(Object.keys(catalogue.types)).toEqual(["chart", "echart", "kpi", "table", "leaderboard", "input", "kit:Counter"]);
     expect(catalogue.types["kit:Counter"]).toEqual({ description: "A counter", hydrate: "eager", props: schema, example: { count: 2 } });
     expect(JSON.parse(JSON.stringify(catalogue))).toEqual(catalogue);
     expect(islandCatalogue(defaultIslands)).toEqual(BUILTIN_ISLAND_CATALOGUE);

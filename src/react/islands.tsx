@@ -27,12 +27,15 @@ import { Component, useEffect, useState, type ComponentType, type ReactElement, 
 import type { Json, Node } from "../document/types";
 import type { DataContext, ElementContext, ElementRenderer } from "./registry";
 import { BUILTIN_ISLAND_CATALOGUE, ISLAND_TYPE_PATTERN, descriptorJson, type IslandDescriptor, type IslandHydration, type JsonSchema } from "../islands/catalogue";
+import { textFallbackBlocks, type TextFallbackStep } from "../render/text-fallback";
 
 export interface IslandComponentProps {
   /** The node's props with every top-level `{ $bind }` resolved against the data context. */
   props: Record<string, unknown>;
   node: Node;
   data?: DataContext;
+  /** The node's rendered child nodes, for an island whose `slot` is `children`. */
+  children?: ReactNode;
 }
 export type IslandComponent = ComponentType<IslandComponentProps>;
 export interface IslandModule {
@@ -60,6 +63,9 @@ export interface IslandInput {
   component?: IslandComponent;
   load?: IslandLoader;
   fallback?: ElementRenderer;
+  package?: string;
+  slot?: "children";
+  textFallback?: TextFallbackStep[];
 }
 
 /** Node types the renderer owns natively; an island may not take their names. */
@@ -71,7 +77,7 @@ const has = Object.prototype.hasOwnProperty;
 export function defineIsland(input: IslandInput): IslandDefinition {
   if (!input.component && !input.load) throw new Error("[fancy-cms] an island needs a component or load.");
   const hydrate: IslandHydration = input.hydrate ?? (input.load && !input.component ? "lazy" : "eager");
-  descriptorJson("island", { description: input.description, hydrate, props: input.props, example: input.example });
+  descriptorJson("island", { description: input.description, hydrate, props: input.props, example: input.example, package: input.package, slot: input.slot, textFallback: input.textFallback });
   return { ...input, hydrate };
 }
 
@@ -102,6 +108,8 @@ const builtin = BUILTIN_ISLAND_CATALOGUE.types;
  */
 export const defaultIslands: IslandRegistry = {
   chart: { ...builtin.chart!, load: () => import("../islands/chart") },
+  // Any ECharts chart from a validated option (src/islands/echart-option.ts).
+  echart: { ...builtin.echart!, load: () => import("../islands/echart") },
   kpi: { ...builtin.kpi! },
   table: { ...builtin.table! },
   leaderboard: { ...builtin.leaderboard! },
@@ -209,17 +217,56 @@ export class IslandBoundary extends Component<{ children: ReactNode; onError?: (
   }
 }
 
+/**
+ * What an island renders before its code has run (always, on the server): the
+ * host's own `fallback`, or else the catalogue's text fallback followed by the
+ * child nodes of a `slot: "children"` island. FancyCms\Render\PageRenderer
+ * writes the same bytes for the second form.
+ */
+export function islandFallback(def: IslandDefinition, ctx: ElementContext): ReactNode {
+  if (def.fallback) return def.fallback(ctx);
+  const blocks = def.textFallback ? textFallbackBlocks(def.textFallback, resolvedProps(ctx)) : [];
+  const kids = def.slot === "children" ? ctx.children : null;
+  if (blocks.length === 0) return kids;
+  return (
+    <>
+      <div data-cms-fallback="">
+        {blocks.map((b, i) =>
+          b.kind === "p" ? (
+            <p key={i}>{b.items[0]}</p>
+          ) : b.kind === "pre" ? (
+            <pre key={i}>
+              <code>{b.items[0]}</code>
+            </pre>
+          ) : (
+            <ul key={i}>
+              {b.items.map((item, j) => (
+                <li key={j}>{item}</li>
+              ))}
+            </ul>
+          ),
+        )}
+      </div>
+      {kids}
+    </>
+  );
+}
+
 function LazyIsland({ def, ctx }: { def: IslandDefinition; ctx: ElementContext }): ReactElement {
+  // Loaded after hydration, one chunk per island family: a page fetches only
+  // the families it places.
   const Loaded = useIsland(def.load, true);
   const [failed, setFailed] = useState(false);
   if (Loaded && !failed) {
     return (
       <IslandBoundary onError={() => setFailed(true)}>
-        <Loaded props={resolvedProps(ctx)} node={ctx.node} data={ctx.data} />
+        <Loaded props={resolvedProps(ctx)} node={ctx.node} data={ctx.data}>
+          {def.slot === "children" ? ctx.children : undefined}
+        </Loaded>
       </IslandBoundary>
     );
   }
-  return <>{def.fallback ? def.fallback(ctx) : null}</>;
+  return <>{islandFallback(def, ctx)}</>;
 }
 
 /** The inner content of a registered island node. */
@@ -228,10 +275,12 @@ export function renderIsland(def: IslandDefinition, ctx: ElementContext): ReactN
     const Eager = def.component;
     return (
       <IslandBoundary>
-        <Eager props={resolvedProps(ctx)} node={ctx.node} data={ctx.data} />
+        <Eager props={resolvedProps(ctx)} node={ctx.node} data={ctx.data}>
+          {def.slot === "children" ? ctx.children : undefined}
+        </Eager>
       </IslandBoundary>
     );
   }
   if (def.load) return <LazyIsland def={def} ctx={ctx} />;
-  return def.fallback ? def.fallback(ctx) : null;
+  return islandFallback(def, ctx);
 }

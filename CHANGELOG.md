@@ -14,6 +14,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Upgrade with `particle-academy/fancy-cms` at its matching release.** Both now
+know the `echart` node and render kit islands' text fallbacks; a page rendered by
+one and hydrated by an older version of the other differs inside those nodes.
+Nothing else to do: no existing node renders differently.
+
+### Added
+- **Every kit component as an island**, on a new `./kit` entry:
+  `registerIslands(defaultIslands, kitIslands)`. 181 island types named
+  `<package>:<Component>` (`react-fancy:Tabs`, `fancy-sheets:Spreadsheet`,
+  `fancy-3d-three:Stage` and the rest), across 38 lazily loaded family chunks.
+  The inventory behind it, with every component that is a part of another or
+  not placeable and why, is `src/kit/manifest.json`.
+  - The catalogue (`KIT_ISLAND_CATALOGUE`, `src/kit/catalogue.json`) is
+    **generated from the components' real prop types** by
+    `npm run kit:generate`; `npm run kit:check` and the test suite fail when a
+    component's props change and its schema does not.
+  - Props are data only: functions, React elements, markup, script URLs and
+    styling props never reach a schema, and at render a kit island receives only
+    the props its schema declares, with every URL through the scheme check.
+  - Each island renders its text fallback on the server (`textFallback`), and a
+    container island (`slot: "children"`: Card, Grid, Modal body, Reveal...)
+    renders its child nodes; the component replaces it after hydration.
+    `data-cms-island-ready` marks a mounted island.
+  - Not in `defaultIslands`, deliberately: the entry's lazy imports name the
+    whole kit, and a bundler resolves them at build time, so a host without
+    the whole kit would fail to build. Opt in with the `./kit` entry.
+- **The `echart` node** (CC-fancy-0035): any ECharts chart from a validated
+  option with `$bind` data slots. `validateEchartOption` refuses unknown
+  top-level keys and series types, functions and code-like formatters, any
+  string with markup, `javascript:`, `url(` or an `image://` symbol, and rich
+  text, extra CSS, links, images and DOM targets at any depth; the resolved
+  option is validated again, and tooltips render as rich text, never HTML. The
+  server renders its caption and summary.
+- **`react-fancy:Chart`**: react-fancy's bar, horizontal-bar, stacked-bar,
+  line, area, pie, donut and sparkline charts as one island (CC-fancy-0035).
+- Island descriptors may carry `package`, `slot` and `textFallback`.
+
+### Changed
+- Dev dependencies: the kit's UI packages (first-party), so the generator can
+  read their types and the suite can render them. `.npmrc` sets
+  `legacy-peer-deps`, as CI already did, so their third-party peers are not
+  installed. react-fancy's dev pin moves from 4.10 to 6.24; the icon provenance
+  NOTICE names it (the Lucide data is unchanged).
+
 ## [0.14.1] - 2026-11-13
 
 **Upgrade `@particle-academy/fancy-cms-ui` and `particle-academy/fancy-cms`

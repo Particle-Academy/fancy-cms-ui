@@ -7,6 +7,7 @@ import type { IslandRegistry } from "./islands";
 import { renderChart, renderKpi, renderLeaderboard, renderTable } from "./infographics";
 import { chartKind, chartSize, tableLabel } from "../render/infographics";
 import { renderInput } from "./inputs";
+import { renderEchart } from "./echart";
 import { inputKind } from "../render/inputs";
 
 /** The page data context bindings resolve against (e.g. server props, repeater `item`). */
@@ -146,6 +147,9 @@ export function elementFor(node: Node, text: (v: Bound<Json> | undefined) => str
       const props = { kind: text(node.props.kind), size: text(node.props.size) };
       return { tag: "figure", attrs: { "data-cms-chart": chartKind(props), "data-cms-chart-size": chartSize(props) } };
     }
+    // The echart node: a figure whose caption and summary are the server render.
+    case "echart":
+      return { tag: "figure", attrs: { "data-cms-echart": "" } };
     case "kpi":
       return { tag: "div", attrs: { "data-cms-kpi": "" } };
     case "table":
@@ -191,6 +195,7 @@ export const defaultRegistry: ElementRegistry = {
   ),
   button: ({ node, text }) => text(node.props.label) || text(node.props.content) || "Button",
   chart: renderChart,
+  echart: renderEchart,
   kpi: renderKpi,
   table: renderTable,
   leaderboard: renderLeaderboard,
