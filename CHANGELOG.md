@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-11-13
+
+**Upgrade `@particle-academy/fancy-cms-ui` and `particle-academy/fancy-cms`
+together, to 0.14.1 and 0.9.1.** `CmsPage` now writes a
+`data-cms-wrap="anywhere"` attribute on text nodes, KPI values and leaderboard
+labels that hold a long token, and fancy-cms 0.9.1's `PageRenderer` writes the
+same. Markup server-rendered by one and hydrated by an older version of the
+other differs by that attribute. Nothing else to do: no API changed, and a
+node's own `overflowWrap` still wins.
+
 ### Fixed
 
 - **Ordinary words, prices and stats no longer break mid-word at tablet
