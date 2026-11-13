@@ -21,7 +21,7 @@ Nothing else to do: no existing node renders differently.
 
 ### Added
 - **Every kit component as an island**, on a new `./kit` entry:
-  `registerIslands(defaultIslands, kitIslands)`. 181 island types named
+  `registerIslands(defaultIslands, kitIslands)`. 180 island types named
   `<package>:<Component>` (`react-fancy:Tabs`, `fancy-sheets:Spreadsheet`,
   `fancy-3d-three:Stage` and the rest), across 38 lazily loaded family chunks.
   The inventory behind it, with every component that is a part of another or

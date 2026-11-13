@@ -17,7 +17,7 @@ function KitStage({ props }: IslandComponentProps): ReactElement {
       <Stage style={{ height, width: "100%" }}>
         {monitors.map((m, i) => (
           <Monitor key={i} position={m.position} width={m.width} height={m.height} rotationY={m.rotationY}>
-            <div style={{ padding: 16, fontSize: 18 }}>{m.text}</div>
+            <div style={{ padding: 16, fontSize: 18, color: "#0f172a", background: "#ffffff", height: "100%" }}>{m.text}</div>
           </Monitor>
         ))}
       </Stage>

@@ -33,6 +33,13 @@ export default function EchartCanvas({ props }: IslandComponentProps): ReactElem
   const ref = useRef<HTMLDivElement>(null);
   const [theme, setTheme] = useState<EchartTheme | null>(null);
   useEffect(() => setTheme(readTheme(ref.current)), []);
+  // Mark the figure mounted, as a kit island marks itself (data-cms-island-ready),
+  // so a check can tell a drawn chart from its server text.
+  useEffect(() => {
+    const host = ref.current?.closest("[data-cms-island]");
+    host?.setAttribute("data-cms-island-ready", "echart");
+    return () => host?.removeAttribute("data-cms-island-ready");
+  }, []);
   const reduced = typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
   const option = useMemo(
     () => (theme && props.option && typeof props.option === "object" ? echartRenderOption(props.option as Record<string, unknown>, theme, reduced) : null),

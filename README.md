@@ -310,7 +310,7 @@ that fails to load or throws is contained; the page keeps rendering.
 ### Every kit component (`./kit`)
 
 A host with the whole Fancy kit installed can offer every kit component as an
-island: 181 types named `<package>:<Component>` (`react-fancy:Tabs`,
+island: 180 types named `<package>:<Component>` (`react-fancy:Tabs`,
 `react-fancy:Chart`, `fancy-sheets:Spreadsheet`, `fancy-3d-three:Stage`...).
 
 ```tsx
