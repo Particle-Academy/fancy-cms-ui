@@ -14,6 +14,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Ordinary words, prices and stats no longer break mid-word at tablet
+  widths** (a regression in 0.14.0). The S11 fix gave every text node
+  `overflow-wrap: anywhere`, which lowers min-content, so grid tracks and flex
+  items shrank below whole words: lab runs 542 to 554, under two builder
+  models, showed "Discriminatio/n" in a three-column grid at 768px, menu prices
+  as "$/9" and "$2/2", and a "41%" stat as "4/1/%". Text nodes now get
+  `overflow-wrap: break-word`, which breaks a word only when it cannot fit its
+  line and leaves min-content alone. A text, heading, link, callout or list
+  node whose rendered text holds a long token (20 code points or more with no
+  space, hyphen or dash: a URL, an email, hostile input) is marked
+  `data-cms-wrap="anywhere"` and keeps `anywhere`, so S11 stays fixed: that
+  token alone cannot widen a grid track, a flex row or the page. A node's own
+  `overflowWrap` still wins. Measured in Chrome by the new
+  `parity/text-wrap-browser.mjs` (`npm run parity:wrap`) on the five lab pages
+  and the hostile-facts page that measured 380px at 375px, plus an adversarial
+  page of long tokens in grids, row stacks and shrink-to-fit stacks, at 375,
+  768 and 1280px: no horizontal overflow and no mid-word break in a word that
+  fits its track (13 such breaks with the 0.14.0 rule; 0 now). `--rules=0.14`
+  and `--rules=none` reproduce the regression and the original 380px page.
+  Every page's stylesheet changes in that one rule plus one new rule, so the
+  frozen hashes in `parity/legacy-css-sha256.json` were re-pinned after
+  checking each document's new CSS, with the old rule put back, still hashes
+  to its old value. Byte-identical to `particle-academy/fancy-cms` (shared
+  `tests/fixtures/text-wrap.json`, new `parity/canonical-long-tokens.json`).
+  Consumers do nothing, but upgrade `fancy-cms` alongside: markup rendered by
+  one and hydrated by an older other differs by the new attribute.
+
 ## [0.14.0] - 2026-11-12
 
 **BREAKING only if your documents already use a node type named `chart`,

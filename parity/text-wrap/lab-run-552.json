@@ -1,0 +1,2305 @@
+{
+  "id": "lane-801",
+  "seq": 89,
+  "meta": {
+    "title": "Harrow & Vale | Employment law for employees",
+    "slug": "/",
+    "scrollMode": "smooth",
+    "seo": {
+      "description": "Harrow & Vale: employment law for employees. Unfair dismissal, discrimination, settlement agreements. First consultation free, 30 minutes."
+    }
+  },
+  "theme": {
+    "color": {
+      "primary": "#1f4d47",
+      "tint": "#eef3f1",
+      "accent": "#9a5b13",
+      "ink": "#16211f",
+      "muted": "#4a5754",
+      "line": "#d3ddd9",
+      "surface": "#fbfcfb"
+    },
+    "font": {
+      "display": "Georgia, 'Times New Roman', serif",
+      "body": "'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    }
+  },
+  "breakpoints": [
+    "base",
+    "md",
+    "lg"
+  ],
+  "nodes": {
+    "header": {
+      "id": "header",
+      "type": "section",
+      "parent": null,
+      "order": "a0",
+      "props": {
+        "as": "header"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 16,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)",
+          "color": "var(--cms-color-ink)",
+          "fontFamily": "var(--cms-font-body)"
+        },
+        "md": {
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "header-bar": {
+      "id": "header-bar",
+      "type": "stack",
+      "parent": "header",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "direction": "column",
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "align": "start"
+        },
+        "md": {
+          "direction": "row",
+          "justify": "between",
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "brand": {
+      "id": "brand",
+      "type": "link",
+      "parent": "header-bar",
+      "order": "a0",
+      "props": {
+        "content": "Harrow & Vale",
+        "href": "/"
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 22,
+            "unit": "px"
+          },
+          "fontWeight": 700,
+          "color": "var(--cms-color-primary)",
+          "paddingY": {
+            "value": 10,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "site-nav": {
+      "id": "site-nav",
+      "type": "stack",
+      "parent": "header-bar",
+      "order": "a1",
+      "props": {
+        "as": "nav"
+      },
+      "style": {
+        "base": {
+          "direction": "row",
+          "wrap": true,
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          },
+          "align": "center"
+        },
+        "md": {
+          "gap": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "nav-services": {
+      "id": "nav-services",
+      "type": "link",
+      "parent": "site-nav",
+      "order": "a0",
+      "props": {
+        "content": "What we handle",
+        "href": "#services"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 12,
+            "unit": "px"
+          },
+          "lineHeight": 1.5,
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)"
+        }
+      }
+    },
+    "nav-consult": {
+      "id": "nav-consult",
+      "type": "link",
+      "parent": "site-nav",
+      "order": "a1",
+      "props": {
+        "content": "First consultation",
+        "href": "#consultation"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 12,
+            "unit": "px"
+          },
+          "lineHeight": 1.5,
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)"
+        }
+      }
+    },
+    "nav-about": {
+      "id": "nav-about",
+      "type": "link",
+      "parent": "site-nav",
+      "order": "a2",
+      "props": {
+        "content": "About the firm",
+        "href": "#about"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 12,
+            "unit": "px"
+          },
+          "lineHeight": 1.5,
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)"
+        }
+      }
+    },
+    "hero": {
+      "id": "hero",
+      "type": "section",
+      "parent": null,
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 48,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "background": "var(--cms-color-tint)",
+          "color": "var(--cms-color-ink)",
+          "fontFamily": "var(--cms-font-body)"
+        },
+        "md": {
+          "paddingY": {
+            "value": 72,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-grid": {
+      "id": "hero-grid",
+      "type": "grid",
+      "parent": "hero",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "columns": 1,
+          "gap": {
+            "value": 32,
+            "unit": "px"
+          },
+          "align": "center"
+        },
+        "lg": {
+          "columns": 2,
+          "gap": {
+            "value": 48,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "hero-copy": {
+      "id": "hero-copy",
+      "type": "stack",
+      "parent": "hero-grid",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 20,
+            "unit": "px"
+          },
+          "align": "start"
+        }
+      },
+      "layout": "stack"
+    },
+    "hero-actions": {
+      "id": "hero-actions",
+      "type": "stack",
+      "parent": "hero-copy",
+      "order": "a5",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "row",
+          "wrap": true,
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "hero-media": {
+      "id": "hero-media",
+      "type": "stack",
+      "parent": "hero-grid",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 16,
+            "unit": "px"
+          },
+          "overflow": "hidden"
+        }
+      },
+      "layout": "stack"
+    },
+    "features": {
+      "id": "features",
+      "type": "section",
+      "parent": null,
+      "order": "a2",
+      "props": {
+        "anchor": "services"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 48,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)",
+          "fontFamily": "var(--cms-font-body)"
+        },
+        "md": {
+          "paddingY": {
+            "value": 72,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "features-inner": {
+      "id": "features-inner",
+      "type": "stack",
+      "parent": "features",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "gap": {
+            "value": 32,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "gap": {
+            "value": 40,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "features-head": {
+      "id": "features-head",
+      "type": "stack",
+      "parent": "features-inner",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "maxWidth": {
+            "value": 680,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "features-grid": {
+      "id": "features-grid",
+      "type": "grid",
+      "parent": "features-inner",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "columns": 1,
+          "gap": {
+            "value": 24,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "columns": 3
+        },
+        "lg": {
+          "gap": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "cta": {
+      "id": "cta",
+      "type": "section",
+      "parent": null,
+      "order": "a5",
+      "props": {},
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 48,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "background": "var(--cms-color-primary)",
+          "color": "#ffffff",
+          "fontFamily": "var(--cms-font-body)"
+        },
+        "md": {
+          "paddingY": {
+            "value": 72,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "cta-inner": {
+      "id": "cta-inner",
+      "type": "stack",
+      "parent": "cta",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 720,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          },
+          "align": "center",
+          "textAlign": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "footer": {
+      "id": "footer",
+      "type": "section",
+      "parent": null,
+      "order": "a6",
+      "props": {
+        "as": "footer"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 40,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)",
+          "fontFamily": "var(--cms-font-body)"
+        },
+        "md": {
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "footer-inner": {
+      "id": "footer-inner",
+      "type": "stack",
+      "parent": "footer",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "direction": "column",
+          "gap": {
+            "value": 24,
+            "unit": "px"
+          },
+          "align": "start"
+        },
+        "md": {
+          "direction": "row",
+          "justify": "between",
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "footer-nav": {
+      "id": "footer-nav",
+      "type": "stack",
+      "parent": "footer-inner",
+      "order": "a1",
+      "props": {
+        "as": "nav"
+      },
+      "style": {
+        "base": {
+          "direction": "row",
+          "wrap": true,
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "gap": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "hero-mark": {
+      "id": "hero-mark",
+      "type": "shape",
+      "parent": "hero-copy",
+      "order": "a0",
+      "props": {
+        "decorative": true
+      },
+      "style": {
+        "base": {
+          "background": "linear-gradient(var(--cms-color-accent) 0 2px, transparent 2px 6px, var(--cms-color-accent) 6px 8px)",
+          "minHeight": {
+            "value": 8,
+            "unit": "px"
+          },
+          "maxWidth": {
+            "value": 56,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-eyebrow": {
+      "id": "hero-eyebrow",
+      "type": "text",
+      "parent": "hero-copy",
+      "order": "a1",
+      "props": {
+        "content": "Employment law for employees"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "lineHeight": 1.4,
+          "fontWeight": 600,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-accent)"
+        }
+      }
+    },
+    "hero-title": {
+      "id": "hero-title",
+      "type": "heading",
+      "parent": "hero-copy",
+      "order": "a2",
+      "props": {
+        "content": "We act for employees, not employers.",
+        "level": 1
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 40,
+            "unit": "px"
+          },
+          "lineHeight": 1.1,
+          "fontWeight": 700,
+          "letterSpacing": {
+            "value": -0.5,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 52,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "value": 60,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-lead": {
+      "id": "hero-lead",
+      "type": "text",
+      "parent": "hero-copy",
+      "order": "a3",
+      "props": {
+        "content": "Harrow & Vale is a four-lawyer firm handling unfair dismissal, discrimination and settlement agreements. Your first consultation is 30 minutes, free, by phone or video."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)",
+          "maxWidth": {
+            "value": 680,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-book": {
+      "id": "hero-book",
+      "type": "button",
+      "parent": "hero-actions",
+      "order": "a0",
+      "props": {
+        "label": "Book a consultation",
+        "href": "https://book.example.com/harrow-vale",
+        "variant": "primary"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 14,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 24,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          },
+          "background": "var(--cms-color-primary)",
+          "color": "#ffffff"
+        }
+      }
+    },
+    "hero-more": {
+      "id": "hero-more",
+      "type": "button",
+      "parent": "hero-actions",
+      "order": "a1",
+      "props": {
+        "label": "What we handle",
+        "href": "#services",
+        "variant": "outline"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 14,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 24,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-primary)",
+          "border": "1px solid var(--cms-color-primary)"
+        }
+      }
+    },
+    "hero-image": {
+      "id": "hero-image",
+      "type": "image",
+      "parent": "hero-media",
+      "order": "a0",
+      "props": {
+        "asset": "hero",
+        "alt": "A plain folder, blank papers and a pen on a quiet table.",
+        "fit": "cover",
+        "loading": "eager"
+      },
+      "style": {
+        "base": {
+          "aspectRatio": "3 / 2",
+          "radius": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "svc-mark": {
+      "id": "svc-mark",
+      "type": "shape",
+      "parent": "features-head",
+      "order": "a0",
+      "props": {
+        "decorative": true
+      },
+      "style": {
+        "base": {
+          "background": "linear-gradient(var(--cms-color-accent) 0 2px, transparent 2px 6px, var(--cms-color-accent) 6px 8px)",
+          "minHeight": {
+            "value": 8,
+            "unit": "px"
+          },
+          "maxWidth": {
+            "value": 56,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "svc-title": {
+      "id": "svc-title",
+      "type": "heading",
+      "parent": "features-head",
+      "order": "a1",
+      "props": {
+        "content": "What we handle",
+        "level": 2
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "lineHeight": 1.2,
+          "fontWeight": 700
+        },
+        "md": {
+          "fontSize": {
+            "value": 34,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "value": 40,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "svc-intro": {
+      "id": "svc-intro",
+      "type": "text",
+      "parent": "features-head",
+      "order": "a2",
+      "props": {
+        "content": "Three areas of employment law, always on the employee's side."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "card-dismissal": {
+      "id": "card-dismissal",
+      "type": "card",
+      "parent": "features-grid",
+      "order": "a0",
+      "props": {
+        "as": "article"
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)",
+          "background": "#ffffff"
+        },
+        "md": {
+          "padding": {
+            "value": 28,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "icon-dismissal": {
+      "id": "icon-dismissal",
+      "type": "icon",
+      "parent": "card-dismissal",
+      "order": "a0",
+      "props": {
+        "name": "user-minus",
+        "decorative": true
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "h-dismissal": {
+      "id": "h-dismissal",
+      "type": "heading",
+      "parent": "card-dismissal",
+      "order": "a1",
+      "props": {
+        "content": "Unfair dismissal",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600
+        },
+        "md": {
+          "fontSize": {
+            "value": 22,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "t-dismissal": {
+      "id": "t-dismissal",
+      "type": "text",
+      "parent": "card-dismissal",
+      "order": "a2",
+      "props": {
+        "content": "If you have been dismissed and believe it was unfair, talk it through with us."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "card-discrim": {
+      "id": "card-discrim",
+      "type": "card",
+      "parent": "features-grid",
+      "order": "a1",
+      "props": {
+        "as": "article"
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)",
+          "background": "#ffffff"
+        },
+        "md": {
+          "padding": {
+            "value": 28,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "icon-discrim": {
+      "id": "icon-discrim",
+      "type": "icon",
+      "parent": "card-discrim",
+      "order": "a0",
+      "props": {
+        "name": "shield-user",
+        "decorative": true
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "h-discrim": {
+      "id": "h-discrim",
+      "type": "heading",
+      "parent": "card-discrim",
+      "order": "a1",
+      "props": {
+        "content": "Discrimination",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600
+        },
+        "md": {
+          "fontSize": {
+            "value": 22,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "t-discrim": {
+      "id": "t-discrim",
+      "type": "text",
+      "parent": "card-discrim",
+      "order": "a2",
+      "props": {
+        "content": "If you have been treated unfairly at work because of who you are, we can help you understand where you stand."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "card-settle": {
+      "id": "card-settle",
+      "type": "card",
+      "parent": "features-grid",
+      "order": "a2",
+      "props": {
+        "as": "article"
+      },
+      "style": {
+        "base": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)",
+          "background": "#ffffff"
+        },
+        "md": {
+          "padding": {
+            "value": 28,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "icon-settle": {
+      "id": "icon-settle",
+      "type": "icon",
+      "parent": "card-settle",
+      "order": "a0",
+      "props": {
+        "name": "file-check",
+        "decorative": true
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "h-settle": {
+      "id": "h-settle",
+      "type": "heading",
+      "parent": "card-settle",
+      "order": "a1",
+      "props": {
+        "content": "Settlement agreements",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600
+        },
+        "md": {
+          "fontSize": {
+            "value": 22,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "t-settle": {
+      "id": "t-settle",
+      "type": "text",
+      "parent": "card-settle",
+      "order": "a2",
+      "props": {
+        "content": "If your employer has offered a settlement agreement, we go through it with you before you sign."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "consult": {
+      "id": "consult",
+      "type": "section",
+      "parent": null,
+      "order": "a3",
+      "props": {
+        "anchor": "consultation"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 48,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "background": "var(--cms-color-tint)",
+          "color": "var(--cms-color-ink)",
+          "fontFamily": "var(--cms-font-body)"
+        },
+        "md": {
+          "paddingY": {
+            "value": 72,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "consult-grid": {
+      "id": "consult-grid",
+      "type": "grid",
+      "parent": "consult",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "columns": 1,
+          "gap": {
+            "value": 32,
+            "unit": "px"
+          },
+          "align": "center"
+        },
+        "lg": {
+          "columns": 2,
+          "gap": {
+            "value": 48,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "consult-image": {
+      "id": "consult-image",
+      "type": "image",
+      "parent": "consult-grid",
+      "order": "a0",
+      "props": {
+        "asset": "consultation",
+        "alt": "A phone and a closed notebook on a simple table.",
+        "fit": "cover",
+        "loading": "lazy"
+      },
+      "style": {
+        "base": {
+          "aspectRatio": "3 / 2",
+          "radius": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "consult-copy": {
+      "id": "consult-copy",
+      "type": "stack",
+      "parent": "consult-grid",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 20,
+            "unit": "px"
+          },
+          "align": "start"
+        }
+      },
+      "layout": "stack"
+    },
+    "consult-mark": {
+      "id": "consult-mark",
+      "type": "shape",
+      "parent": "consult-copy",
+      "order": "a0",
+      "props": {
+        "decorative": true
+      },
+      "style": {
+        "base": {
+          "background": "linear-gradient(var(--cms-color-accent) 0 2px, transparent 2px 6px, var(--cms-color-accent) 6px 8px)",
+          "minHeight": {
+            "value": 8,
+            "unit": "px"
+          },
+          "maxWidth": {
+            "value": 56,
+            "unit": "px"
+          },
+          "minWidth": {
+            "value": 56,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "consult-title": {
+      "id": "consult-title",
+      "type": "heading",
+      "parent": "consult-copy",
+      "order": "a1",
+      "props": {
+        "content": "Your first consultation",
+        "level": 2
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "lineHeight": 1.2,
+          "fontWeight": 700
+        },
+        "md": {
+          "fontSize": {
+            "value": 34,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "value": 40,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "consult-intro": {
+      "id": "consult-intro",
+      "type": "text",
+      "parent": "consult-copy",
+      "order": "a2",
+      "props": {
+        "content": "A first conversation costs you nothing. Tell us what happened, and we will talk it through with you plainly."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "consult-facts": {
+      "id": "consult-facts",
+      "type": "grid",
+      "parent": "consult-copy",
+      "order": "a3",
+      "props": {},
+      "style": {
+        "base": {
+          "columns": 1,
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "columns": 3
+        }
+      },
+      "layout": "grid"
+    },
+    "cf-length": {
+      "id": "cf-length",
+      "type": "card",
+      "parent": "consult-facts",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 4,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)",
+          "background": "#ffffff"
+        }
+      },
+      "layout": "stack"
+    },
+    "cf-length-l": {
+      "id": "cf-length-l",
+      "type": "text",
+      "parent": "cf-length",
+      "order": "a0",
+      "props": {
+        "content": "Length"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "lineHeight": 1.4,
+          "fontWeight": 600,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "cf-length-v": {
+      "id": "cf-length-v",
+      "type": "text",
+      "parent": "cf-length",
+      "order": "a1",
+      "props": {
+        "content": "30 minutes"
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600,
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "cf-cost": {
+      "id": "cf-cost",
+      "type": "card",
+      "parent": "consult-facts",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 4,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)",
+          "background": "#ffffff"
+        }
+      },
+      "layout": "stack"
+    },
+    "cf-cost-l": {
+      "id": "cf-cost-l",
+      "type": "text",
+      "parent": "cf-cost",
+      "order": "a0",
+      "props": {
+        "content": "Cost"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "lineHeight": 1.4,
+          "fontWeight": 600,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "cf-cost-v": {
+      "id": "cf-cost-v",
+      "type": "text",
+      "parent": "cf-cost",
+      "order": "a1",
+      "props": {
+        "content": "Free"
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600,
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "cf-format": {
+      "id": "cf-format",
+      "type": "card",
+      "parent": "consult-facts",
+      "order": "a2",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 4,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)",
+          "background": "#ffffff"
+        }
+      },
+      "layout": "stack"
+    },
+    "cf-format-l": {
+      "id": "cf-format-l",
+      "type": "text",
+      "parent": "cf-format",
+      "order": "a0",
+      "props": {
+        "content": "How"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "lineHeight": 1.4,
+          "fontWeight": 600,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "cf-format-v": {
+      "id": "cf-format-v",
+      "type": "text",
+      "parent": "cf-format",
+      "order": "a1",
+      "props": {
+        "content": "By phone or video"
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600,
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "consult-book": {
+      "id": "consult-book",
+      "type": "button",
+      "parent": "consult-copy",
+      "order": "a4",
+      "props": {
+        "label": "Book a consultation",
+        "href": "https://book.example.com/harrow-vale",
+        "variant": "primary"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 14,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 24,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          },
+          "background": "var(--cms-color-primary)",
+          "color": "#ffffff"
+        }
+      }
+    },
+    "about": {
+      "id": "about",
+      "type": "section",
+      "parent": null,
+      "order": "a4",
+      "props": {
+        "anchor": "about"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 48,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)",
+          "fontFamily": "var(--cms-font-body)"
+        },
+        "md": {
+          "paddingY": {
+            "value": 72,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "about-grid": {
+      "id": "about-grid",
+      "type": "grid",
+      "parent": "about",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "columns": 1,
+          "gap": {
+            "value": 32,
+            "unit": "px"
+          },
+          "align": "center"
+        },
+        "lg": {
+          "columns": 2,
+          "gap": {
+            "value": 48,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "about-copy": {
+      "id": "about-copy",
+      "type": "stack",
+      "parent": "about-grid",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 20,
+            "unit": "px"
+          },
+          "align": "start"
+        }
+      },
+      "layout": "stack"
+    },
+    "about-title": {
+      "id": "about-title",
+      "type": "heading",
+      "parent": "about-copy",
+      "order": "a0",
+      "props": {
+        "content": "About the firm",
+        "level": 2
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "lineHeight": 1.2,
+          "fontWeight": 700
+        },
+        "md": {
+          "fontSize": {
+            "value": 34,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "value": 40,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "about-text": {
+      "id": "about-text",
+      "type": "text",
+      "parent": "about-copy",
+      "order": "a1",
+      "props": {
+        "content": "Harrow & Vale is a small firm by design: four lawyers, working only for employees."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "about-facts": {
+      "id": "about-facts",
+      "type": "stack",
+      "parent": "about-copy",
+      "order": "a2",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 0,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)",
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "overflow": "hidden"
+        }
+      },
+      "layout": "stack"
+    },
+    "af-since": {
+      "id": "af-since",
+      "type": "stack",
+      "parent": "about-facts",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "column",
+          "gap": {
+            "value": 4,
+            "unit": "px"
+          },
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)"
+        },
+        "md": {
+          "direction": "row",
+          "justify": "between",
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "af-since-l": {
+      "id": "af-since-l",
+      "type": "text",
+      "parent": "af-since",
+      "order": "a0",
+      "props": {
+        "content": "Practising since"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "lineHeight": 1.4,
+          "fontWeight": 600,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "af-since-v": {
+      "id": "af-since-v",
+      "type": "text",
+      "parent": "af-since",
+      "order": "a1",
+      "props": {
+        "content": "2009"
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600,
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "af-team": {
+      "id": "af-team",
+      "type": "stack",
+      "parent": "about-facts",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "column",
+          "gap": {
+            "value": 4,
+            "unit": "px"
+          },
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)"
+        },
+        "md": {
+          "direction": "row",
+          "justify": "between",
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "af-team-l": {
+      "id": "af-team-l",
+      "type": "text",
+      "parent": "af-team",
+      "order": "a0",
+      "props": {
+        "content": "Lawyers"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "lineHeight": 1.4,
+          "fontWeight": 600,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "af-team-v": {
+      "id": "af-team-v",
+      "type": "text",
+      "parent": "af-team",
+      "order": "a1",
+      "props": {
+        "content": "Four"
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600,
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "af-partners": {
+      "id": "af-partners",
+      "type": "stack",
+      "parent": "about-facts",
+      "order": "a2",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "column",
+          "gap": {
+            "value": 4,
+            "unit": "px"
+          },
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)"
+        },
+        "md": {
+          "direction": "row",
+          "justify": "between",
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "af-partners-l": {
+      "id": "af-partners-l",
+      "type": "text",
+      "parent": "af-partners",
+      "order": "a0",
+      "props": {
+        "content": "Partners"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "lineHeight": 1.4,
+          "fontWeight": 600,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "af-partners-v": {
+      "id": "af-partners-v",
+      "type": "text",
+      "parent": "af-partners",
+      "order": "a1",
+      "props": {
+        "content": "Dana Harrow and Ruth Vale"
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 600,
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "about-image": {
+      "id": "about-image",
+      "type": "image",
+      "parent": "about-grid",
+      "order": "a1",
+      "props": {
+        "asset": "correspondence",
+        "alt": "A sealed envelope resting on a document folder.",
+        "fit": "cover",
+        "loading": "lazy"
+      },
+      "style": {
+        "base": {
+          "aspectRatio": "3 / 2",
+          "radius": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "cta-mark": {
+      "id": "cta-mark",
+      "type": "shape",
+      "parent": "cta-inner",
+      "order": "a0",
+      "props": {
+        "decorative": true
+      },
+      "style": {
+        "base": {
+          "background": "linear-gradient(#ffffff 0 2px, transparent 2px 6px, #ffffff 6px 8px)",
+          "minHeight": {
+            "value": 8,
+            "unit": "px"
+          },
+          "maxWidth": {
+            "value": 56,
+            "unit": "px"
+          },
+          "marginX": "auto"
+        }
+      }
+    },
+    "cta-title": {
+      "id": "cta-title",
+      "type": "heading",
+      "parent": "cta-inner",
+      "order": "a1",
+      "props": {
+        "content": "Talk to us before you decide anything",
+        "level": 2
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "lineHeight": 1.2,
+          "fontWeight": 700,
+          "color": "#ffffff"
+        },
+        "md": {
+          "fontSize": {
+            "value": 34,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "value": 40,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "cta-text": {
+      "id": "cta-text",
+      "type": "text",
+      "parent": "cta-inner",
+      "order": "a2",
+      "props": {
+        "content": "First consultation: 30 minutes, free, by phone or video."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "#ffffff"
+        },
+        "md": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "cta-book": {
+      "id": "cta-book",
+      "type": "button",
+      "parent": "cta-inner",
+      "order": "a3",
+      "props": {
+        "label": "Book a consultation",
+        "href": "https://book.example.com/harrow-vale",
+        "variant": "ghost"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 14,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 24,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          },
+          "background": "#ffffff",
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "footer-brand": {
+      "id": "footer-brand",
+      "type": "stack",
+      "parent": "footer-inner",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 4,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "footer-name": {
+      "id": "footer-name",
+      "type": "text",
+      "parent": "footer-brand",
+      "order": "a0",
+      "props": {
+        "content": "Harrow & Vale"
+      },
+      "style": {
+        "base": {
+          "fontFamily": "var(--cms-font-display)",
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.3,
+          "fontWeight": 700,
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "footer-disclaimer": {
+      "id": "footer-disclaimer",
+      "type": "text",
+      "parent": "footer-brand",
+      "order": "a1",
+      "props": {
+        "content": "This page is general information, not legal advice."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "lineHeight": 1.5,
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "fn-services": {
+      "id": "fn-services",
+      "type": "link",
+      "parent": "footer-nav",
+      "order": "a0",
+      "props": {
+        "content": "What we handle",
+        "href": "#services"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 12,
+            "unit": "px"
+          },
+          "lineHeight": 1.5,
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)"
+        }
+      }
+    },
+    "fn-consult": {
+      "id": "fn-consult",
+      "type": "link",
+      "parent": "footer-nav",
+      "order": "a1",
+      "props": {
+        "content": "First consultation",
+        "href": "#consultation"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 12,
+            "unit": "px"
+          },
+          "lineHeight": 1.5,
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)"
+        }
+      }
+    },
+    "fn-book": {
+      "id": "fn-book",
+      "type": "link",
+      "parent": "footer-nav",
+      "order": "a2",
+      "props": {
+        "content": "Book a consultation",
+        "href": "https://book.example.com/harrow-vale"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 12,
+            "unit": "px"
+          },
+          "lineHeight": 1.5,
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-primary)",
+          "fontWeight": 600
+        }
+      }
+    }
+  }
+}

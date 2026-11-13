@@ -1,0 +1,602 @@
+{
+  "id": "s11-adversarial",
+  "seq": 0,
+  "meta": {
+    "title": "S11 adversarial",
+    "slug": "/",
+    "scrollMode": "smooth"
+  },
+  "theme": {
+    "name": "default"
+  },
+  "breakpoints": [
+    "base",
+    "md",
+    "lg"
+  ],
+  "nodes": {
+    "page": {
+      "id": "page",
+      "type": "section",
+      "parent": null,
+      "order": "a000",
+      "props": {
+        "as": "main"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 24,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "col": {
+      "id": "col",
+      "type": "stack",
+      "parent": "page",
+      "order": "a001",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1040,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "gap": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "g2": {
+      "id": "g2",
+      "type": "grid",
+      "parent": "col",
+      "order": "a002",
+      "props": {},
+      "style": {
+        "base": {
+          "columns": 2,
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "g2c0": {
+      "id": "g2c0",
+      "type": "card",
+      "parent": "g2",
+      "order": "a003",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 8,
+            "unit": "px"
+          },
+          "border": "1px solid #ccc"
+        }
+      },
+      "layout": "stack"
+    },
+    "g2h0": {
+      "id": "g2h0",
+      "type": "heading",
+      "parent": "g2c0",
+      "order": "a004",
+      "props": {
+        "content": "Fees",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 22,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "g2t0": {
+      "id": "g2t0",
+      "type": "text",
+      "parent": "g2c0",
+      "order": "a005",
+      "props": {
+        "content": "<script>window.__pwned=1</script>Buttons since 1999"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "g2c1": {
+      "id": "g2c1",
+      "type": "card",
+      "parent": "g2",
+      "order": "a006",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 8,
+            "unit": "px"
+          },
+          "border": "1px solid #ccc"
+        }
+      },
+      "layout": "stack"
+    },
+    "g2h1": {
+      "id": "g2h1",
+      "type": "heading",
+      "parent": "g2c1",
+      "order": "a007",
+      "props": {
+        "content": "Terms",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 22,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "g2t1": {
+      "id": "g2t1",
+      "type": "text",
+      "parent": "g2c1",
+      "order": "a008",
+      "props": {
+        "content": "https://example.com/a/very/long/path/with/no/breaks/at/all"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "row": {
+      "id": "row",
+      "type": "stack",
+      "parent": "col",
+      "order": "a009",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "row",
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "justify": "between"
+        }
+      },
+      "layout": "stack"
+    },
+    "rowt": {
+      "id": "rowt",
+      "type": "text",
+      "parent": "row",
+      "order": "a010",
+      "props": {
+        "content": "https://example.com/a/very/long/path/with/no/breaks/at/all"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "rowp": {
+      "id": "rowp",
+      "type": "text",
+      "parent": "row",
+      "order": "a011",
+      "props": {
+        "content": "$24"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "ctr": {
+      "id": "ctr",
+      "type": "stack",
+      "parent": "col",
+      "order": "a012",
+      "props": {},
+      "style": {
+        "base": {
+          "align": "center",
+          "gap": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "ctrt": {
+      "id": "ctrt",
+      "type": "text",
+      "parent": "ctr",
+      "order": "a013",
+      "props": {
+        "content": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "ctrstat": {
+      "id": "ctrstat",
+      "type": "heading",
+      "parent": "ctr",
+      "order": "a014",
+      "props": {
+        "content": "41%",
+        "level": 2
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 64,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "nav": {
+      "id": "nav",
+      "type": "stack",
+      "parent": "col",
+      "order": "a015",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "row",
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          },
+          "wrap": true
+        }
+      },
+      "layout": "stack"
+    },
+    "navk": {
+      "id": "navk",
+      "type": "link",
+      "parent": "nav",
+      "order": "a016",
+      "props": {
+        "content": "https://example.com/a/very/long/path/with/no/breaks/at/all",
+        "href": "/a"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "navs": {
+      "id": "navs",
+      "type": "link",
+      "parent": "nav",
+      "order": "a017",
+      "props": {
+        "content": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "af": {
+      "id": "af",
+      "type": "grid",
+      "parent": "col",
+      "order": "a018",
+      "props": {},
+      "style": {
+        "base": {
+          "columnMin": {
+            "value": 220,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "afl": {
+      "id": "afl",
+      "type": "list",
+      "parent": "af",
+      "order": "a019",
+      "props": {
+        "items": [
+          "https://example.com/a/very/long/path/with/no/breaks/at/all",
+          "Invoice in under a minute"
+        ]
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "afc": {
+      "id": "afc",
+      "type": "callout",
+      "parent": "af",
+      "order": "a020",
+      "props": {
+        "content": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+        "variant": "warning"
+      },
+      "style": {
+        "base": {}
+      }
+    },
+    "menu": {
+      "id": "menu",
+      "type": "grid",
+      "parent": "col",
+      "order": "a021",
+      "props": {},
+      "style": {
+        "base": {
+          "columns": 1,
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "columns": 3
+        }
+      },
+      "layout": "grid"
+    },
+    "m0": {
+      "id": "m0",
+      "type": "stack",
+      "parent": "menu",
+      "order": "a022",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "row",
+          "justify": "between",
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "border": "1px solid #ccc"
+        }
+      },
+      "layout": "stack"
+    },
+    "m0d": {
+      "id": "m0d",
+      "type": "text",
+      "parent": "m0",
+      "order": "a023",
+      "props": {
+        "content": "Lamb rogan josh"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "m0p": {
+      "id": "m0p",
+      "type": "text",
+      "parent": "m0",
+      "order": "a024",
+      "props": {
+        "content": "$24"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "m1": {
+      "id": "m1",
+      "type": "stack",
+      "parent": "menu",
+      "order": "a025",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "row",
+          "justify": "between",
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "border": "1px solid #ccc"
+        }
+      },
+      "layout": "stack"
+    },
+    "m1d": {
+      "id": "m1d",
+      "type": "text",
+      "parent": "m1",
+      "order": "a026",
+      "props": {
+        "content": "Paneer tikka masala"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "m1p": {
+      "id": "m1p",
+      "type": "text",
+      "parent": "m1",
+      "order": "a027",
+      "props": {
+        "content": "$19"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "m2": {
+      "id": "m2",
+      "type": "stack",
+      "parent": "menu",
+      "order": "a028",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "row",
+          "justify": "between",
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "padding": {
+            "value": 16,
+            "unit": "px"
+          },
+          "border": "1px solid #ccc"
+        }
+      },
+      "layout": "stack"
+    },
+    "m2d": {
+      "id": "m2d",
+      "type": "text",
+      "parent": "m2",
+      "order": "a029",
+      "props": {
+        "content": "Gulab jamun"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "m2p": {
+      "id": "m2p",
+      "type": "text",
+      "parent": "m2",
+      "order": "a030",
+      "props": {
+        "content": "$8"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "lineHeight": 1.5
+        }
+      }
+    }
+  }
+}

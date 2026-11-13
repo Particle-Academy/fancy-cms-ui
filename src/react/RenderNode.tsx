@@ -6,6 +6,7 @@ import { decorationError } from "../document/decorative";
 import type { IconSet } from "../document/icons";
 import type { ImageAssetResolver } from "../render/images";
 import {prepareDocFonts,type FontRenderOptions} from "../render/fonts";
+import { wrapFor } from "../render/wrap";
 import { anchorFor, defaultRegistry, elementFor, resolveValue, type DataContext, type ElementRegistry } from "./registry";
 import { isIslandNode, pageIslands, renderIsland, type IslandRegistry } from "./islands";
 
@@ -89,6 +90,13 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, image
   // section, nav ...), so the node's emitted CSS styles the real element.
   const { tag, attrs } = elementFor(node, text);
   const anchor = anchorFor(node, text);
+  // A long token may break anywhere; ordinary words keep their min-content (render/wrap.ts).
+  const listItems = node.type === "list" ? resolve(node.props.items) : undefined;
+  const wrap = wrapFor(
+    node.type,
+    node.type === "list" ? "" : text(node.props.content),
+    Array.isArray(listItems) ? listItems.map((item) => (item === null || item === undefined ? "" : String(item))) : [],
+  );
   return createElement(
     tag,
     {
@@ -97,6 +105,7 @@ function ValidatedNode({ doc, id, registry = defaultRegistry, data, icons, image
       className: node.className,
       ...(anchor ? { id: anchor } : {}),
       ...attrs,
+      ...(wrap ? { "data-cms-wrap": wrap } : {}),
       ...(decorativeSafe && ["frame", "shape"].includes(node.type) && node.props.decorative === true ? { "aria-hidden": "true" } : {}),
     },
     inner,

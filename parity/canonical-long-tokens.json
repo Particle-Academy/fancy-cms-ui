@@ -1,0 +1,73 @@
+{
+  "id": "canonical-long-tokens",
+  "seq": 1,
+  "meta": { "title": "Long tokens and ordinary words", "slug": "/parity-long-tokens", "scrollMode": "smooth" },
+  "theme": { "name": "default" },
+  "breakpoints": ["base", "md", "lg"],
+  "nodes": {
+    "s": {
+      "id": "s", "type": "section", "parent": null, "order": "a0",
+      "props": {}, "style": { "base": { "paddingX": { "value": 20, "unit": "px" } } }
+    },
+    "g": {
+      "id": "g", "type": "grid", "parent": "s", "order": "a0", "layout": "grid",
+      "props": {}, "style": { "base": { "columns": 1 }, "md": { "columns": 3 } }
+    },
+    "h": {
+      "id": "h", "type": "heading", "parent": "g", "order": "a0",
+      "props": { "content": "Discrimination", "level": 3 }, "style": { "base": {} }
+    },
+    "price": {
+      "id": "price", "type": "text", "parent": "g", "order": "a1",
+      "props": { "content": "$9 to $24, 41% off" }, "style": { "base": {} }
+    },
+    "url": {
+      "id": "url", "type": "text", "parent": "g", "order": "a2",
+      "props": { "content": "See https://example.com/a/very/long/path/with/no/breaks/at/all today" }, "style": { "base": {} }
+    },
+    "emoji19": {
+      "id": "emoji19", "type": "text", "parent": "g", "order": "a3",
+      "props": { "content": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀" }, "style": { "base": {} }
+    },
+    "emoji20": {
+      "id": "emoji20", "type": "heading", "parent": "g", "order": "a4",
+      "props": { "content": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀", "level": 4 }, "style": { "base": {} }
+    },
+    "nbsp": {
+      "id": "nbsp", "type": "text", "parent": "g", "order": "a5",
+      "props": { "content": "Opening\u00a017:00\u00a0to\u00a022:30" }, "style": { "base": {} }
+    },
+    "dashes": {
+      "id": "dashes", "type": "text", "parent": "g", "order": "a6",
+      "props": { "content": "privacy-friendly\u2013distraction\u2010free\u2014Saturday\u200bSunday" }, "style": { "base": {} }
+    },
+    "list": {
+      "id": "list", "type": "list", "parent": "g", "order": "a7",
+      "props": { "items": ["Short", null, true, 12345678901234567890123, "orders@example.com"] }, "style": { "base": {} }
+    },
+    "listLong": {
+      "id": "listLong", "type": "list", "parent": "g", "order": "a8",
+      "props": { "items": ["Short", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"], "ordered": true }, "style": { "base": {} }
+    },
+    "span": {
+      "id": "span", "type": "link", "parent": "g", "order": "a9",
+      "props": { "content": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" }, "style": { "base": {} }
+    },
+    "link": {
+      "id": "link", "type": "link", "parent": "g", "order": "aA",
+      "props": { "content": "https://example.com/a/very/long/path", "href": "https://example.com/a/very/long/path" }, "style": { "base": {} }
+    },
+    "callout": {
+      "id": "callout", "type": "callout", "parent": "g", "order": "aB",
+      "props": { "content": "Reference AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "variant": "danger" }, "style": { "base": {} }
+    },
+    "button": {
+      "id": "button", "type": "button", "parent": "g", "order": "aC",
+      "props": { "label": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "href": "/go" }, "style": { "base": {} }
+    },
+    "optOut": {
+      "id": "optOut", "type": "text", "parent": "g", "order": "aD",
+      "props": { "content": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" }, "style": { "base": { "overflowWrap": "normal" } }
+    }
+  }
+}

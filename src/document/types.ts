@@ -104,9 +104,12 @@ export interface StyleProps {
   letterSpacing?: Length;
   textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
   /**
-   * Where a long unbroken token may break. Text nodes default to `anywhere`
-   * (from the base stylesheet), so a URL cannot widen the page; `normal` opts
-   * a node out, `break-word` breaks without lowering its min-content width.
+   * Where a long unbroken token may break. Text nodes default to `break-word`
+   * (a word breaks only when it cannot fit its line), and a node whose text
+   * holds a token of 20 code points or more defaults to `anywhere`, so a URL
+   * cannot widen the page. `normal` opts a node out; `anywhere` also lowers
+   * the node's min-content width, so a grid track or flex item can shrink
+   * below its longest word.
    */
   overflowWrap?: "normal" | "break-word" | "anywhere";
   // border / shadow / effects (static)

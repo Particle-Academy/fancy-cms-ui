@@ -93,6 +93,7 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "parity": "node parity/run.mjs",
+        "parity:wrap": "node parity/text-wrap-browser.mjs",
         "icons:generate": "node scripts/generate-icons.mjs",
         "icons:check": "node scripts/generate-icons.mjs --check",
         "icons:check:pair": "node scripts/generate-icons.mjs --check --require-twin",

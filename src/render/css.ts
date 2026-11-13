@@ -58,10 +58,13 @@ export const BASE_CSS = [
   ":where([data-cms]) {\n  box-sizing: border-box;\n}",
   ":where(h1, h2, h3, h4, h5, h6, p, ul, ol)[data-cms] {\n  margin: 0;\n}",
   // S11: an unbroken token (a URL, an email, hostile input) must not widen the
-  // page. `anywhere`, not `break-word`: only `anywhere` lowers min-content, which
-  // grid tracks and a flex item's automatic minimum are sized from. Text that
-  // fits is laid out exactly as before. Buttons keep their labels whole.
-  ":where(h1, h2, h3, h4, h5, h6, p, ul, ol, a:not([data-cms-button]), span, [data-cms-callout])[data-cms] {\n  overflow-wrap: anywhere;\n}",
+  // page. Text gets `break-word`, which keeps min-content, so grid tracks and
+  // flex items still size to whole words, prices and stats; only a node holding
+  // a long token (render/wrap.ts) gets `anywhere`, which lowers min-content for
+  // that node alone. `anywhere` on every node broke "Discrimination" and "$9"
+  // mid-word at 768px (lab runs 542 to 554). Buttons keep their labels whole.
+  ":where(h1, h2, h3, h4, h5, h6, p, ul, ol, a:not([data-cms-button]), span, [data-cms-callout])[data-cms] {\n  overflow-wrap: break-word;\n}",
+  ':where(h1, h2, h3, h4, h5, h6, p, ul, ol, a:not([data-cms-button]), span, [data-cms-callout])[data-cms-wrap="anywhere"] {\n  overflow-wrap: anywhere;\n}',
   ":where(ul, ol)[data-cms] {\n  padding-left: 1.25em;\n}",
   ":where(a[data-cms]) {\n  color: inherit;\n}",
   ":where([data-react-fancy-icon]) {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  flex-shrink: 0;\n  width: 1em;\n  height: 1em;\n  vertical-align: middle;\n}",

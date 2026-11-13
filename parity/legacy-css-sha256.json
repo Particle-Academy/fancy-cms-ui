@@ -1,13 +1,13 @@
 {
-  "canonical-csp-icons.json": "ca2131a5ffb6b3ce0c7ac811887c6c0c4a5096923ad27330e4b27ba25a0c96d1",
-  "canonical-decorative-hostile.json": "0e01f269c0b2cad81971c862955d08764125f8c62daf600f37b8df671190102c",
-  "canonical-decorative.json": "39bed5932ea5013e33463a75a26de9fa4829f3c5e8fe6475010f82f37542ec9f",
-  "canonical-doc-0.8.json": "339042edd4284f5ea5909733b4400746c731f15555f5f1a95d720d0237cae26e",
-  "canonical-doc-codec.json": "9c9ec9e1e60be46fefbe04eb72d4a6a13cf6ca786c3f189e4eea863e2a2308e3",
-  "canonical-doc-hostile.json": "dc395b7069bb70119149a5a7edf6cb9c0e2d1ef0b0834de1c1538fa1c1a0a09e",
-  "canonical-doc.json": "db0f4905c254d36f89b2b0f4f27a0f883e6b1aef9a98ec314e1ca2aeb8943294",
-  "canonical-icons.json": "7b1cb332f035aaf197b3878709726516507e0aebbd359b47a628a7883beaf3a5",
-  "canonical-image-assets.json": "0e01f269c0b2cad81971c862955d08764125f8c62daf600f37b8df671190102c",
-  "canonical-page-ledgerline.json": "d99cd4eadb7df3360a8a72a0b7187888f129aa0d848386beeb1d0c6fc4b8838f",
-  "canonical-text-wrap.json": "4d555125167f8ac2aee9710ad8f424183285047d363648711119806ba226016e"
+  "canonical-csp-icons.json": "ad2e151bd2ec9a14bef606e9819cd0e4228fea7b9f4564b92479f97e7b842ba2",
+  "canonical-decorative-hostile.json": "dc6b22d5813d2853eed986948ffd6b14ee208e9aec7162841879421c4511ea80",
+  "canonical-decorative.json": "2472f3a2e552e74a48d650acd5cd067494227a7399fd1bb903097372e5c1000b",
+  "canonical-doc-0.8.json": "e371262f66f3836d1a2e19f7a8f97ea2f0a8887d6b3846534f370f0e721c66a8",
+  "canonical-doc-codec.json": "d85a42158b8a5849b24f4c4bbff9c0b828ac7cc4bc531ec697f1f57d4e3f3822",
+  "canonical-doc-hostile.json": "f69d728e3bd1af70d50e16cb6f626c4c0b43068cf97e46dbdfac9cd2ce434b37",
+  "canonical-doc.json": "5c1dceb423c7d9a92442f5ed64e9e6fc327cf7c517b7156f646138c88e397782",
+  "canonical-icons.json": "7c528e5f8bcf73731ba5e80e425d4861a3545fdf59b0303c7f2eaecb1d0db606",
+  "canonical-image-assets.json": "dc6b22d5813d2853eed986948ffd6b14ee208e9aec7162841879421c4511ea80",
+  "canonical-page-ledgerline.json": "b3aa79d14bcdac30b9beaff1899c3afcad3bcef9663424a1186e389cfe33ff25",
+  "canonical-text-wrap.json": "0c4920fbca54261102c8e9019ae98e7243f2327f01c4494dfb9c4aba6cc19ad7"
 }

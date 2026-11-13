@@ -1,0 +1,1267 @@
+{
+  "id": "lane-795",
+  "seq": 62,
+  "meta": {
+    "title": "Meridian Ops: fewer warehouse picking errors",
+    "slug": "/",
+    "scrollMode": "smooth",
+    "seo": {
+      "description": "Meridian Ops helps logistics companies cut warehouse picking errors. Clients reduced errors by 41% on average across 17 engagements since 2022."
+    }
+  },
+  "theme": {
+    "color": {
+      "primary": "#0f3d3e",
+      "tint": "#eef3f1",
+      "accent": "#b43c0a",
+      "ink": "#14201f",
+      "muted": "#43524f",
+      "line": "#cfdad6"
+    },
+    "font": {
+      "body": "system-ui, 'Segoe UI', sans-serif",
+      "display": "'Arial Narrow', 'Helvetica Neue', Arial, sans-serif"
+    }
+  },
+  "breakpoints": [
+    "base",
+    "md",
+    "lg"
+  ],
+  "nodes": {
+    "header": {
+      "id": "header",
+      "type": "section",
+      "parent": null,
+      "order": "a0",
+      "props": {
+        "as": "header"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 16,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "header-bar": {
+      "id": "header-bar",
+      "type": "stack",
+      "parent": "header",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "direction": "column",
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "align": "start"
+        },
+        "md": {
+          "direction": "row",
+          "justify": "between",
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "brand": {
+      "id": "brand",
+      "type": "text",
+      "parent": "header-bar",
+      "order": "a0",
+      "props": {
+        "content": "Meridian Ops"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 22,
+            "unit": "px"
+          },
+          "fontWeight": 700,
+          "fontFamily": "var(--cms-font-display)",
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-primary)"
+        }
+      }
+    },
+    "site-nav": {
+      "id": "site-nav",
+      "type": "stack",
+      "parent": "header-bar",
+      "order": "a1",
+      "props": {
+        "as": "nav"
+      },
+      "style": {
+        "base": {
+          "direction": "row",
+          "wrap": true,
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          },
+          "align": "center"
+        },
+        "md": {
+          "gap": {
+            "value": 24,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "nav-a": {
+      "id": "nav-a",
+      "type": "link",
+      "parent": "site-nav",
+      "order": "a0",
+      "props": {
+        "content": "Approach",
+        "href": "#approach"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 13,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)",
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "nav-b": {
+      "id": "nav-b",
+      "type": "link",
+      "parent": "site-nav",
+      "order": "a1",
+      "props": {
+        "content": "Result",
+        "href": "#result"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 13,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-ink)",
+          "lineHeight": 1.5
+        }
+      }
+    },
+    "hero": {
+      "id": "hero",
+      "type": "section",
+      "parent": null,
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 48,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "background": "var(--cms-color-tint)"
+        },
+        "md": {
+          "paddingY": {
+            "value": 72,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-grid": {
+      "id": "hero-grid",
+      "type": "grid",
+      "parent": "hero",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "columns": 1,
+          "gap": {
+            "value": 32,
+            "unit": "px"
+          },
+          "align": "center"
+        },
+        "lg": {
+          "columns": 2,
+          "gap": {
+            "value": 48,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "grid"
+    },
+    "hero-copy": {
+      "id": "hero-copy",
+      "type": "stack",
+      "parent": "hero-grid",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 20,
+            "unit": "px"
+          },
+          "align": "start"
+        }
+      },
+      "layout": "stack"
+    },
+    "hero-eyebrow": {
+      "id": "hero-eyebrow",
+      "type": "text",
+      "parent": "hero-copy",
+      "order": "a1",
+      "props": {
+        "content": "Warehouse picking, fixed on the floor"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "fontWeight": 600,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-accent)"
+        }
+      }
+    },
+    "hero-h1": {
+      "id": "hero-h1",
+      "type": "heading",
+      "parent": "hero-copy",
+      "order": "a2",
+      "props": {
+        "content": "Cut warehouse picking errors by 41%",
+        "level": 1
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 40,
+            "unit": "px"
+          },
+          "lineHeight": 1.1,
+          "fontWeight": 700,
+          "fontFamily": "var(--cms-font-display)",
+          "color": "var(--cms-color-primary)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 52,
+            "unit": "px"
+          }
+        },
+        "lg": {
+          "fontSize": {
+            "value": 60,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-lead": {
+      "id": "hero-lead",
+      "type": "text",
+      "parent": "hero-copy",
+      "order": "a3",
+      "props": {
+        "content": "Meridian Ops helps logistics companies cut picking errors. Clients reduced errors by 41% on average across 17 engagements since 2022."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)",
+          "maxWidth": {
+            "value": 560,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-actions": {
+      "id": "hero-actions",
+      "type": "stack",
+      "parent": "hero-copy",
+      "order": "a5",
+      "props": {},
+      "style": {
+        "base": {
+          "direction": "row",
+          "wrap": true,
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "hero-btn": {
+      "id": "hero-btn",
+      "type": "button",
+      "parent": "hero-actions",
+      "order": "a0",
+      "props": {
+        "label": "Book a call",
+        "href": "https://cal.example.com/meridian",
+        "variant": "primary"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 14,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 24,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-btn2": {
+      "id": "hero-btn2",
+      "type": "button",
+      "parent": "hero-actions",
+      "order": "a1",
+      "props": {
+        "label": "See the approach",
+        "href": "#approach",
+        "variant": "outline"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 14,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 24,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "hero-media": {
+      "id": "hero-media",
+      "type": "stack",
+      "parent": "hero-grid",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "overflow": "hidden",
+          "border": "4px solid var(--cms-color-accent)"
+        }
+      },
+      "layout": "stack"
+    },
+    "hero-img": {
+      "id": "hero-img",
+      "type": "image",
+      "parent": "hero-media",
+      "order": "a0",
+      "props": {
+        "asset": "hero",
+        "alt": "Plain cardboard boxes on shelves in an empty aisle.",
+        "fit": "cover",
+        "loading": "eager"
+      },
+      "style": {
+        "base": {
+          "aspectRatio": "3 / 2"
+        }
+      }
+    },
+    "approach": {
+      "id": "approach",
+      "type": "section",
+      "parent": null,
+      "order": "a2",
+      "props": {
+        "anchor": "approach"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 64,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "approach-inner": {
+      "id": "approach-inner",
+      "type": "stack",
+      "parent": "approach",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "gap": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "approach-h": {
+      "id": "approach-h",
+      "type": "heading",
+      "parent": "approach-inner",
+      "order": "a0",
+      "props": {
+        "content": "Three steps, on the floor",
+        "level": 2
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "lineHeight": 1.2,
+          "fontWeight": 700,
+          "fontFamily": "var(--cms-font-display)",
+          "color": "var(--cms-color-primary)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 36,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "approach-grid": {
+      "id": "approach-grid",
+      "type": "grid",
+      "parent": "approach-inner",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "columns": 1,
+          "gap": {
+            "value": 24,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "columns": 3
+        }
+      },
+      "layout": "grid"
+    },
+    "s1": {
+      "id": "s1",
+      "type": "card",
+      "parent": "approach-grid",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)"
+        }
+      },
+      "layout": "stack"
+    },
+    "s1-img": {
+      "id": "s1-img",
+      "type": "image",
+      "parent": "s1",
+      "order": "a0",
+      "props": {
+        "asset": "audit",
+        "alt": "Blank clipboard and pen beside plain cardboard boxes.",
+        "fit": "cover",
+        "loading": "lazy"
+      },
+      "style": {
+        "base": {
+          "aspectRatio": "3 / 2",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "s1-n": {
+      "id": "s1-n",
+      "type": "text",
+      "parent": "s1",
+      "order": "a1",
+      "props": {
+        "content": "One"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "fontWeight": 700,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-accent)"
+        }
+      }
+    },
+    "s1-h": {
+      "id": "s1-h",
+      "type": "heading",
+      "parent": "s1",
+      "order": "a2",
+      "props": {
+        "content": "Audit",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "fontWeight": 600
+        }
+      }
+    },
+    "s1-t": {
+      "id": "s1-t",
+      "type": "text",
+      "parent": "s1",
+      "order": "a3",
+      "props": {
+        "content": "A two-week audit on site."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "s2": {
+      "id": "s2",
+      "type": "card",
+      "parent": "approach-grid",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)"
+        }
+      },
+      "layout": "stack"
+    },
+    "s2-img": {
+      "id": "s2-img",
+      "type": "image",
+      "parent": "s2",
+      "order": "a0",
+      "props": {
+        "asset": "paths",
+        "alt": "Plain cardboard boxes arranged around a clear open path.",
+        "fit": "cover",
+        "loading": "lazy"
+      },
+      "style": {
+        "base": {
+          "aspectRatio": "3 / 2",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "s2-n": {
+      "id": "s2-n",
+      "type": "text",
+      "parent": "s2",
+      "order": "a1",
+      "props": {
+        "content": "Two"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "fontWeight": 700,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-accent)"
+        }
+      }
+    },
+    "s2-h": {
+      "id": "s2-h",
+      "type": "heading",
+      "parent": "s2",
+      "order": "a2",
+      "props": {
+        "content": "Redesign",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "fontWeight": 600
+        }
+      }
+    },
+    "s2-t": {
+      "id": "s2-t",
+      "type": "text",
+      "parent": "s2",
+      "order": "a3",
+      "props": {
+        "content": "A redesign of pick paths and labelling."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "s3": {
+      "id": "s3",
+      "type": "card",
+      "parent": "approach-grid",
+      "order": "a2",
+      "props": {},
+      "style": {
+        "base": {
+          "padding": {
+            "value": 24,
+            "unit": "px"
+          },
+          "radius": {
+            "value": 12,
+            "unit": "px"
+          },
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "border": "1px solid var(--cms-color-line)"
+        }
+      },
+      "layout": "stack"
+    },
+    "s3-img": {
+      "id": "s3-img",
+      "type": "image",
+      "parent": "s3",
+      "order": "a0",
+      "props": {
+        "asset": "operations",
+        "alt": "Neatly sorted unlabelled boxes on a plain shelf.",
+        "fit": "cover",
+        "loading": "lazy"
+      },
+      "style": {
+        "base": {
+          "aspectRatio": "3 / 2",
+          "radius": {
+            "value": 8,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "s3-n": {
+      "id": "s3-n",
+      "type": "text",
+      "parent": "s3",
+      "order": "a1",
+      "props": {
+        "content": "Three"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "fontWeight": 700,
+          "textTransform": "uppercase",
+          "letterSpacing": {
+            "value": 1,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-accent)"
+        }
+      }
+    },
+    "s3-h": {
+      "id": "s3-h",
+      "type": "heading",
+      "parent": "s3",
+      "order": "a2",
+      "props": {
+        "content": "Coaching",
+        "level": 3
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 20,
+            "unit": "px"
+          },
+          "fontWeight": 600
+        }
+      }
+    },
+    "s3-t": {
+      "id": "s3-t",
+      "type": "text",
+      "parent": "s3",
+      "order": "a3",
+      "props": {
+        "content": "Eight weeks of coaching the floor leads."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 17,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "result": {
+      "id": "result",
+      "type": "section",
+      "parent": null,
+      "order": "a3",
+      "props": {
+        "anchor": "result"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 64,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "background": "var(--cms-color-tint)"
+        },
+        "md": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "result-inner": {
+      "id": "result-inner",
+      "type": "stack",
+      "parent": "result",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          },
+          "direction": "column",
+          "borderLeft": "0"
+        },
+        "md": {
+          "direction": "row",
+          "align": "center",
+          "gap": {
+            "value": 48,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "result-fig": {
+      "id": "result-fig",
+      "type": "text",
+      "parent": "result-inner",
+      "order": "a0",
+      "props": {
+        "content": "41%"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 96,
+            "unit": "px"
+          },
+          "lineHeight": 1,
+          "fontWeight": 700,
+          "fontFamily": "var(--cms-font-display)",
+          "color": "var(--cms-color-accent)"
+        }
+      }
+    },
+    "result-copy": {
+      "id": "result-copy",
+      "type": "stack",
+      "parent": "result-inner",
+      "order": "a1",
+      "props": {},
+      "style": {
+        "base": {
+          "gap": {
+            "value": 12,
+            "unit": "px"
+          },
+          "maxWidth": {
+            "value": 680,
+            "unit": "px"
+          }
+        }
+      },
+      "layout": "stack"
+    },
+    "result-h": {
+      "id": "result-h",
+      "type": "heading",
+      "parent": "result-copy",
+      "order": "a0",
+      "props": {
+        "content": "The result we can state",
+        "level": 2
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "lineHeight": 1.2,
+          "fontWeight": 700,
+          "fontFamily": "var(--cms-font-display)",
+          "color": "var(--cms-color-primary)"
+        },
+        "md": {
+          "fontSize": {
+            "value": 36,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "result-t": {
+      "id": "result-t",
+      "type": "text",
+      "parent": "result-copy",
+      "order": "a1",
+      "props": {
+        "content": "Clients reduced picking errors by 41% on average across 17 engagements since 2022."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "lineHeight": 1.6,
+          "color": "var(--cms-color-ink)"
+        }
+      }
+    },
+    "cta": {
+      "id": "cta",
+      "type": "section",
+      "parent": null,
+      "order": "a4",
+      "props": {},
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 64,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          },
+          "background": "var(--cms-color-primary)",
+          "color": "#ffffff"
+        },
+        "md": {
+          "paddingY": {
+            "value": 96,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "cta-inner": {
+      "id": "cta-inner",
+      "type": "stack",
+      "parent": "cta",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 720,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          },
+          "align": "center",
+          "textAlign": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "cta-h": {
+      "id": "cta-h",
+      "type": "heading",
+      "parent": "cta-inner",
+      "order": "a0",
+      "props": {
+        "content": "Talk through your picking errors",
+        "level": 2
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 28,
+            "unit": "px"
+          },
+          "lineHeight": 1.2,
+          "fontWeight": 700,
+          "fontFamily": "var(--cms-font-display)",
+          "color": "#ffffff"
+        },
+        "md": {
+          "fontSize": {
+            "value": 36,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "cta-t": {
+      "id": "cta-t",
+      "type": "text",
+      "parent": "cta-inner",
+      "order": "a1",
+      "props": {
+        "content": "Our office is in Rotterdam."
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 18,
+            "unit": "px"
+          },
+          "color": "#ffffff"
+        }
+      }
+    },
+    "cta-btn": {
+      "id": "cta-btn",
+      "type": "button",
+      "parent": "cta-inner",
+      "order": "a2",
+      "props": {
+        "label": "Book a call",
+        "href": "https://cal.example.com/meridian",
+        "variant": "ghost"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 14,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 24,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "#ffffff",
+          "border": "2px solid #ffffff"
+        }
+      }
+    },
+    "footer": {
+      "id": "footer",
+      "type": "section",
+      "parent": null,
+      "order": "a5",
+      "props": {
+        "as": "footer"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 40,
+            "unit": "px"
+          },
+          "paddingX": {
+            "value": 20,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "paddingX": {
+            "value": 32,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "footer-inner": {
+      "id": "footer-inner",
+      "type": "stack",
+      "parent": "footer",
+      "order": "a0",
+      "props": {},
+      "style": {
+        "base": {
+          "maxWidth": {
+            "value": 1120,
+            "unit": "px"
+          },
+          "marginX": "auto",
+          "direction": "column",
+          "gap": {
+            "value": 16,
+            "unit": "px"
+          },
+          "align": "start"
+        },
+        "md": {
+          "direction": "row",
+          "justify": "between",
+          "align": "center"
+        }
+      },
+      "layout": "stack"
+    },
+    "footer-t": {
+      "id": "footer-t",
+      "type": "text",
+      "parent": "footer-inner",
+      "order": "a0",
+      "props": {
+        "content": "Meridian Ops · Office in Rotterdam"
+      },
+      "style": {
+        "base": {
+          "fontSize": {
+            "value": 14,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-muted)"
+        }
+      }
+    },
+    "footer-l": {
+      "id": "footer-l",
+      "type": "link",
+      "parent": "footer-inner",
+      "order": "a1",
+      "props": {
+        "content": "Book a call",
+        "href": "https://cal.example.com/meridian"
+      },
+      "style": {
+        "base": {
+          "paddingY": {
+            "value": 13,
+            "unit": "px"
+          },
+          "fontSize": {
+            "value": 16,
+            "unit": "px"
+          },
+          "color": "var(--cms-color-primary)",
+          "lineHeight": 1.5
+        }
+      }
+    }
+  }
+}
