@@ -60,6 +60,7 @@ Nothing else to do: no existing node renders differently.
   `legacy-peer-deps`, as CI already did, so their third-party peers are not
   installed. react-fancy's dev pin moves from 4.10 to 6.24; the icon provenance
   NOTICE names it (the Lucide data is unchanged).
+- Rebranded the display name to Fancy Dev Kit (README and package description). Package names, the npm scope, URLs and the `fancy-ui` MCP id are unchanged.
 
 ## [0.14.1] - 2026-11-13
 

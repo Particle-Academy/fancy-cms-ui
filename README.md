@@ -113,7 +113,7 @@ rename metadata using that key on other node types.
 > — every discovery helps.
 
 The editor + isomorphic renderer for **fancy-cms** — an extendable inline-WYSIWYG
-website + app-shell builder for Laravel, built on the Fancy UI suite.
+website + app-shell builder for Laravel, built on the Fancy Dev Kit.
 
 > **Status: Phase 0 done; Phase 1 in progress.** Ships the foundation the rest
 > of the system types against — the **Stages** document model, the **`PageOp`**
@@ -353,7 +353,7 @@ MIT © Particle Academy
 
 ---
 
-## ⭐ Star Fancy UI
+## ⭐ Star Fancy Dev Kit
 
 If this package is useful to you, a quick ⭐ on the repo really helps us build a better kit. Thank you!
 
