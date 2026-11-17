@@ -93,7 +93,8 @@
         "NOTICE",
         "README.md",
         "CHANGELOG.md",
-        "agent-guide"
+        "agent-guide",
+        "AGENTS.md"
     ],
     "sideEffects": false,
     "scripts": {
