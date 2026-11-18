@@ -55,6 +55,10 @@ Nothing else to do: no existing node renders differently.
   page; a component that fits gets no extra attributes or tab stop.
 
 ### Changed
+
+- **CI: the lab-certificate gate verifies against the lab's rotated key list.**
+  The lab's first signing key is retired: certificates it already issued still
+  verify, and nothing new it signs ever can. Consumers do nothing.
 - Dev dependencies: the kit's UI packages (first-party), so the generator can
   read their types and the suite can render them. `.npmrc` sets
   `legacy-peer-deps`, as CI already did, so their third-party peers are not
